@@ -14,6 +14,7 @@ foreach(
   004-variablerefs-basic
   005-membermethoddecls-basic
   006-gather-non-const-values
+  007-find-calls
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
