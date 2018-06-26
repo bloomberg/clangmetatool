@@ -1,0 +1,30 @@
+Source: clangmetatool
+Section: unknown
+Priority: extra
+Maintainer: Daniel Ruoso <druoso@bloomberg.net>
+Build-Depends:
+  gcc-build-base, pkg-config, cmake, cmake-debhelper,
+  clang-5.0, llvm-5.0,
+  clang-6.0, llvm-6.0,
+  libz-dev,
+  libtinfo-dev, libgtest-dev
+Standards-Version: 3.9.4
+
+Package: libclangmetatool-clang-5.0-dev
+Architecture: amd64 solaris10-sparc
+Depends:
+  ${libgcc-Depends}, ${libstdcpp-Depends},
+  clang-5.0, llvm-5.0,
+  libz1, libtinfo5
+Description: A framework for reusing code in clang tools, built for clang 5.0
+
+Package: libclangmetatool-clang-6.0-dev
+Architecture: amd64 solaris10-sparc
+Depends:
+  ${libgcc-Depends}, ${libstdcpp-Depends},
+  clang-6.0, llvm-6.0,
+  libz1, libtinfo5
+Description: A framework for reusing code in clang tools, built for clang 6.0
+
+
+

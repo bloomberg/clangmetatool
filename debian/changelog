@@ -1,0 +1,66 @@
+clangmetatool (0.4.1) unstable; urgency=low
+
+  * 961421e fix to support refroot builds
+  * 72a54a1 add LICENSE
+  * 1dcfd5a add copyright notices
+  * 15683d7 Move skeleton into repo Add skeleton info to README
+
+ -- Bret Brown <bbrown105@bloomberg.net>  Wed, 13 Jun 2018 11:00:40 -0400
+
+clangmetatool (0.4.0) unstable; urgency=low
+
+  * bdff17c fixes for working with 6.0
+  * e01ba5f Create CONTRIBUTING.md
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Thu, 8 Mar 2018 14:59:11 -0500
+
+clangmetatool (0.3.1) unstable; urgency=low
+
+  * 4ed408e fix the install and exporting of variable
+  * 9cd4cc1 Update variable_refs_data.h (#4)
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Fri, 10 Nov 2017 16:12:51 -0500
+
+clangmetatool (0.3.0) unstable; urgency=low
+
+  * 3698ff4 add reference to the cmake module
+  * 2dd9773 add helper for projects using cmake
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Thu, 2 Nov 2017 13:44:20 -0400
+
+clangmetatool (0.2.2) unstable; urgency=low
+
+  * 605a754 install export file in CLANG_CMAKE_DIR, not LLVM_CMAKE_DIR
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 1 Nov 2017 17:04:09 -0400
+
+clangmetatool (0.2.1) unstable; urgency=low
+
+  * fd19c64 fix typo on test data file path
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 1 Nov 2017 15:25:19 -0400
+
+clangmetatool (0.2.0) unstable; urgency=low
+
+  * bd31d4c enable figuring deterministic values (#2)
+  * addc28e Member method collector (#1)
+  * 153a7ad We don't need to collect the ASTContext
+  * ac4a365 collects variable references
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 1 Nov 2017 15:06:38 -0400
+
+clangmetatool (0.1.1) unstable; urgency=low
+
+  * b519906 add test builds on the package, but skip solaris
+  * 6f8b3f0 rename tests to make it better categorized
+  * 444e2f6 add a test to cover usages of a header
+  * 68b01b6 add a test for the include graph
+  * eb700f2 add testing framework
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Tue, 24 Oct 2017 18:21:40 -0400
+
+clangmetatool (0.1.0) unstable; urgency=low
+
+  * ea3baf6 Initial commit
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Fri, 20 Oct 2017 16:16:24 -0400
