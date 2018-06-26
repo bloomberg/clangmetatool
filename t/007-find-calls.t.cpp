@@ -24,22 +24,40 @@ public:
   MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
     :ci(ci), fc(ci, f, &n, &a) {}
 
+  const clang::DeclRefExpr* get_pointer_to(const clang::Expr* expr) {
+    const clang::DeclRefExpr* ret = NULL;
+    const clang::UnaryOperator* op =
+      llvm::dyn_cast_or_null<const clang::UnaryOperator>(expr);
+    if (op != NULL) {
+      if (op->getOpcode() == clang::UnaryOperatorKind::UO_AddrOf) {
+        ret = llvm::dyn_cast_or_null<const clang::DeclRefExpr>
+          (op->getSubExpr());
+      }
+    }
+    return ret;
+  }
+
   void postProcessing
     (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
       clang::SourceManager& sm = ci->getSourceManager();
+
       std::map<const clang::FunctionDecl*, const clang::CallExpr*> *call_context = &(fc.getData()->call_context);
       std::map<const clang::FunctionDecl*, const clang::CallExpr*>::iterator ccit = call_context->begin();
-      const clang::CallExpr* callee = ccit->second;
-      const clang::FunctionDecl* caller = ccit->first;
-      const clang::FunctionDecl* function2 = callee->getDirectCallee();
-      ASSERT_EQ(std::string("foo"), caller->getNameAsString());
-      ASSERT_EQ(1, callee->getNumArgs());
-      ASSERT_EQ(std::string("bar"), function2->getNameAsString());
-      const clang::Expr* arg = callee->getArg(0);
-      std::map<const clang::DeclRefExpr*, const clang::CallExpr*> *call_ref = &(fc.getData()->call_ref);
-      std::map<const clang::DeclRefExpr*, const clang::CallExpr*>::iterator rcit = call_ref->begin();
-      const clang::DeclRefExpr* ref = rcit->first;
-      const clang::CallExpr* call = rcit->second;
+
+      std::map<const clang::CallExpr*, const clang::DeclRefExpr*> *call_ref = &(fc.getData()->call_ref);
+      std::map<const clang::CallExpr*, const clang::DeclRefExpr*>::iterator rcit = call_ref->begin();
+
+      std::map<const clang::CallExpr*, const clang::DeclRefExpr*> *call_argref = &(fc.getData()->call_argref);
+      std::map<const clang::CallExpr*, const clang::DeclRefExpr*>::iterator cafit = call_argref->begin();
+
+      std::map<const clang::CallExpr*, const clang::StringLiteral*> *call_argstr = &(fc.getData()->call_argstr);
+      std::map<const clang::CallExpr*, const clang::StringLiteral*>::iterator casit = call_argstr->begin();
+
+      //const clang::FunctionDecl* caller = ccit->first;
+      //const clang::CallExpr* callee = ccit->second;
+      //const clang::FunctionDecl* called = callee->getDirectCallee();
+      //ASSERT_EQ(std::string("foo"), caller->getNameAsString());
+      //ASSERT_EQ(std::string("bar"), called->getNameAsString());
 
       }
   };

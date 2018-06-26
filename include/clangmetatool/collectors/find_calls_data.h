@@ -10,10 +10,14 @@ namespace clangmetatool {
   namespace collectors {
 
   struct FindCallsData {
-    std::map<const clang::DeclRefExpr*,
-             const clang::CallExpr*> call_ref;
     std::map<const clang::FunctionDecl*,
              const clang::CallExpr*> call_context;
+    std::map<const clang::CallExpr*,
+             const clang::DeclRefExpr*> call_ref;
+    std::map<const clang::CallExpr*,
+             const clang::DeclRefExpr*> call_argref;
+    std::map<const clang::CallExpr*,
+             const clang::StringLiteral*> call_argstr;
     std::map<const clang::VarDecl*,
              const clang::DeclStmt* > declstmt_for_vardecl;
     std::map<const clang::DeclStmt*,

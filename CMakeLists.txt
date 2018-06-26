@@ -21,6 +21,7 @@ add_library(
   src/member_method_decls/member_method_decls.cpp
 
   src/find_calls/find_calls.cpp
+  src/find_calls/find_calls_eval.cpp
 )
 target_include_directories(
   clangmetatool

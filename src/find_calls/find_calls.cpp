@@ -10,13 +10,13 @@ namespace clangmetatool {
 
   using namespace clang::ast_matchers;
 
-  class AnnotateCall
+  class AnnotateCall1
       : public clang::ast_matchers::MatchFinder::MatchCallback {
     private:
       clang::CompilerInstance *ci;
       FindCallsData *data;
     public:
-      AnnotateCall
+      AnnotateCall1
       (clang::CompilerInstance* ci,
        FindCallsData *data)
         :ci(ci), data(data) {}
@@ -34,6 +34,9 @@ namespace clangmetatool {
         const clang::DeclRefExpr *e =
           r.Nodes.getNodeAs<clang::DeclRefExpr>("ref");
 
+        const clang::DeclRefExpr *a =
+          r.Nodes.getNodeAs<clang::DeclRefExpr>("arg");
+
         data->call_context.insert
           (std::pair
           <const clang::FunctionDecl*,
@@ -41,8 +44,58 @@ namespace clangmetatool {
 
         data->call_ref.insert
           (std::pair
-          <const clang::DeclRefExpr*,
-          const clang::CallExpr*>(e,c));
+          <const clang::CallExpr*,
+          const clang::DeclRefExpr*>(c,e));
+
+        data->call_argref.insert
+          (std::pair
+          <const clang::CallExpr*,
+          const clang::DeclRefExpr*>(c,a));
+      }
+
+  };
+
+  class AnnotateCall2
+      : public clang::ast_matchers::MatchFinder::MatchCallback {
+    private:
+      clang::CompilerInstance *ci;
+      FindCallsData *data;
+    public:
+      AnnotateCall2
+      (clang::CompilerInstance* ci,
+       FindCallsData *data)
+        :ci(ci), data(data) {}
+
+      virtual void
+      run(const clang::ast_matchers::MatchFinder::MatchResult &r)
+        override {
+
+        const clang::CallExpr *c =
+          r.Nodes.getNodeAs<clang::CallExpr>("call");
+
+        const clang::FunctionDecl *f =
+          r.Nodes.getNodeAs<clang::FunctionDecl>("context");
+
+        const clang::DeclRefExpr *e =
+          r.Nodes.getNodeAs<clang::DeclRefExpr>("ref");
+
+        const clang::StringLiteral *a =
+          r.Nodes.getNodeAs<clang::StringLiteral>("arg");
+
+        data->call_context.insert
+          (std::pair
+          <const clang::FunctionDecl*,
+          const clang::CallExpr*>(f,c));
+
+        data->call_ref.insert
+          (std::pair
+          <const clang::CallExpr*,
+          const clang::DeclRefExpr*>(c,e));
+
+        data->call_argstr.insert
+          (std::pair
+          <const clang::CallExpr*,
+          const clang::StringLiteral*>(c,a));
       }
 
   };
@@ -207,19 +260,42 @@ namespace clangmetatool {
             )
           )
         ),
+        hasArgument(a, declRefExpr().bind("arg")),
         hasAncestor(functionDecl().bind("context"))
       ).bind("call");
-    AnnotateCall cb1;
+    AnnotateCall1 cb1;
 
-    DeclarationMatcher sm2 =
+    StatementMatcher sm2 =
+      callExpr(
+        callee(
+          implicitCastExpr(
+            has(
+              declRefExpr(
+                hasDeclaration(
+                  functionDecl(
+                    hasAnyName(
+                      n
+                    )
+                  )
+                )
+              ).bind("ref")
+            )
+          )
+        ),
+        hasArgument(a, stringLiteral().bind("arg")),
+        hasAncestor(functionDecl().bind("context"))
+      ).bind("call");
+    AnnotateCall2 cb2;
+
+    DeclarationMatcher sm3 =
       varDecl
       (hasParent
        (declStmt().bind("stmt")
         )
        ).bind("var");
-    AnnotateDeclStmts cb2;
+    AnnotateDeclStmts cb3;
 
-    StatementMatcher sm3 =
+    StatementMatcher sm4 =
       declStmt
       (has
        (varDecl().bind("var")
@@ -227,9 +303,9 @@ namespace clangmetatool {
        hasParent
        (compoundStmt().bind("cmpd"))
        ).bind("stmt");
-    AnnotateCompoundStmts cb3;
+    AnnotateCompoundStmts cb4;
 
-    StatementMatcher sm4 =
+    StatementMatcher sm5 =
       binaryOperator
       (hasOperatorName("="),
        hasLHS
@@ -245,15 +321,15 @@ namespace clangmetatool {
        hasParent
        (compoundStmt().bind("cmpd"))
        ).bind("assign");
-    AnnotateAssignmentVarDeclRefExpr cb4;
+    AnnotateAssignmentVarDeclRefExpr cb5;
 
-    DeclarationMatcher sm5 =
+    DeclarationMatcher sm6 =
       varDecl
       (hasParent
        (decl().bind("decl")
         )
        ).bind("var");
-    AnnotateNestedDecls cb5;
+    AnnotateNestedDecls cb6;
 
   public:
     FindCallsImpl
@@ -263,13 +339,15 @@ namespace clangmetatool {
         cb2(ci, &data),
         cb3(ci, &data),
         cb4(ci, &data),
-        cb5(ci, &data)
+        cb5(ci, &data),
+        cb6(ci, &data)
     {
       f->addMatcher(sm1, &cb1);
       f->addMatcher(sm2, &cb2);
       f->addMatcher(sm3, &cb3);
       f->addMatcher(sm4, &cb4);
       f->addMatcher(sm5, &cb5);
+      f->addMatcher(sm6, &cb6);
     }
 
     ~FindCallsImpl() {
