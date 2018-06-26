@@ -19,13 +19,13 @@ namespace clangmetatool {
       private:
 
         FindCallsImpl* impl;
-        std::string       n;
 
       public:
 
         FindCalls( clang::CompilerInstance          *ci,
                    clang::ast_matchers::MatchFinder *f,
-                   std::string                       n  );
+                   std::string                      *n,
+                   unsigned int                     *a  );
 
         ~FindCalls();
 

@@ -15,30 +15,32 @@
 
 class MyTool {
 private:
+  std::string n = std::string("bar");
+  unsigned int a = 1;
   clang::CompilerInstance* ci;
   clangmetatool::collectors::FindCalls fc;
-  const std::string n = "bar";
 public:
 
   MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
-    :ci(ci), fc(ci, f, n) {
-  }
-      void postProcessing
+    :ci(ci), fc(ci, f, &n, &a) {}
+
+  void postProcessing
     (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
       clang::SourceManager& sm = ci->getSourceManager();
-      std::map<const clang::CallExpr*, const clang::FunctionDecl*> *call_contexts = &(fc.getData()->call_contexts);
-      auto ccit = call_contexts->begin();
-      const clang::CallExpr* callee = ccit->first;
-      const clang::FunctionDecl* context = ccit->second;
+      std::map<const clang::FunctionDecl*, const clang::CallExpr*> *call_context = &(fc.getData()->call_context);
+      std::map<const clang::FunctionDecl*, const clang::CallExpr*>::iterator ccit = call_context->begin();
+      const clang::CallExpr* callee = ccit->second;
+      const clang::FunctionDecl* caller = ccit->first;
       const clang::FunctionDecl* function2 = callee->getDirectCallee();
-      ASSERT_EQ(std::string("foo"), context->getNameAsString());
-      ASSERT_EQ(2, callee->getNumArgs());
+      ASSERT_EQ(std::string("foo"), caller->getNameAsString());
+      ASSERT_EQ(1, callee->getNumArgs());
       ASSERT_EQ(std::string("bar"), function2->getNameAsString());
+      const clang::Expr* arg = callee->getArg(0);
+      std::map<const clang::DeclRefExpr*, const clang::CallExpr*> *call_ref = &(fc.getData()->call_ref);
+      std::map<const clang::DeclRefExpr*, const clang::CallExpr*>::iterator rcit = call_ref->begin();
+      const clang::DeclRefExpr* ref = rcit->first;
+      const clang::CallExpr* call = rcit->second;
 
-//TODO
-// the bind must be:
-//      1. to the body which calls the legacy function (which is parameterised)
-//      2. the parameters (parameterised index) of the function call possibly yielding evaluation.
       }
   };
 
