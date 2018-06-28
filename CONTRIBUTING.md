@@ -27,4 +27,5 @@ You must use your real name (sorry, no pseudonyms, and no anonymous contribution
 
 ## Help / Documentation
 
-The documentation is available [here](https://bloomberg.github.io/clangmetatool). If you need more or different information, please create an [Issue](../../issues).
+The documentation is available [here](https://bloomberg.github.io/clangmetatool). Pleae open an [Issue](../../issues)
+if you have additional questions or concerns.
