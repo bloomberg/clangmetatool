@@ -4,6 +4,7 @@
 #include <string>
 #include <clangmetatool/collectors/find_calls.h>
 #include <clangmetatool/collectors/find_calls_data.h>
+#include "find_calls_eval.h"
 
 namespace clangmetatool {
   namespace collectors {

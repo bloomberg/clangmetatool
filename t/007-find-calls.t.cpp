@@ -16,7 +16,7 @@
 class MyTool {
 private:
   std::string n = std::string("bar");
-  unsigned int a = 1;
+  unsigned int a = 0;
   clang::CompilerInstance* ci;
   clangmetatool::collectors::FindCalls fc;
 public:
@@ -53,11 +53,14 @@ public:
       std::map<const clang::CallExpr*, const clang::StringLiteral*> *call_argstr = &(fc.getData()->call_argstr);
       std::map<const clang::CallExpr*, const clang::StringLiteral*>::iterator casit = call_argstr->begin();
 
-      //const clang::FunctionDecl* caller = ccit->first;
-      //const clang::CallExpr* callee = ccit->second;
-      //const clang::FunctionDecl* called = callee->getDirectCallee();
-      //ASSERT_EQ(std::string("foo"), caller->getNameAsString());
-      //ASSERT_EQ(std::string("bar"), called->getNameAsString());
+      const clang::FunctionDecl* caller = ccit->first;
+      const clang::CallExpr* callee = ccit->second;
+      const clang::FunctionDecl* called = callee->getDirectCallee();
+      ASSERT_EQ(std::string("foo"), caller->getNameAsString());
+      ASSERT_EQ(std::string("bar"), called->getNameAsString());
+
+      const clang::CallExpr* cafit_call = cafit->first;
+      const clang::DeclRefExpr* cafit_ref = cafit->second;
 
       }
   };

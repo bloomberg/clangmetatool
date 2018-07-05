@@ -1,7 +1,4 @@
-#include <string>
-#include <clangmetatool/collectors/find_calls_data.h>
-#include <clangmetatool/collectors/find_calls.h>
-#include <clangmetatool/collectors/variable_refs.h>
+#include "find_calls_eval.h"
 
 namespace clangmetatool {
   namespace collectors {
@@ -9,19 +6,17 @@ namespace clangmetatool {
 
     using namespace clang::ast_matchers;
 
-    class FindCallsEval {
+    void FindCallsEval::insert_gen_call(GenCall call) {
+          gen_calls.insert(call);
 
-      typedef std::tuple<const clang::Expr*, const clang::DeclRefExpr*> GenArg;
+      }
 
-    private:
-      clang::CompilerInstance* ci;
-      clangmetatool::collectors::VariableRefs vr;
+      void FindCallsEval::insert_used_var(const clang::DeclRefExpr* var) {
+          var_used_in_call.insert(var);
+      }
 
-      std::set<const clang::DeclRefExpr*> var_used_in_call;
-
-    public:
       std::pair<bool, clang::APValue>
-      try_to_evaluate(const clang::Expr* expr,
+      FindCallsEval::try_to_evaluate(const clang::Expr* expr,
                       const clang::DeclRefExpr* declrefexpr) {
         std::pair<bool, clang::APValue> ret(false, clang::APValue(0));
 
@@ -112,7 +107,6 @@ namespace clangmetatool {
       }
       return ret;
     }
-    };
     }
   }
 }
