@@ -30,6 +30,7 @@ namespace clangmetatool {
         ~FindCalls();
 
         FindCallsData* getData();
+       std::pair<bool, clang::APValue> try_to_evaluate(const clang::Expr*, const clang::DeclRefExpr*);
 
       };
 

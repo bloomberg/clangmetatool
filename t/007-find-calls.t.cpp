@@ -61,6 +61,7 @@ public:
 
       const clang::CallExpr* cafit_call = cafit->first;
       const clang::DeclRefExpr* cafit_ref = cafit->second;
+      auto resolve = fc.try_to_evaluate(cafit_call->getArg(0), cafit_ref);
 
       }
   };
