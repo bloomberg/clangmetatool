@@ -10,7 +10,7 @@ Source control at [https://github.com/bloomberg/clangmetatool/](https://github.c
 ````bash
 mkdir build
 cd build
-cmake -DClang_DIR=/path/to/clang/cmake
+cmake -DClang_DIR=/path/to/clang/cmake ..
 make
 make install
 ````
