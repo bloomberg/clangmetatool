@@ -33,6 +33,7 @@ foreach(
     clangmetatool
     clangTooling
     ${GTEST_BOTH_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
   )
 
   add_test(

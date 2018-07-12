@@ -1,0 +1,10 @@
+.gitignore
+.travis.Dockerfile
+.travis.yml
+CONTRIBUTING.md
+DCO.md
+Doxyfile
+LICENSE
+README.md
+dox-run.sh
+*.swp
