@@ -2,20 +2,66 @@
 
 [![Build Status](https://travis-ci.org/bloomberg/clangmetatool.svg?branch=master)](https://travis-ci.org/bloomberg/clangmetatool)
 
-The point of this library is to establish a framework for reusing code
-in clang tools.
+## About clangmetatool
 
-Source control at [https://github.com/bloomberg/clangmetatool/](https://github.com/bloomberg/clangmetatool/)
+When we first started writing clang tools, we realized that there is a
+lot of life cycle management that we had to repeat. In some cases,
+people advocate the usage of global variables to manage the life-cycle
+of that data, but that makes code reuse across tools even harder.
 
-## Building
+Additionally, we also learned that when writing a tool, it will be
+beneficial if the code is split in two phases. First a data collection
+phase, and later a post-processing phase that actually performed the
+bulk of the logic of the tool.
 
-````bash
-mkdir build
-cd build
-cmake -DClang_DIR=/path/to/clang/cmake ..
-make
-make install
-````
+Essentially you will only need to write a class like:
+
+```C++
+class MyTool {
+private:
+  SomeDataCollector collector1;
+  SomeOtherDataCollector collector2;
+public:
+  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
+   :collector1(ci, f), collector2(ci, f) {
+   // the individual collectors will register their callbacks in their
+   // constructor, the tool doesn't really need to do anything else here.
+  }
+  void postProcessing
+  (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
+   // use data from collector1 and collector2
+   // generate warnings and notices
+   // add replacements to replacementsMap
+  }
+};
+```
+
+And then you can use the `clangmetatool::MetaToolFactory` combined
+with the `clangmetatool::Metatool` in your tool's main function:
+
+```C++
+int main(int argc, const char* argv[]) {
+  llvm::cl::OptionCategory MyToolCategory("my-tool options");
+  llvm::cl::extrahelp CommonHelp
+    (clang::tooling::CommonOptionsParser::HelpMessage);
+  clang::tooling::CommonOptionsParser
+    optionsParser(argc, argv, MyToolCategory);
+  clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
+                                       optionsParser.getSourcePathList());
+  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
+    raf(tool.getReplacements());
+  int r = tool.runAndSave(&raf);
+  return r;
+}
+```
+
+One way in which our initial tools got hard to write and maintain was
+by trying to perform analysis or even replacements during the
+callbacks. It was not immediately obvious that this would lead to
+hard-to-maintain code. After we switched to the two-phase approach, we
+were able to reuse a lot more code across tools.
+
+Fork me at [github](https://github.com/bloomberg/clangmetatool/)
 
 ## Infrastructure
 
@@ -72,6 +118,23 @@ skeleton directory. To build that project, do something like:
   .. )
 make -C build
 ````
+
+## Building
+
+You need a full llvm+clang installation directory. Unfortunately, the
+Debian and Ubuntu packages [are
+broken](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=900440), so
+you may need to work-around by creating some symlinks (see
+.travis.Dockerfile in this repo for an example).
+
+````bash
+mkdir build
+cd build
+cmake -DClang_DIR=/path/to/clang/cmake ..
+make
+make install
+````
+
 
 # License and Copyright
 
