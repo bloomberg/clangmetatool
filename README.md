@@ -37,7 +37,7 @@ public:
 ```
 
 And then you can use the `clangmetatool::MetaToolFactory` combined
-with the `clangmetatool::Metatool` in your tool's main function:
+with the `clangmetatool::MetaTool` in your tool's main function:
 
 ```C++
 int main(int argc, const char* argv[]) {
