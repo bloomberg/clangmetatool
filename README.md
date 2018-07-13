@@ -1,5 +1,7 @@
 # clang-metatool - A framework for reusing code in clang tools
 
+[![Build Status](https://travis-ci.org/bloomberg/clangmetatool.svg?branch=master)](https://travis-ci.org/bloomberg/clangmetatool)
+
 The point of this library is to establish a framework for reusing code
 in clang tools.
 
