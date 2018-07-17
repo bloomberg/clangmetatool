@@ -19,8 +19,8 @@ add_library(
   src/variable_refs/variable_refs.cpp
 
   src/member_method_decls/member_method_decls.cpp
-
   src/find_calls/find_calls.cpp
+  src/defs/defs.cpp
 )
 target_include_directories(
   clangmetatool
