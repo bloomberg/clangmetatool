@@ -20,7 +20,7 @@ public:
     DefDataAppender(clang::CompilerInstance *ci, DefData *data)
         : ci(ci), data(data) {}
     virtual void run(const MatchFinder::MatchResult & r) override {
-        const clang::NamedDecl *e = r.Nodes.getNodeAs<clang::NamedDecl>("def");
+        const clang::FunctionDecl *e = r.Nodes.getNodeAs<clang::FunctionDecl>("def");
         if (e == nullptr) return;
 
         std::string mangled_symbol;
@@ -30,7 +30,7 @@ public:
                     ci->getDiagnostics());
 
         mangler_context_p->mangleName(e, mangled_sym_adapter);
-        data->defs[mangled_symbol] = SymbolData();
+        data->defs[mangled_sym_adapter.str()] = SymbolData();
     }
 };
 
@@ -41,14 +41,17 @@ private:
     DefData data;
 
     // TODO :
-    // This will need to be narrowed to definitions
+    // WIP: moving from NamedDecl to more specific types
     // NamedDecl doesn't have a "isThisDeclarationADefinition", so
     // we can't use the narrowing matcher of isDefinition() here;
     // will likely have to be split up into more specific types:
     // - FunctionDecl
     // - VarDecl
     // not sure how class definitions work yet or what "TagDecl" is
-    DeclarationMatcher defMatcher = namedDecl().bind("def");
+    // class declarations are of type CXXRecordDecl,
+    // this also has no "isThisDeclarationADefinition",
+    // but can probably check if (dec == dec.getDefinition)
+    DeclarationMatcher defMatcher = functionDecl(isDefinition()).bind("def");
     DefDataAppender defAppender;
 
 public:

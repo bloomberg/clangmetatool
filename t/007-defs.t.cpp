@@ -28,11 +28,6 @@ public:
 
     clangmetatool::collectors::DefData *d = dc.getData();
 
-    EXPECT_TRUE(false) << "entries in defs:";
-    for (auto const& def_pair : d->defs) {
-        EXPECT_TRUE(false) << def_pair.first;
-    }
-
     ASSERT_EQ(2, d->defs.size())
       << "There should be 2 function definitions";
   }
