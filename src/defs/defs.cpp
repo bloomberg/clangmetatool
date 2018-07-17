@@ -20,13 +20,14 @@ public:
     DefDataAppender(clang::CompilerInstance *ci, DefData *data)
         : ci(ci), data(data) {}
     virtual void run(const MatchFinder::MatchResult & r) override {
-        // TODO : insert def info into 'data'
         const clang::NamedDecl *e = r.Nodes.getNodeAs<clang::NamedDecl>("def");
         if (e == nullptr) return;
 
         std::string mangled_symbol;
         llvm::raw_string_ostream mangled_sym_adapter(mangled_symbol);
-        clang::ItaniumMangleContext* mangler_context_p = clang::ItaniumMangleContext::create(ci->getASTContext(), ci->getDiagnostics());
+        clang::ItaniumMangleContext* mangler_context_p =
+            clang::ItaniumMangleContext::create(ci->getASTContext(),
+                    ci->getDiagnostics());
 
         mangler_context_p->mangleName(e, mangled_sym_adapter);
         data->defs[mangled_symbol] = SymbolData();

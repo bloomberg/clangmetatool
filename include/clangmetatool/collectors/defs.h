@@ -1,14 +1,15 @@
-#ifndef INCLUDED_DEF_COLLECTOR_H
-#define INCLUDED_DEF_COLLECTOR_H
+#ifndef INCLUDED_DEFS_H
+#define INCLUDED_DEFS_H
 
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+
+#include <clangmetatool/collectors/defs_data.h>
 
 namespace clangmetatool {
 namespace collectors {
 
 class DefCollectorImpl;
-class DefData;
 
 class DefCollector {
 private:
@@ -19,19 +20,7 @@ public:
     DefData* getData();
 };
 
-class SymbolData {
-    public:
-    // TODO : src location, mangled name, demangled name, 
-    int tmp;
-};
-
-class DefData {
-    public:
-    // mangled symbol name -> useful stuff
-    std::unordered_map<std::string, SymbolData> defs;
-};
-
 } // namespace collectors
 } // namespace clangmetatool
 
-#endif //INCLUDED_DEF_COLLECTOR_H 
+#endif //INCLUDED_DEFS_H 
