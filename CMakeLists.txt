@@ -17,7 +17,10 @@ add_library(
   src/include_graph/include_graph.cpp
 
   src/variable_refs/variable_refs.cpp
+
   src/member_method_decls/member_method_decls.cpp
+
+  src/find_calls/find_calls.cpp
 )
 target_include_directories(
   clangmetatool
