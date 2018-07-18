@@ -2,22 +2,15 @@
 #define INCLUDED_DEFS_DATA_H
 
 #include <string>
+#include <clang/AST/Decl.h>
 
 namespace clangmetatool {
 namespace collectors {
 
-class SymbolData {
-    public:
-        std::string type;
-
-        SymbolData() : type("") {}
-        SymbolData(const std::string &type) : type(type) {}
-};
-
 class DefData {
     public:
-    // mangled symbol name -> useful stuff
-    std::unordered_map<std::string, SymbolData> defs;
+    // filename that contains definition -> AST Node
+    std::unordered_multimap<std::string, const clang::NamedDecl *> defs;
 };
 
 } // namespace collectors

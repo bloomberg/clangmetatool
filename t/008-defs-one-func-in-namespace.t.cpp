@@ -31,16 +31,11 @@ public:
 
     ASSERT_EQ(1, d->defs.size())
       << "There should be 1 function definition";
-  }
 
-#if 0
-  // TODO : check name
-  for (auto const& def_pair : d->defs) {
-    EXPECT_TRUE(false) << def_pair.first;
+    for (auto const& def_pair : d->defs) {
+        ASSERT_NE(std::string::npos, def_pair.first.find("one-func-in-namespace.cpp"));
+    }
   }
-
-  // TODO : check SymbolData
-#endif
 };
 
 TEST(use_meta_tool, factory) {

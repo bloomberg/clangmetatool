@@ -31,14 +31,10 @@ public:
     ASSERT_EQ(2, d->defs.size())
       << "There should be 2 function definitions";
 
-#if 0
-    // TODO : sort and check names
+    // TODO : sort and check function names
     for (auto const& def_pair : d->defs) {
-        EXPECT_TRUE(false) << def_pair.first;
+        ASSERT_NE(std::string::npos, def_pair.first.find("two-funcs.cpp"));
     }
-
-    // TODO : check SymbolData
-#endif
   }
 };
 

@@ -5,12 +5,36 @@
 #include <clang/AST/Mangle.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <clang/Basic/SourceManager.h>
+
 namespace clangmetatool {
 namespace collectors {
 
 namespace {
 
 using namespace clang::ast_matchers;
+
+// TODO : We can probably consolidate the callbacks:
+#if 0
+class DefDataAppender : public MatchFinder::MatchCallback {
+private:
+    clang::CompilerInstance *ci;
+    DefData *data;
+public:
+    DefDataAppender(clang::CompilerInstance *ci, DefData *data)
+        : ci(ci), data(data) {}
+    virtual void run(const MatchFinder::MatchResult & r) override {
+        const clang::NamedDecl *e = r.Nodes.getNodeAs<clang::NamedDecl>("def");
+        if (e == nullptr) return;
+
+        clang::SourceManager *sm = r.SourceManager;
+
+        std::string filename = std::string(sm->getFilename(e->getLocation()));
+
+        data->defs.insert(std::pair<std::string, const clang::NamedDecl *>(filename, e));
+    }
+};
+#endif
 
 class FuncDefDataAppender : public MatchFinder::MatchCallback {
 private:
@@ -23,14 +47,11 @@ public:
         const clang::FunctionDecl *e = r.Nodes.getNodeAs<clang::FunctionDecl>("def");
         if (e == nullptr) return;
 
-        std::string mangled_symbol;
-        llvm::raw_string_ostream mangled_sym_adapter(mangled_symbol);
-        clang::ItaniumMangleContext* mangler_context_p =
-            clang::ItaniumMangleContext::create(ci->getASTContext(),
-                    ci->getDiagnostics());
+        clang::SourceManager *sm = r.SourceManager;
 
-        mangler_context_p->mangleName(e, mangled_sym_adapter);
-        data->defs[mangled_sym_adapter.str()] = SymbolData("function");
+        std::string filename = std::string(sm->getFilename(e->getLocation()));
+
+        data->defs.insert(std::pair<std::string, const clang::NamedDecl *>(filename, e));
     }
 };
 
@@ -45,14 +66,11 @@ public:
         const clang::VarDecl *e = r.Nodes.getNodeAs<clang::VarDecl>("def");
         if (e == nullptr) return;
 
-        std::string mangled_symbol;
-        llvm::raw_string_ostream mangled_sym_adapter(mangled_symbol);
-        clang::ItaniumMangleContext* mangler_context_p =
-            clang::ItaniumMangleContext::create(ci->getASTContext(),
-                    ci->getDiagnostics());
+        clang::SourceManager *sm = r.SourceManager;
 
-        mangler_context_p->mangleName(e, mangled_sym_adapter);
-        data->defs[mangled_sym_adapter.str()] = SymbolData("variable");
+        std::string filename = std::string(sm->getFilename(e->getLocation()));
+
+        data->defs.insert(std::pair<std::string, const clang::NamedDecl *>(filename, e));
     }
 };
 
@@ -67,14 +85,11 @@ public:
         const clang::CXXRecordDecl *e = r.Nodes.getNodeAs<clang::CXXRecordDecl>("def");
         if (e == nullptr) return;
 
-        std::string mangled_symbol;
-        llvm::raw_string_ostream mangled_sym_adapter(mangled_symbol);
-        clang::ItaniumMangleContext* mangler_context_p =
-            clang::ItaniumMangleContext::create(ci->getASTContext(),
-                    ci->getDiagnostics());
+        clang::SourceManager *sm = r.SourceManager;
 
-        mangler_context_p->mangleName(e, mangled_sym_adapter);
-        data->defs[mangled_sym_adapter.str()] = SymbolData("class");
+        std::string filename = std::string(sm->getFilename(e->getLocation()));
+
+        data->defs.insert(std::pair<std::string, const clang::NamedDecl *>(filename, e));
     }
 
 };
