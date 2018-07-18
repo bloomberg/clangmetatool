@@ -1,6 +1,3 @@
-#ifndef INCLUDED_FIND_CALLS_H
-#define INCLUDED_FIND_CALLS_H
-
 #include <string>
 #include <clangmetatool/collectors/find_calls.h>
 #include <clangmetatool/collectors/find_calls_data.h>
@@ -186,7 +183,6 @@ namespace clangmetatool {
   }
 }
 }
-#endif
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
 //
