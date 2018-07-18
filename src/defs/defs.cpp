@@ -12,12 +12,12 @@ namespace {
 
 using namespace clang::ast_matchers;
 
-class DefDataAppender : public MatchFinder::MatchCallback {
+class FuncDefDataAppender : public MatchFinder::MatchCallback {
 private:
     clang::CompilerInstance *ci;
     DefData *data;
 public:
-    DefDataAppender(clang::CompilerInstance *ci, DefData *data)
+    FuncDefDataAppender(clang::CompilerInstance *ci, DefData *data)
         : ci(ci), data(data) {}
     virtual void run(const MatchFinder::MatchResult & r) override {
         const clang::FunctionDecl *e = r.Nodes.getNodeAs<clang::FunctionDecl>("def");
@@ -30,8 +30,53 @@ public:
                     ci->getDiagnostics());
 
         mangler_context_p->mangleName(e, mangled_sym_adapter);
-        data->defs[mangled_sym_adapter.str()] = SymbolData();
+        data->defs[mangled_sym_adapter.str()] = SymbolData("function");
     }
+};
+
+class VarDefDataAppender : public MatchFinder::MatchCallback {
+private:
+    clang::CompilerInstance *ci;
+    DefData *data;
+public:
+    VarDefDataAppender(clang::CompilerInstance *ci, DefData *data)
+        : ci(ci), data(data) {}
+    virtual void run(const MatchFinder::MatchResult & r) override {
+        const clang::VarDecl *e = r.Nodes.getNodeAs<clang::VarDecl>("def");
+        if (e == nullptr) return;
+
+        std::string mangled_symbol;
+        llvm::raw_string_ostream mangled_sym_adapter(mangled_symbol);
+        clang::ItaniumMangleContext* mangler_context_p =
+            clang::ItaniumMangleContext::create(ci->getASTContext(),
+                    ci->getDiagnostics());
+
+        mangler_context_p->mangleName(e, mangled_sym_adapter);
+        data->defs[mangled_sym_adapter.str()] = SymbolData("variable");
+    }
+};
+
+class ClassDefDataAppender : public MatchFinder::MatchCallback {
+private:
+    clang::CompilerInstance *ci;
+    DefData *data;
+public:
+    ClassDefDataAppender(clang::CompilerInstance *ci, DefData *data)
+        : ci(ci), data(data) {}
+    virtual void run(const MatchFinder::MatchResult & r) override {
+        const clang::CXXRecordDecl *e = r.Nodes.getNodeAs<clang::CXXRecordDecl>("def");
+        if (e == nullptr) return;
+
+        std::string mangled_symbol;
+        llvm::raw_string_ostream mangled_sym_adapter(mangled_symbol);
+        clang::ItaniumMangleContext* mangler_context_p =
+            clang::ItaniumMangleContext::create(ci->getASTContext(),
+                    ci->getDiagnostics());
+
+        mangler_context_p->mangleName(e, mangled_sym_adapter);
+        data->defs[mangled_sym_adapter.str()] = SymbolData("class");
+    }
+
 };
 
 } // close anonymous namespace
@@ -40,26 +85,37 @@ class DefCollectorImpl {
 private:
     DefData data;
 
-    // TODO :
-    // WIP: moving from NamedDecl to more specific types
-    // NamedDecl doesn't have a "isThisDeclarationADefinition", so
-    // we can't use the narrowing matcher of isDefinition() here;
-    // will likely have to be split up into more specific types:
-    // - FunctionDecl
-    // - VarDecl
-    // not sure how class definitions work yet or what "TagDecl" is
-    // class declarations are of type CXXRecordDecl,
-    // this also has no "isThisDeclarationADefinition",
-    // but can probably check if (dec == dec.getDefinition)
-    DeclarationMatcher defMatcher = functionDecl(isDefinition()).bind("def");
-    DefDataAppender defAppender;
+    DeclarationMatcher funcDefMatcher =
+        functionDecl
+        (isDefinition()
+        ).bind("def");
+    FuncDefDataAppender funcDefAppender;
+
+    DeclarationMatcher varDefMatcher =
+        varDecl(
+                allOf(
+                    isDefinition(), hasGlobalStorage()
+                    )
+               ).bind("def");
+    VarDefDataAppender varDefAppender;
+
+
+    DeclarationMatcher classDefMatcher =
+        recordDecl(
+                isDefinition()
+                ).bind("def");
+    ClassDefDataAppender classDefAppender;
 
 public:
     DefCollectorImpl (clang::CompilerInstance *ci
             , MatchFinder *f)
-        : defAppender(ci, &data) 
+        : funcDefAppender(ci, &data)
+          , varDefAppender(ci, &data)
+          , classDefAppender(ci, &data)
     {
-        f->addMatcher(defMatcher, &defAppender);
+        f->addMatcher(funcDefMatcher, &funcDefAppender);
+        f->addMatcher(varDefMatcher, &varDefAppender);
+        f->addMatcher(classDefMatcher, &classDefAppender);
     }
 
     DefData* getData() {

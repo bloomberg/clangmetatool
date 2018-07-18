@@ -1,13 +1,17 @@
 #ifndef INCLUDED_DEFS_DATA_H
 #define INCLUDED_DEFS_DATA_H
 
+#include <string>
+
 namespace clangmetatool {
 namespace collectors {
 
 class SymbolData {
     public:
-    // TODO : src location, mangled name, demangled name, 
-    int tmp;
+        std::string type;
+
+        SymbolData() : type("") {}
+        SymbolData(const std::string &type) : type(type) {}
 };
 
 class DefData {

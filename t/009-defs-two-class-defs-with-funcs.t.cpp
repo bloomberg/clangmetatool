@@ -28,8 +28,23 @@ public:
 
     clangmetatool::collectors::DefData *d = dc.getData();
 
-    ASSERT_EQ(2, d->defs.size())
-      << "There should be 2 function definitions";
+
+#if 0
+    ASSERT_EQ(-1, d->defs.size())
+      << "There should be # definitions";
+#endif
+
+#if 0
+  for (auto const& def_pair : d->defs) {
+      std::cerr << def_pair.second.type << ": " << def_pair.first << std::endl;
+  }
+  EXPECT_TRUE(false) << "Force failure to see output of test";
+#endif
+
+
+  // TODO : check name
+  // TODO : check SymbolData
+
   }
 };
 
@@ -38,8 +53,8 @@ TEST(use_meta_tool, factory) {
 
   int argc = 4;
   const char* argv[] = {
-    "func-defs",
-    CMAKE_SOURCE_DIR "/t/data/007-defs/func-defs.cpp",
+    "two-class-defs-with-funcs",
+    CMAKE_SOURCE_DIR "/t/data/009-defs-two-class-defs-with-funcs/two-class-defs-with-funcs.cpp",
     "--",
     "-xc++"
   };

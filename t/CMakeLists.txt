@@ -15,7 +15,9 @@ foreach(
   005-membermethoddecls-basic
   006-gather-non-const-values
   007-find-calls
-  007-defs
+  007-defs-two-funcs
+  008-defs-one-func-in-namespace
+  009-defs-two-class-defs-with-funcs
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
