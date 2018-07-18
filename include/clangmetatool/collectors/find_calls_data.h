@@ -3,8 +3,6 @@
 
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchers.h>
-#include <clang/ASTMatchers/ASTMatchFinder.h>
-#include <clang/AST/Expr.h>
 
 namespace clangmetatool {
   namespace collectors {
@@ -17,14 +15,14 @@ namespace clangmetatool {
       /**
        * The declaration of the function and the context in which it occurs
        */
-      std::map<const clang::FunctionDecl*,
-               const clang::CallExpr*> call_context;
+      std::multimap<const clang::FunctionDecl*,
+                    const clang::CallExpr*> call_context;
 
       /**
        * The reference to the function and the context in which it occurs
        */
-      std::map<const clang::CallExpr*,
-               const clang::DeclRefExpr*> call_ref;
+      std::multimap<const clang::CallExpr*,
+                    const clang::DeclRefExpr*> call_ref;
 
       /**
        * The reference to the argument of the function and the enclosing context

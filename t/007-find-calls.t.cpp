@@ -22,7 +22,7 @@ private:
 public:
 
   MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
-    :ci(ci), fc(ci, f, &n, &a) {}
+    :ci(ci), fc(ci, f, n, a) {}
 
   const clang::DeclRefExpr* get_pointer_to(const clang::Expr* expr) {
     const clang::DeclRefExpr* ret = NULL;
@@ -41,17 +41,33 @@ public:
     (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
       clang::SourceManager& sm = ci->getSourceManager();
 
-      std::map<const clang::FunctionDecl*, const clang::CallExpr*> *call_context = &(fc.getData()->call_context);
-      std::map<const clang::FunctionDecl*, const clang::CallExpr*>::iterator ccit = call_context->begin();
+      std::multimap<
+                    const clang::FunctionDecl*,
+                    const clang::CallExpr*> *call_context = &(fc.getData()->call_context);
+      std::multimap<
+                    const clang::FunctionDecl*,
+                    const clang::CallExpr*>::iterator ccit = call_context->begin();
 
-      std::map<const clang::CallExpr*, const clang::DeclRefExpr*> *call_ref = &(fc.getData()->call_ref);
-      std::map<const clang::CallExpr*, const clang::DeclRefExpr*>::iterator rcit = call_ref->begin();
+      std::multimap<
+                    const clang::CallExpr*,
+                    const clang::DeclRefExpr*> *call_ref = &(fc.getData()->call_ref);
+      std::multimap<
+                    const clang::CallExpr*,
+                    const clang::DeclRefExpr*>::iterator rcit = call_ref->begin();
 
-      std::map<const clang::CallExpr*, const clang::DeclRefExpr*> *call_argref = &(fc.getData()->call_argref);
-      std::map<const clang::CallExpr*, const clang::DeclRefExpr*>::iterator cafit = call_argref->begin();
+      std::map<
+               std::pair<const clang::CallExpr*, int>,
+               const clang::DeclRefExpr*> *call_argref = &(fc.getData()->call_argref);
+      std::map<
+               std::pair<const clang::CallExpr*, int>,
+               const clang::DeclRefExpr*>::iterator cafit = call_argref->begin();
 
-      std::map<const clang::CallExpr*, const clang::StringLiteral*> *call_argstr = &(fc.getData()->call_argstr);
-      std::map<const clang::CallExpr*, const clang::StringLiteral*>::iterator casit = call_argstr->begin();
+      std::map<
+               std::pair<const clang::CallExpr*, int>,
+               const clang::StringLiteral*> *call_argstr = &(fc.getData()->call_argstr);
+      std::map<
+               std::pair<const clang::CallExpr*, int>,
+               const clang::StringLiteral*>::iterator casit = call_argstr->begin();
 
       const clang::FunctionDecl* caller = ccit->first;
       const clang::CallExpr* callee = ccit->second;

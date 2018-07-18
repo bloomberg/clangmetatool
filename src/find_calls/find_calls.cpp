@@ -78,8 +78,8 @@ namespace clangmetatool {
 
   public:
     FindCallsImpl
-      (clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder* f, std::string* n, unsigned int* a)
-      : ci(ci),n(*n),a(*a),
+    (clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder* f, std::string n, unsigned int a)
+      : ci(ci),n(n),a(a),
         cb1(ci, &data)
     {
       f->addMatcher(sm1, &cb1);
@@ -95,7 +95,7 @@ namespace clangmetatool {
   };
 
   FindCalls::FindCalls
-  (clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder* f, std::string* n, unsigned int* a)
+  (clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder* f, std::string n, unsigned int a)
   {
     impl = new FindCallsImpl(ci, f, n, a);
   }

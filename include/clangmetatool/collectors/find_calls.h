@@ -2,10 +2,7 @@
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CALLS_H
 
 #include <clang/Frontend/CompilerInstance.h>
-#include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
-#include <clang/ASTMatchers/ASTMatchersInternal.h>
-#include <clang/AST/Expr.h>
 
 #include <clangmetatool/collectors/find_calls_data.h>
 
@@ -33,12 +30,16 @@ namespace clangmetatool {
     public:
 
       /**
-       * Explicit constructor, to allow for implementation details.
+       * Explicit constructor, to allow for implementation details:
+       *    - ci is a pointer to an instance of the clang compiler
+       *    - f is a pointer to an instance of the MatchFinder class
+       *    - n is a string value of the function name to match on
+       *    - a is an integer value of the argument position to resolve
        */
       FindCalls( clang::CompilerInstance          *ci,
                  clang::ast_matchers::MatchFinder *f,
-                 std::string                      *n,
-                 unsigned int                     *a  );
+                 std::string                       n,
+                 unsigned int                      a  );
 
       /**
        * Explicit destructor.
