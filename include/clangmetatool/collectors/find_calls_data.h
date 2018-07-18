@@ -9,22 +9,43 @@
 namespace clangmetatool {
   namespace collectors {
 
-  struct FindCallsData {
-    std::map<const clang::FunctionDecl*,
-             const clang::CallExpr*> call_context;
-    std::map<const clang::CallExpr*,
-             const clang::DeclRefExpr*> call_ref;
-    std::map<const clang::CallExpr*,
-             const clang::DeclRefExpr*> call_argref;
-    std::map<const clang::CallExpr*,
-             const clang::StringLiteral*> call_argstr;
-  };
+    /**
+     * The data collected by the FindCalls collector
+     */
+    struct FindCallsData {
+
+      /**
+       * The declaration of the function and the context in which it occurs
+       */
+      std::map<const clang::FunctionDecl*,
+               const clang::CallExpr*> call_context;
+
+      /**
+       * The reference to the function and the context in which it occurs
+       */
+      std::map<const clang::CallExpr*,
+               const clang::DeclRefExpr*> call_ref;
+
+      /**
+       * The reference to the argument of the function and the enclosing context
+       */
+      std::map<const clang::CallExpr*,
+               const clang::DeclRefExpr*> call_argref;
+
+      /**
+       * A string argument of the function and the enclosing context
+       */
+      std::map<const clang::CallExpr*,
+               const clang::StringLiteral*> call_argstr;
+
+    };
 
 
   }
 }
 
 #endif
+
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
 //

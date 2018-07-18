@@ -12,29 +12,46 @@
 namespace clangmetatool {
   namespace collectors {
 
-      class FindCallsImpl;
+    /**
+     * forward declaration to implementation details of the
+     * collector.
+     */
+    class FindCallsImpl;
 
-      class FindCalls {
+    /**
+     * Find Calls data collector. Collects the caller and references
+     * to the specified function and one of its arguments.
+     */
+    class FindCalls {
+    private:
 
-      private:
+      /**
+       * Pointer to Implementation
+       */
+      FindCallsImpl* impl;
 
-        FindCallsImpl* impl;
+    public:
 
-      public:
+      /**
+       * Explicit constructor, to allow for implementation details.
+       */
+      FindCalls( clang::CompilerInstance          *ci,
+                 clang::ast_matchers::MatchFinder *f,
+                 std::string                      *n,
+                 unsigned int                     *a  );
 
-        FindCalls( clang::CompilerInstance          *ci,
-                   clang::ast_matchers::MatchFinder *f,
-                   std::string                      *n,
-                   unsigned int                     *a  );
+      /**
+       * Explicit destructor.
+       */
+      ~FindCalls();
 
-        ~FindCalls();
+      /**
+       * Get the pointer to the data structure, populated or not.
+       */
+      FindCallsData* getData();
 
-        FindCallsData* getData();
-
-      };
-
+    };
   }
-
 }
 
 #endif
