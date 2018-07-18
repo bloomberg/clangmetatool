@@ -29,13 +29,15 @@ namespace clangmetatool {
       /**
        * The reference to the argument of the function and the enclosing context
        */
-      std::map<const clang::CallExpr*,
+      std::map<
+               std::pair<const clang::CallExpr*, int>,
                const clang::DeclRefExpr*> call_argref;
 
       /**
        * A string argument of the function and the enclosing context
        */
-      std::map<const clang::CallExpr*,
+      std::map<
+               std::pair<const clang::CallExpr*, int>,
                const clang::StringLiteral*> call_argstr;
 
     };
