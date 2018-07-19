@@ -14,8 +14,6 @@ namespace {
 
 using namespace clang::ast_matchers;
 
-// TODO : We can probably consolidate the callbacks:
-#if 0
 class DefDataAppender : public MatchFinder::MatchCallback {
 private:
     clang::CompilerInstance *ci;
@@ -28,70 +26,10 @@ public:
         if (e == nullptr) return;
 
         clang::SourceManager *sm = r.SourceManager;
-
         std::string filename = std::string(sm->getFilename(e->getLocation()));
 
         data->defs.insert(std::pair<std::string, const clang::NamedDecl *>(filename, e));
     }
-};
-#endif
-
-class FuncDefDataAppender : public MatchFinder::MatchCallback {
-private:
-    clang::CompilerInstance *ci;
-    DefData *data;
-public:
-    FuncDefDataAppender(clang::CompilerInstance *ci, DefData *data)
-        : ci(ci), data(data) {}
-    virtual void run(const MatchFinder::MatchResult & r) override {
-        const clang::FunctionDecl *e = r.Nodes.getNodeAs<clang::FunctionDecl>("def");
-        if (e == nullptr) return;
-
-        clang::SourceManager *sm = r.SourceManager;
-
-        std::string filename = std::string(sm->getFilename(e->getLocation()));
-
-        data->defs.insert(std::pair<std::string, const clang::NamedDecl *>(filename, e));
-    }
-};
-
-class VarDefDataAppender : public MatchFinder::MatchCallback {
-private:
-    clang::CompilerInstance *ci;
-    DefData *data;
-public:
-    VarDefDataAppender(clang::CompilerInstance *ci, DefData *data)
-        : ci(ci), data(data) {}
-    virtual void run(const MatchFinder::MatchResult & r) override {
-        const clang::VarDecl *e = r.Nodes.getNodeAs<clang::VarDecl>("def");
-        if (e == nullptr) return;
-
-        clang::SourceManager *sm = r.SourceManager;
-
-        std::string filename = std::string(sm->getFilename(e->getLocation()));
-
-        data->defs.insert(std::pair<std::string, const clang::NamedDecl *>(filename, e));
-    }
-};
-
-class ClassDefDataAppender : public MatchFinder::MatchCallback {
-private:
-    clang::CompilerInstance *ci;
-    DefData *data;
-public:
-    ClassDefDataAppender(clang::CompilerInstance *ci, DefData *data)
-        : ci(ci), data(data) {}
-    virtual void run(const MatchFinder::MatchResult & r) override {
-        const clang::CXXRecordDecl *e = r.Nodes.getNodeAs<clang::CXXRecordDecl>("def");
-        if (e == nullptr) return;
-
-        clang::SourceManager *sm = r.SourceManager;
-
-        std::string filename = std::string(sm->getFilename(e->getLocation()));
-
-        data->defs.insert(std::pair<std::string, const clang::NamedDecl *>(filename, e));
-    }
-
 };
 
 } // close anonymous namespace
@@ -101,10 +39,9 @@ private:
     DefData data;
 
     DeclarationMatcher funcDefMatcher =
-        functionDecl
-        (isDefinition()
-        ).bind("def");
-    FuncDefDataAppender funcDefAppender;
+        functionDecl(
+                isDefinition()
+                ).bind("def");
 
     DeclarationMatcher varDefMatcher =
         varDecl(
@@ -112,25 +49,23 @@ private:
                     isDefinition(), hasGlobalStorage()
                     )
                ).bind("def");
-    VarDefDataAppender varDefAppender;
 
 
     DeclarationMatcher classDefMatcher =
         recordDecl(
                 isDefinition()
                 ).bind("def");
-    ClassDefDataAppender classDefAppender;
+
+    DefDataAppender defAppender;
 
 public:
     DefCollectorImpl (clang::CompilerInstance *ci
             , MatchFinder *f)
-        : funcDefAppender(ci, &data)
-          , varDefAppender(ci, &data)
-          , classDefAppender(ci, &data)
+        : defAppender(ci, &data)
     {
-        f->addMatcher(funcDefMatcher, &funcDefAppender);
-        f->addMatcher(varDefMatcher, &varDefAppender);
-        f->addMatcher(classDefMatcher, &classDefAppender);
+        f->addMatcher(funcDefMatcher, &defAppender);
+        f->addMatcher(varDefMatcher, &defAppender);
+        f->addMatcher(classDefMatcher, &defAppender);
     }
 
     DefData* getData() {

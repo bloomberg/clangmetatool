@@ -38,7 +38,7 @@ public:
 #if 1
   for (auto const& def_pair : d->defs) {
       std::cerr << def_pair.first << std::endl;
-      std::cerr << typeid(def_pair.second).name() << std::endl;
+      std::cerr << typeid(*(def_pair.second)).name() << std::endl;
   }
   EXPECT_TRUE(false) << "Force failure to see output of test";
 #endif
