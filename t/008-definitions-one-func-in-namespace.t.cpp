@@ -4,7 +4,7 @@
 
 #include <clangmetatool/meta_tool_factory.h>
 #include <clangmetatool/meta_tool.h>
-#include <clangmetatool/collectors/defs.h>
+#include <clangmetatool/collectors/definitions.h>
 
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Core/Replacement.h>
@@ -18,7 +18,7 @@
 class MyTool {
 private:
   clang::CompilerInstance* ci;
-  clangmetatool::collectors::DefCollector dc;
+  clangmetatool::collectors::Definitions dc;
 public:
   MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
     :ci(ci), dc(ci, f) {
@@ -26,7 +26,7 @@ public:
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
 
-    clangmetatool::collectors::DefData *d = dc.getData();
+    clangmetatool::collectors::DefinitionsData *d = dc.getData();
 
     std::vector<std::string> func_names_expected({
         "foo"
@@ -57,7 +57,7 @@ TEST(use_meta_tool, factory) {
   int argc = 4;
   const char* argv[] = {
     "one-func-in-namespace",
-    CMAKE_SOURCE_DIR "/t/data/008-defs-one-func-in-namespace/one-func-in-namespace.cpp",
+    CMAKE_SOURCE_DIR "/t/data/008-definitions-one-func-in-namespace/one-func-in-namespace.cpp",
     "--",
     "-xc++"
   };

@@ -4,7 +4,7 @@
 
 #include <clangmetatool/meta_tool_factory.h>
 #include <clangmetatool/meta_tool.h>
-#include <clangmetatool/collectors/defs.h>
+#include <clangmetatool/collectors/definitions.h>
 
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Core/Replacement.h>
@@ -14,12 +14,13 @@
 #include <llvm/Support/CommandLine.h>
 
 #include <iostream>
-#include <typeinfo>
+#include <vector>
+#include <algorithm>
 
 class MyTool {
 private:
   clang::CompilerInstance* ci;
-  clangmetatool::collectors::DefCollector dc;
+  clangmetatool::collectors::Definitions dc;
 public:
   MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
     :ci(ci), dc(ci, f) {
@@ -27,42 +28,29 @@ public:
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
 
-    clangmetatool::collectors::DefData *d = dc.getData();
+    clangmetatool::collectors::DefinitionsData *d = dc.getData();
 
-#if 1
-    for (auto const& def_pair : d->defs) {
-        std::cerr << def_pair.second->getNameAsString() << std::endl;
-    }
-#endif
-
-    std::vector<std::string> def_names_expected({
-            "Bar",
-            "Bar",
-            "Foo",
-            "initialized_global_var",
-            "member_func_of_foo",
-            "uninitialized_global_var"
+    std::vector<std::string> func_names_expected({
+        "bar",
+        "foo"
         });
-    std::vector<std::string> def_names_actual;
+    std::vector<std::string> func_names_actual;
 
-    size_t num_funcs_expected = def_names_expected.size();
+    size_t num_funcs_expected = func_names_expected.size();
 
     ASSERT_EQ(num_funcs_expected, d->defs.size())
       << "Has the right number of functions";
 
     for (auto const& def_pair : d->defs) {
-        def_names_actual.push_back(def_pair.second->getNameAsString());
+        func_names_actual.push_back(def_pair.second->getNameAsString());
     }
 
-    std::sort(def_names_actual.begin(), def_names_actual.end());
+    std::sort(func_names_actual.begin(), func_names_actual.end());
 
     for (size_t i = 0; i < num_funcs_expected; ++i) {
-        ASSERT_EQ(def_names_expected[i], def_names_actual[i])
+        ASSERT_EQ(func_names_expected[i], func_names_actual[i])
             << "Function name matches";
     }
-#if 0
-    EXPECT_TRUE(false) << "Force failure to see output of test";
-#endif
   }
 };
 
@@ -71,8 +59,8 @@ TEST(use_meta_tool, factory) {
 
   int argc = 4;
   const char* argv[] = {
-    "two-class-defs-with-funcs",
-    CMAKE_SOURCE_DIR "/t/data/009-defs-two-class-defs-with-funcs/two-class-defs-with-funcs.cpp",
+    "two-funcs",
+    CMAKE_SOURCE_DIR "/t/data/007-definitions-two-funcs/two-funcs.cpp",
     "--",
     "-xc++"
   };

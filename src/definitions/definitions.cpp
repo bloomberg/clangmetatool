@@ -1,4 +1,4 @@
-#include <clangmetatool/collectors/defs.h>
+#include <clangmetatool/collectors/definitions.h>
 
 #include <clang/AST/Decl.h>
 
@@ -14,12 +14,12 @@ namespace {
 
 using namespace clang::ast_matchers;
 
-class DefDataAppender : public MatchFinder::MatchCallback {
+class DefinitionsDataAppender : public MatchFinder::MatchCallback {
 private:
     clang::CompilerInstance *ci;
-    DefData *data;
+    DefinitionsData *data;
 public:
-    DefDataAppender(clang::CompilerInstance *ci, DefData *data)
+    DefinitionsDataAppender(clang::CompilerInstance *ci, DefinitionsData *data)
         : ci(ci), data(data) {}
     virtual void run(const MatchFinder::MatchResult & r) override {
         const clang::NamedDecl *e = r.Nodes.getNodeAs<clang::NamedDecl>("def");
@@ -34,9 +34,9 @@ public:
 
 } // close anonymous namespace
 
-class DefCollectorImpl {
+class DefinitionsImpl {
 private:
-    DefData data;
+    DefinitionsData data;
 
     DeclarationMatcher funcDefMatcher =
         functionDecl(
@@ -56,10 +56,10 @@ private:
                 isDefinition()
                 ).bind("def");
 
-    DefDataAppender defAppender;
+    DefinitionsDataAppender defAppender;
 
 public:
-    DefCollectorImpl (clang::CompilerInstance *ci
+    DefinitionsImpl (clang::CompilerInstance *ci
             , MatchFinder *f)
         : defAppender(ci, &data)
     {
@@ -68,21 +68,21 @@ public:
         f->addMatcher(classDefMatcher, &defAppender);
     }
 
-    DefData* getData() {
+    DefinitionsData* getData() {
         return &data;
     }
 };
 
-DefCollector::DefCollector
+Definitions::Definitions
 (clang::CompilerInstance *ci, MatchFinder *f) {
-    impl = new DefCollectorImpl(ci, f);
+    impl = new DefinitionsImpl(ci, f);
 }
 
-DefCollector::~DefCollector() {
+Definitions::~Definitions() {
     delete impl;
 }
 
-DefData* DefCollector::getData() {
+DefinitionsData* Definitions::getData() {
     return impl->getData();
 }
 
