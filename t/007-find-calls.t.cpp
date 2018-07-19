@@ -16,13 +16,12 @@
 class MyTool {
 private:
   std::string n = std::string("bar");
-  unsigned int a = 0;
   clang::CompilerInstance* ci;
   clangmetatool::collectors::FindCalls fc;
 public:
 
   MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
-    :ci(ci), fc(ci, f, n, a) {}
+    :ci(ci), fc(ci, f, n) {}
 
   const clang::DeclRefExpr* get_pointer_to(const clang::Expr* expr) {
     const clang::DeclRefExpr* ret = NULL;
@@ -41,22 +40,14 @@ public:
     (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
       clang::SourceManager& sm = ci->getSourceManager();
 
-      std::multimap<
-                    const clang::FunctionDecl*,
-                    const clang::CallExpr*> *call_context = &(fc.getData()->call_context);
-      std::multimap<
-                    const clang::FunctionDecl*,
-                    const clang::CallExpr*>::iterator ccit = call_context->begin();
+      auto call_context = &(fc.getData()->call_context);
+      auto ccit = call_context->begin();
 
-      std::map<
-               const clang::CallExpr*,
-               const clang::DeclRefExpr*> *call_ref = &(fc.getData()->call_ref);
-      std::map<
-               const clang::CallExpr*,
-               const clang::DeclRefExpr*>::iterator rcit = call_ref->begin();
+      auto call_ref = &(fc.getData()->call_ref);
+      auto rcit = call_ref->begin();
 
-      const clang::FunctionDecl* caller = ccit->first;
-      const clang::CallExpr* callee = ccit->second;
+      const clang::FunctionDecl *caller = ccit->first;
+      const clang::CallExpr *callee = ccit->second;
       const clang::FunctionDecl* called = callee->getDirectCallee();
       ASSERT_EQ(std::string("foo"), caller->getNameAsString());
       ASSERT_EQ(std::string("bar"), called->getNameAsString());

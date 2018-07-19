@@ -34,12 +34,10 @@ namespace clangmetatool {
        *    - ci is a pointer to an instance of the clang compiler
        *    - f is a pointer to an instance of the MatchFinder class
        *    - n is a string value of the function name to match on
-       *    - a is an integer value of the argument position to resolve
        */
       FindCalls( clang::CompilerInstance          *ci,
                  clang::ast_matchers::MatchFinder *f,
-                 std::string                       n,
-                 unsigned int                      a  );
+                 std::string                       n  );
 
       /**
        * Explicit destructor.
