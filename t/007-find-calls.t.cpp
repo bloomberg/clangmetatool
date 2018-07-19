@@ -55,20 +55,6 @@ public:
                     const clang::CallExpr*,
                     const clang::DeclRefExpr*>::iterator rcit = call_ref->begin();
 
-      std::map<
-               std::pair<const clang::CallExpr*, int>,
-               const clang::DeclRefExpr*> *call_argref = &(fc.getData()->call_argref);
-      std::map<
-               std::pair<const clang::CallExpr*, int>,
-               const clang::DeclRefExpr*>::iterator cafit = call_argref->begin();
-
-      std::map<
-               std::pair<const clang::CallExpr*, int>,
-               const clang::StringLiteral*> *call_argstr = &(fc.getData()->call_argstr);
-      std::map<
-               std::pair<const clang::CallExpr*, int>,
-               const clang::StringLiteral*>::iterator casit = call_argstr->begin();
-
       const clang::FunctionDecl* caller = ccit->first;
       const clang::CallExpr* callee = ccit->second;
       const clang::FunctionDecl* called = callee->getDirectCallee();

@@ -31,9 +31,6 @@ namespace clangmetatool {
         const clang::DeclRefExpr *e =
           r.Nodes.getNodeAs<clang::DeclRefExpr>("ref");
 
-        const clang::DeclRefExpr *a =
-          r.Nodes.getNodeAs<clang::DeclRefExpr>("arg");
-
         data->call_context.insert
           (std::pair
           <const clang::FunctionDecl*,
