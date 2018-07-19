@@ -48,12 +48,12 @@ public:
                     const clang::FunctionDecl*,
                     const clang::CallExpr*>::iterator ccit = call_context->begin();
 
-      std::multimap<
-                    const clang::CallExpr*,
-                    const clang::DeclRefExpr*> *call_ref = &(fc.getData()->call_ref);
-      std::multimap<
-                    const clang::CallExpr*,
-                    const clang::DeclRefExpr*>::iterator rcit = call_ref->begin();
+      std::map<
+               const clang::CallExpr*,
+               const clang::DeclRefExpr*> *call_ref = &(fc.getData()->call_ref);
+      std::map<
+               const clang::CallExpr*,
+               const clang::DeclRefExpr*>::iterator rcit = call_ref->begin();
 
       const clang::FunctionDecl* caller = ccit->first;
       const clang::CallExpr* callee = ccit->second;

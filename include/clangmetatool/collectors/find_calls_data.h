@@ -21,8 +21,8 @@ namespace clangmetatool {
       /**
        * The reference to the function and the context in which it occurs
        */
-      std::multimap<const clang::CallExpr*,
-                    const clang::DeclRefExpr*> call_ref;
+      std::map<const clang::CallExpr*,
+               const clang::DeclRefExpr*> call_ref;
 
     };
 
