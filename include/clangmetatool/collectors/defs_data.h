@@ -7,10 +7,17 @@
 namespace clangmetatool {
 namespace collectors {
 
+class FileIdHasher {
+public:
+    size_t operator() (const clang::FileID& fileID) const {
+        return fileID.getHashValue();
+    }
+};
+
 class DefData {
     public:
     // filename that contains definition -> AST Node
-    std::unordered_multimap<std::string, const clang::NamedDecl *> defs;
+    std::unordered_multimap<const clang::FileID, const clang::NamedDecl *, FileIdHasher> defs;
 };
 
 } // namespace collectors

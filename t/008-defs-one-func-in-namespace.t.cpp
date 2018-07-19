@@ -28,12 +28,25 @@ public:
 
     clangmetatool::collectors::DefData *d = dc.getData();
 
+    std::vector<std::string> func_names_expected({
+        "foo"
+        });
+    std::vector<std::string> func_names_actual;
 
-    ASSERT_EQ(1, d->defs.size())
-      << "There should be 1 function definition";
+    size_t num_funcs_expected = func_names_expected.size();
+
+    ASSERT_EQ(num_funcs_expected, d->defs.size())
+      << "Has the right number of functions";
 
     for (auto const& def_pair : d->defs) {
-        ASSERT_NE(std::string::npos, def_pair.first.find("one-func-in-namespace.cpp"));
+        func_names_actual.push_back(def_pair.second->getNameAsString());
+    }
+
+    std::sort(func_names_actual.begin(), func_names_actual.end());
+
+    for (size_t i = 0; i < num_funcs_expected; ++i) {
+        ASSERT_EQ(func_names_expected[i], func_names_actual[i])
+            << "Function name matches";
     }
   }
 };

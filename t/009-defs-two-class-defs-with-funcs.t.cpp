@@ -29,24 +29,40 @@ public:
 
     clangmetatool::collectors::DefData *d = dc.getData();
 
-
-#if 0
-    ASSERT_EQ(-1, d->defs.size())
-      << "There should be # definitions";
-#endif
-
 #if 1
-  for (auto const& def_pair : d->defs) {
-      std::cerr << def_pair.first << std::endl;
-      std::cerr << typeid(*(def_pair.second)).name() << std::endl;
-  }
-  EXPECT_TRUE(false) << "Force failure to see output of test";
+    for (auto const& def_pair : d->defs) {
+        std::cerr << def_pair.second->getNameAsString() << std::endl;
+    }
 #endif
 
+    std::vector<std::string> def_names_expected({
+            "Bar",
+            "Bar",
+            "Foo",
+            "initialized_global_var",
+            "member_func_of_foo",
+            "uninitialized_global_var"
+        });
+    std::vector<std::string> def_names_actual;
 
-  // TODO : check name
-  // TODO : check SymbolData
+    size_t num_funcs_expected = def_names_expected.size();
 
+    ASSERT_EQ(num_funcs_expected, d->defs.size())
+      << "Has the right number of functions";
+
+    for (auto const& def_pair : d->defs) {
+        def_names_actual.push_back(def_pair.second->getNameAsString());
+    }
+
+    std::sort(def_names_actual.begin(), def_names_actual.end());
+
+    for (size_t i = 0; i < num_funcs_expected; ++i) {
+        ASSERT_EQ(def_names_expected[i], def_names_actual[i])
+            << "Function name matches";
+    }
+#if 0
+    EXPECT_TRUE(false) << "Force failure to see output of test";
+#endif
   }
 };
 

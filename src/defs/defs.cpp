@@ -26,9 +26,9 @@ public:
         if (e == nullptr) return;
 
         clang::SourceManager *sm = r.SourceManager;
-        std::string filename = std::string(sm->getFilename(e->getLocation()));
+        const clang::FileID fileID = sm->getFileID(e->getLocation());
 
-        data->defs.insert(std::pair<std::string, const clang::NamedDecl *>(filename, e));
+        data->defs.insert(std::pair<const clang::FileID, const clang::NamedDecl *>(fileID, e));
     }
 };
 
