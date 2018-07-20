@@ -60,7 +60,7 @@ TEST(use_meta_tool, factory) {
   int argc = 4;
   const char* argv[] = {
     "two-funcs",
-    CMAKE_SOURCE_DIR "/t/data/007-definitions-two-funcs/two-funcs.cpp",
+    CMAKE_SOURCE_DIR "/t/data/008-definitions-two-funcs/two-funcs.cpp",
     "--",
     "-xc++"
   };
