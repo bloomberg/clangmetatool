@@ -1,5 +1,5 @@
-#ifndef INCLUDED_DEFINITIONS_H
-#define INCLUDED_DEFINITIONS_H
+#ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_H
+#define INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_H
 
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
@@ -23,4 +23,4 @@ public:
 } // namespace collectors
 } // namespace clangmetatool
 
-#endif //INCLUDED_DEFINITIONS_H 
+#endif //INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_H 

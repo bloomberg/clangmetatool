@@ -1,5 +1,5 @@
-#ifndef INCLUDED_DEFINITIONS_DATA_H
-#define INCLUDED_DEFINITIONS_DATA_H
+#ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_DATA_H
+#define INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_DATA_H
 
 #include <string>
 #include <clang/AST/Decl.h>
@@ -23,4 +23,4 @@ class DefinitionsData {
 } // namespace collectors
 } // namespace clangmetatool
 
-#endif //INCLUDED_DEFINITIONS_DATA_H 
+#endif //INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_DATA_H 
