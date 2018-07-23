@@ -2,22 +2,18 @@
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_DATA_H
 
 #include <string>
+#include <unordered_map>
 #include <clang/AST/Decl.h>
+
+#include <clangmetatool/types/file_uid.h>
 
 namespace clangmetatool {
 namespace collectors {
 
-class FileIdHasher {
-public:
-    size_t operator() (const clang::FileID& fileID) const {
-        return fileID.getHashValue();
-    }
-};
-
 class DefinitionsData {
     public:
-    // filename that contains definition -> AST Node
-    std::unordered_multimap<const clang::FileID, const clang::NamedDecl *, FileIdHasher> defs;
+    // uid of file that contains definition -> AST Node pointer
+    std::unordered_multimap<types::FileUID, const clang::NamedDecl *> defs;
 };
 
 } // namespace collectors

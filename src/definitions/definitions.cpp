@@ -26,9 +26,16 @@ public:
         if (e == nullptr) return;
 
         clang::SourceManager *sm = r.SourceManager;
-        const clang::FileID fileID = sm->getFileID(e->getLocation());
+        const clang::FileID fid = sm->getFileID(e->getLocation());
+        const clang::FileEntry *entry = sm->getFileEntryForID(fid);
+        if (!(entry && entry->isValid())) {
+            // TODO : figure out what situation this happens in
+            // and handle appropriately
+            exit(-1);
+        }
+        const types::FileUID fuid = entry->getUID();
 
-        data->defs.insert(std::pair<const clang::FileID, const clang::NamedDecl *>(fileID, e));
+        data->defs.insert(std::pair<types::FileUID, const clang::NamedDecl *>(fuid, e));
     }
 };
 
