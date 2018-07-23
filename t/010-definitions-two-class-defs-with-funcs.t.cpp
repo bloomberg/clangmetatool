@@ -50,7 +50,7 @@ public:
     size_t num_funcs_expected = def_names_expected.size();
 
     ASSERT_EQ(num_funcs_expected, d->defs.size())
-      << "Has the right number of functions";
+      << "Has the right number of definitions";
 
     for (auto const& def_pair : d->defs) {
         def_names_actual.push_back(def_pair.second->getNameAsString());
@@ -60,7 +60,7 @@ public:
 
     for (size_t i = 0; i < num_funcs_expected; ++i) {
         ASSERT_EQ(def_names_expected[i], def_names_actual[i])
-            << "Function name matches";
+            << "Definition name matches";
     }
 #if 0
     EXPECT_TRUE(false) << "Force failure to see output of test";

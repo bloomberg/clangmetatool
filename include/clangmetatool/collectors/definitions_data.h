@@ -1,7 +1,6 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_DATA_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_DATA_H
 
-#include <string>
 #include <unordered_map>
 
 #include <clang/AST/Decl.h>

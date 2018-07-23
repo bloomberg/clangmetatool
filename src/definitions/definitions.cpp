@@ -1,11 +1,7 @@
-#include <clangmetatool/collectors/definitions.h>
-
 #include <clang/AST/Decl.h>
-
-#include <clang/AST/Mangle.h>
-#include <llvm/Support/raw_ostream.h>
-
 #include <clang/Basic/SourceManager.h>
+
+#include <clangmetatool/collectors/definitions.h>
 
 namespace clangmetatool {
 namespace collectors {
@@ -29,9 +25,7 @@ public:
         const clang::FileID fid = sm->getFileID(e->getLocation());
         const clang::FileEntry *entry = sm->getFileEntryForID(fid);
         if (!(entry && entry->isValid())) {
-            // TODO : figure out what situation this happens in
-            // and handle appropriately
-            exit(-1);
+            return;
         }
         const types::FileUID fuid = entry->getUID();
 
