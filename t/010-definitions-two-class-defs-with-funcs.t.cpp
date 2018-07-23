@@ -29,8 +29,9 @@ public:
 
     clangmetatool::collectors::DefinitionsData *d = dc.getData();
 
-#if 1
+#if 0
     for (auto const& def_pair : d->defs) {
+        std::cerr << typeid(*def_pair.second).name() << ": ";
         std::cerr << def_pair.second->getNameAsString() << std::endl;
     }
 #endif
@@ -41,7 +42,8 @@ public:
             "Foo",
             "initialized_global_var",
             "member_func_of_foo",
-            "uninitialized_global_var"
+            "uninitialized_global_var",
+            "uninitialized_static_class_var_of_foo"
         });
     std::vector<std::string> def_names_actual;
 
