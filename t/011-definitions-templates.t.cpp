@@ -42,6 +42,7 @@ public:
             "ClassWithUsage",
             "ClassWithUsage",
             "ClassWithUsage",
+            "ClassWithUsage",
             "foo",
             "template_func_no_usage",
             "template_func_with_usage",
@@ -78,6 +79,7 @@ TEST(use_meta_tool, factory) {
     "two-class-defs-with-funcs",
     CMAKE_SOURCE_DIR "/t/data/011-definitions-templates/templates.cpp",
     "--",
+    "-std=c++11",
     "-xc++"
   };
 

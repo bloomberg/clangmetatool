@@ -18,10 +18,10 @@ private:
 };
 
 template <typename T>
-class ClassWithUsage { // 4 matches:
+class ClassWithUsage { // 5 matches:
     // CXXRecordDecl: ClassWithUsage
-    // (2 instances of) CXXConstructorDecl: ClassWithUsage
-    //   NOTE: one instance is "noexcept-unevaluated"
+    // (3 instances of) CXXConstructorDecl: ClassWithUsage
+    //   NOTE: default, copy, move (where move constructor is applicable)
     // ClassTemplateSpecializationDecl: ClassWithUsage
 private:
     T CWI_dataMember;
