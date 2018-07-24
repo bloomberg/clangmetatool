@@ -37,7 +37,8 @@ namespace clangmetatool {
        */
       FindCalls( clang::CompilerInstance          *ci,
                  clang::ast_matchers::MatchFinder *f,
-                 std::string                       n  );
+                 std::string                       n,
+                 unsigned int                      a  );
 
       /**
        * Explicit destructor.
@@ -48,6 +49,7 @@ namespace clangmetatool {
        * Get the pointer to the data structure, populated or not.
        */
       FindCallsData* getData();
+      std::pair<bool, clang::APValue> try_to_evaluate(const clang::Expr*, const clang::DeclRefExpr*);
 
     };
   }
