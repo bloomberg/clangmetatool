@@ -23,6 +23,8 @@ add_library(
   src/find_calls/find_calls.cpp
 
   src/definitions/definitions.cpp
+
+  src/references/references.cpp
 )
 target_include_directories(
   clangmetatool
