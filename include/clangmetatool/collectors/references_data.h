@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 
-#include <clang/AST/Stmt.h>
+#include <clang/AST/Decl.h>
 
 #include <clangmetatool/types/file_uid.h>
 
@@ -16,9 +16,10 @@ namespace collectors {
 class ReferencesData {
 public:
     /**
-     * Store AST nodes of statements for references.
+     * Store data for references
+     * and the context in which the references exist.
      */
-    std::unordered_map<types::FileUID, const clang::Stmt *> refs;
+    std::unordered_multimap<const clang::NamedDecl *, const clang::NamedDecl *> refs;
 };
 
 } // namespace collectors

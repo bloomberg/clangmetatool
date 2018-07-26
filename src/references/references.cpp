@@ -1,7 +1,8 @@
-#include <clang/AST/Stmt.h>
 #include <clang/Basic/SourceManager.h>
 
 #include <clangmetatool/collectors/references.h>
+
+#include <utility>
 
 namespace clangmetatool {
 namespace collectors {
@@ -18,18 +19,13 @@ public:
     ReferencesDataAppender(clang::CompilerInstance *ci, ReferencesData *data)
         : ci(ci), data(data) {}
     virtual void run(const MatchFinder::MatchResult & r) override {
-        const clang::Stmt *st = r.Nodes.getNodeAs<clang::Stmt>("reference");
-        if (st == nullptr) return;
+        const clang::NamedDecl *ref = r.Nodes.getNodeAs<clang::NamedDecl>("reference");
+        if (ref == nullptr) return;
 
-        clang::SourceManager *sm = r.SourceManager;
-        const clang::FileID fid = sm->getFileID(st->getLocStart());
-        const clang::FileEntry *entry = sm->getFileEntryForID(fid);
-        if (!(entry && entry->isValid())) {
-            return;
-        }
-        const types::FileUID fuid = entry->getUID();
+        const clang::NamedDecl *ctxt = r.Nodes.getNodeAs<clang::NamedDecl>("context");
+        if (ctxt == nullptr) return;
 
-        data->refs.insert(std::pair<types::FileUID, const clang::Stmt *>(fuid, st));
+        data->refs.insert(std::make_pair(ref, ctxt));
     }
 };
 
@@ -39,9 +35,39 @@ class ReferencesImpl {
 private:
     ReferencesData data;
 
-    StatementMatcher funcRefMatcher = callExpr().bind("reference");
+    StatementMatcher funcContextMatcher =
+        declRefExpr(
+                allOf(
+                    hasAncestor(
+                        functionDecl(
+                            isDefinition()
+                            ).bind("context")
+                        ),
+                    hasDeclaration(
+                        anyOf(
+                            varDecl().bind("reference"), functionDecl().bind("reference")
+                            )
+                        )
+                    )
+                );
 
-    StatementMatcher varRefMatcher = declRefExpr().bind("reference");
+    StatementMatcher varContextMatcher =
+        declRefExpr(
+                allOf(
+                    hasAncestor(
+                        varDecl(
+                            allOf(
+                                isDefinition(), hasGlobalStorage()
+                                )
+                            ).bind("context")
+                        ),
+                    hasDeclaration(
+                        anyOf(
+                            varDecl().bind("reference"), functionDecl().bind("reference")
+                            )
+                        )
+                    )
+                );
 
     ReferencesDataAppender refAppender;
 
@@ -50,8 +76,8 @@ public:
             , MatchFinder *f)
         : refAppender(ci, &data)
     {
-        f->addMatcher(funcRefMatcher, &refAppender);
-        f->addMatcher(varRefMatcher, &refAppender);
+        f->addMatcher(funcContextMatcher, &refAppender);
+        f->addMatcher(varContextMatcher, &refAppender);
     }
 
     ReferencesData* getData() {
@@ -59,8 +85,7 @@ public:
     }
 };
 
-References::References
-(clang::CompilerInstance *ci, MatchFinder *f) {
+References::References(clang::CompilerInstance *ci, MatchFinder *f) {
     impl = new ReferencesImpl(ci, f);
 }
 

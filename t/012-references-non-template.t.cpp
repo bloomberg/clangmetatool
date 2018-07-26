@@ -31,8 +31,11 @@ public:
 
 #if 1
     for (auto const& ref_pair : d->refs) {
-        std::cerr << typeid(*ref_pair.second).name() << ": ";
-        //std::cerr << ref_pair.second->getNameAsString() << std::endl;
+        std::cerr << typeid(*ref_pair.second).name() << " -> ";
+        std::cerr << typeid(*ref_pair.first).name() << std::endl;
+        std::cerr << ref_pair.second->getNameAsString() << " -> ";
+        std::cerr << ref_pair.first->getNameAsString() << std::endl;
+        std::cerr << std::endl;
     }
 #endif
 
@@ -40,9 +43,9 @@ public:
         });
     std::vector<std::string> ref_names_actual;
 
-    size_t num_funcs_expected = ref_names_expected.size();
+    size_t num_refs_expected = ref_names_expected.size();
 
-    ASSERT_EQ(num_funcs_expected, d->refs.size())
+    ASSERT_EQ(num_refs_expected, d->refs.size())
       << "Has the right number of references";
 
     for (auto const& ref_pair : d->refs) {
@@ -51,7 +54,7 @@ public:
 
     std::sort(ref_names_actual.begin(), ref_names_actual.end());
 
-    for (size_t i = 0; i < num_funcs_expected; ++i) {
+    for (size_t i = 0; i < num_refs_expected; ++i) {
         ASSERT_EQ(ref_names_expected[i], ref_names_actual[i])
             << "Reference name matches";
     }
@@ -67,7 +70,7 @@ TEST(use_meta_tool, factory) {
   int argc = 4;
   const char* argv[] = {
     "references-non-template",
-    CMAKE_SOURCE_DIR "/t/data/012-references-non-template.cpp",
+    CMAKE_SOURCE_DIR "/t/data/012-references-non-template/non-template.cpp",
     "--",
     "-xc++"
   };
