@@ -36,38 +36,79 @@ private:
     ReferencesData data;
 
     StatementMatcher funcContextMatcher =
-        declRefExpr(
-                allOf(
-                    hasAncestor(
-                        functionDecl(
-                            isDefinition()
-                            ).bind("context")
-                        ),
-                    hasDeclaration(
-                        anyOf(
-                            varDecl().bind("reference"), functionDecl().bind("reference")
+        anyOf(
+                // matches vars and funcs
+                declRefExpr(
+                    allOf(
+                        hasAncestor(
+                            functionDecl(
+                                isDefinition()
+                                ).bind("context")
+                            ),
+                        hasDeclaration(
+                            anyOf(
+                                varDecl(
+                                    allOf(
+                                        unless(
+                                            parmVarDecl()
+                                            ),
+                                        hasGlobalStorage()
+                                        )
+                                    ).bind("reference"),
+                                functionDecl().bind("reference")
+                                )
                             )
                         )
-                    )
-                );
+                    ),
+                    // matches C++ classes from constructor
+                    cxxConstructExpr(
+                            allOf(
+                                hasAncestor(
+                                    functionDecl(
+                                        isDefinition()
+                                        ).bind("context")
+                                    ),
+                                hasDeclaration(
+                                    namedDecl().bind("reference")
+                                    )
+                                )
+                            )
+                        );
 
     StatementMatcher varContextMatcher =
-        declRefExpr(
-                allOf(
-                    hasAncestor(
-                        varDecl(
-                            allOf(
-                                isDefinition(), hasGlobalStorage()
+        anyOf(
+                // matches vars and funcs
+                declRefExpr(
+                    allOf(
+                        hasAncestor(
+                            varDecl(
+                                allOf(
+                                    isDefinition(), hasGlobalStorage()
+                                    )
+                                ).bind("context")
+                            ),
+                        hasDeclaration(
+                            anyOf(
+                                varDecl().bind("reference"),
+                                functionDecl().bind("reference")
                                 )
-                            ).bind("context")
-                        ),
-                    hasDeclaration(
-                        anyOf(
-                            varDecl().bind("reference"), functionDecl().bind("reference")
+                            )
+                        )
+                    ),
+                // matches C++ classes from constructor
+                cxxConstructExpr(
+                    allOf(
+                        hasAncestor(
+                            functionDecl(
+                                isDefinition()
+                                ).bind("context")
+                            ),
+                        hasDeclaration(
+                            namedDecl().bind("reference")
                             )
                         )
                     )
-                );
+                    );
 
     ReferencesDataAppender refAppender;
 
