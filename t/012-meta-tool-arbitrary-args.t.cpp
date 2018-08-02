@@ -36,8 +36,32 @@ public:
     ASSERT_NE((void*)NULL, ci);
     ASSERT_NE((void*)NULL, f);
 
-    ASSERT_EQ(6, std::tuple_size<std::tuple<Args...> >::value);
-    ASSERT_EQ("int", typeid(std::get<0>(additionalArgs)));
+    ASSERT_EQ(7, std::tuple_size<std::tuple<Args...> >::value);
+
+    std::cout << typeid(std::get<0>(additionalArgs)).name() << std::endl; 
+    std::cout << typeid(std::get<1>(additionalArgs)).name() << std::endl;
+    std::cout << typeid(std::get<2>(additionalArgs)).name() << std::endl;
+    std::cout << typeid(std::get<3>(additionalArgs)).name() << std::endl;
+    std::cout << typeid(std::get<4>(additionalArgs)).name() << std::endl;
+    std::cout << typeid(std::get<5>(additionalArgs)).name() << std::endl;
+    std::cout << typeid(std::get<6>(additionalArgs)).name() << std::endl;
+
+    // The char name returned by typeid(...).name() is implementation defined
+    // Ensure that tests are correct on major compilation suites that we use
+
+#if defined(__GNUG__)
+    // gcc5 seems to use a part of the mangled name as the name of the type
+
+    ASSERT_STREQ("i",          typeid(std::get<0>(additionalArgs)).name());
+    ASSERT_STREQ("Ss",         typeid(std::get<1>(additionalArgs)).name());
+    ASSERT_STREQ("c",          typeid(std::get<2>(additionalArgs)).name());
+    ASSERT_STREQ("b",          typeid(std::get<3>(additionalArgs)).name());
+    ASSERT_STREQ("f",          typeid(std::get<4>(additionalArgs)).name());
+    ASSERT_STREQ("d",          typeid(std::get<5>(additionalArgs)).name());
+    ASSERT_STREQ("7AStruct",   typeid(std::get<6>(additionalArgs)).name());
+#else
+    ASSERT(false);
+#endif
     postprocessing_called = true;
   }
 };
@@ -65,16 +89,30 @@ TEST(use_meta_tool, factory) {
   postprocessing_called = false;
 
   AStruct a;
-  clangmetatool::MetaToolFactory< clangmetatool::MetaTool, int> raf(tool.getReplacements(), 1);
-  // clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool >, int, std::string, char, bool, float, double, AStruct >
-  //   raf(tool.getReplacements(),
-  //       1,
-  //       std::string(),
-  //       'c',
-  //       true,
-  //       1.16f,
-  //       1.16,
-  //       a);
+  clangmetatool::MetaToolFactory<
+      clangmetatool::MetaTool< MyTool,
+                               int,
+                               std::string,
+                               char,
+                               bool,
+                               float,
+                               double,
+                               AStruct >,
+                                    int,
+                                    std::string,
+                                    char,
+                                    bool,
+                                    float,
+                                    double,
+                                    AStruct >
+    raf(tool.getReplacements(),
+        1,
+        std::string(),
+        'c',
+        true,
+        1.16f,
+        1.16,
+        a);
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);

@@ -55,7 +55,7 @@ TEST(use_meta_tool, factory) {
   constructor_called = false;
   postprocessing_called = false;
 
-  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool<> > >
+  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
     raf(tool.getReplacements());
 
   int r = tool.runAndSave(&raf);

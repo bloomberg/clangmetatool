@@ -17,7 +17,7 @@ namespace clangmetatool {
    * conjunction with the MetaTool class to reduce boilerplate in the
    * code required to write a clang tool.
    */
-  template <template <class...> class T, class... Args>
+  template <class T, class... Args>
   class MetaToolFactory
     : public clang::tooling::FrontendActionFactory {
   private:
@@ -37,7 +37,7 @@ namespace clangmetatool {
     (std::map<std::string, clang::tooling::Replacements> &replacements,
      Args... args)
       : replacements(replacements),
-        additionalArgs(std::make_tuple<Args...>(args...))
+        additionalArgs(std::tuple<Args...>(args...))
     {}
     
     /**
@@ -45,7 +45,7 @@ namespace clangmetatool {
      * replacemnets map as an argument.
      */
     virtual clang::FrontendAction* create() {
-      return new T<Args...>(replacements, additionalArgs);
+      return new T(replacements, additionalArgs);
     }
   };
 

@@ -79,7 +79,7 @@ TEST(use_meta_tool, factory) {
     ( optionsParser.getCompilations(),
       optionsParser.getSourcePathList());
 
-  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool<> > >
+  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
     raf(tool.getReplacements());
 
   int r = tool.runAndSave(&raf);
