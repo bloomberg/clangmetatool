@@ -13,22 +13,21 @@
 #include <clang/Tooling/Refactoring.h>
 #include <llvm/Support/CommandLine.h>
 
-#include <tuple>
-
-template <class... Args>
 class MyTool {
+public:
+  typedef std::tuple<> ArgTypes;
 private:
   std::string n = std::string("bar");
   clang::CompilerInstance* ci;
   clangmetatool::collectors::FindCalls fc;
-  std::tuple<Args...> additionalArgs;
+  ArgTypes args;
 
 public:
 
   MyTool(clang::CompilerInstance* ci,
          clang::ast_matchers::MatchFinder *f,
-         std::tuple<Args...> args)
-    :ci(ci), fc(ci, f, n), additionalArgs(args) {}
+         ArgTypes& args)
+    :ci(ci), fc(ci, f, n), args(args) {}
 
   const clang::DeclRefExpr* get_pointer_to(const clang::Expr* expr) {
     const clang::DeclRefExpr* ret = NULL;
@@ -81,8 +80,9 @@ TEST(use_meta_tool, factory) {
     ( optionsParser.getCompilations(),
       optionsParser.getSourcePathList());
 
+  MyTool::ArgTypes toolArgs;
   clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
-    raf(tool.getReplacements());
+    raf(tool.getReplacements(), toolArgs);
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);

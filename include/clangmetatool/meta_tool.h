@@ -6,7 +6,6 @@
 #include <memory>
 #include <stddef.h>
 #include <string>
-#include <tuple>
 
 #include <clang/AST/ASTConsumer.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
@@ -16,7 +15,6 @@
 #include <llvm/ADT/StringRef.h>
 
 namespace clangmetatool {
-
   /**
    * MetaTool is a template that reduces the amount of boilerplate
    * required to write a clang tool. The WrappedTool is a class that
@@ -34,21 +32,21 @@ namespace clangmetatool {
    *       - The replacementsMap for this run
    *
    */
-  template <template <class...> class WrappedTool, class... Args>
+  template <class WrappedTool>
   class MetaTool : public clang::ASTFrontendAction {
+  public:
+    typedef typename WrappedTool::ArgTypes ArgTypes;
   private:
     std::map<std::string, clang::tooling::Replacements> &replacementsMap;
     clang::ast_matchers::MatchFinder f;
-    WrappedTool<Args...> *tool;
-    std::tuple<Args...> additionalArgs;
+    WrappedTool *tool;
+    ArgTypes args;
+
   public:
     MetaTool
     (std::map<std::string, clang::tooling::Replacements> &replacementsMap,
-     std::tuple<Args...>& args)
-      : replacementsMap(replacementsMap),
-        tool(NULL),
-        additionalArgs(std::move(args))
-    {}
+     ArgTypes args)
+      :replacementsMap(replacementsMap), tool(NULL), args(args) { }
 
     ~MetaTool() {
       if (tool)
@@ -61,7 +59,7 @@ namespace clangmetatool {
       // references to unused compiler instance objects, and
       // eventually segfaulting, so assert here.
       assert(tool == NULL);
-      tool = new WrappedTool<Args...>(&ci, &f, additionalArgs);
+      tool = new WrappedTool(&ci, &f, args);
       return true;
     }
 

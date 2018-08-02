@@ -14,21 +14,21 @@
 #include <llvm/Support/CommandLine.h>
 
 #include <iostream>
-#include <tuple>
 
-template<class... Args>
 class MyTool {
+public:
+  typedef std::tuple<> ArgTypes;
 private:
   clang::CompilerInstance* ci;
   clangmetatool::collectors::Definitions dc;
-  std::tuple<Args...> additionalArgs;
+  ArgTypes args;
 
 public:
   MyTool(clang::CompilerInstance* ci,
          clang::ast_matchers::MatchFinder *f,
-         std::tuple<Args...>& args)
-    :ci(ci), dc(ci, f), additionalArgs(args) {
-  }
+         ArgTypes& args)
+    :ci(ci), dc(ci, f), args(args) {}
+
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
 
@@ -76,8 +76,9 @@ TEST(use_meta_tool, factory) {
     ( optionsParser.getCompilations(),
       optionsParser.getSourcePathList());
 
+  MyTool::ArgTypes toolArgs;
   clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
-    raf(tool.getReplacements());
+    raf(tool.getReplacements(), toolArgs);
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);
