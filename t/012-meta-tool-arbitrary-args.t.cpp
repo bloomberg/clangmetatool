@@ -39,6 +39,8 @@ public:
     ASSERT_NE((void*)NULL, ci);
     ASSERT_NE((void*)NULL, f);
 
+    EXPECT_EQ('a', std::get<0>(args));
+
     postprocessing_called = true;
   }
 };
