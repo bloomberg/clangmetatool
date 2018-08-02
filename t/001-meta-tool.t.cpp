@@ -12,17 +12,22 @@
 #include <clang/Tooling/Refactoring.h>
 #include <llvm/Support/CommandLine.h>
 
+#include <tuple>
 
 bool constructor_called;
 bool postprocessing_called;
 
+template<class... Args>
 class MyTool {
 private:
   clang::CompilerInstance* ci;
   clang::ast_matchers::MatchFinder *f;
+  std::tuple<Args...> additionalArgs;
 public:
-  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
-    :ci(ci), f(f) {
+  MyTool(clang::CompilerInstance* ci,
+         clang::ast_matchers::MatchFinder *f,
+         std::tuple<Args...>& args)
+    :ci(ci), f(f), additionalArgs(args) {
     constructor_called = true;
   }
   void postProcessing
@@ -50,7 +55,7 @@ TEST(use_meta_tool, factory) {
   constructor_called = false;
   postprocessing_called = false;
 
-  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
+  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool<> > >
     raf(tool.getReplacements());
 
   int r = tool.runAndSave(&raf);

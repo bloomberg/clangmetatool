@@ -6,6 +6,7 @@
 #include <memory>
 #include <stddef.h>
 #include <string>
+#include <tuple>
 
 #include <clang/AST/ASTConsumer.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
@@ -33,16 +34,21 @@ namespace clangmetatool {
    *       - The replacementsMap for this run
    *
    */
-  template <class WrappedTool>
+  template <template <class...> class WrappedTool, class... Args>
   class MetaTool : public clang::ASTFrontendAction {
   private:
     std::map<std::string, clang::tooling::Replacements> &replacementsMap;
     clang::ast_matchers::MatchFinder f;
-    WrappedTool *tool;
+    WrappedTool<Args...> *tool;
+    std::tuple<Args...> additionalArgs;
   public:
     MetaTool
-    (std::map<std::string, clang::tooling::Replacements> &replacementsMap)
-      :replacementsMap(replacementsMap), tool(NULL) { }
+    (std::map<std::string, clang::tooling::Replacements> &replacementsMap,
+     std::tuple<Args...>& args)
+      : replacementsMap(replacementsMap),
+        tool(NULL),
+        additionalArgs(std::move(args))
+    {}
 
     ~MetaTool() {
       if (tool)
@@ -55,7 +61,7 @@ namespace clangmetatool {
       // references to unused compiler instance objects, and
       // eventually segfaulting, so assert here.
       assert(tool == NULL);
-      tool = new WrappedTool(&ci, &f);
+      tool = new WrappedTool<Args...>(&ci, &f, additionalArgs);
       return true;
     }
 

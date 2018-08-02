@@ -6,6 +6,10 @@ configure_file(
   include/clangmetatool-testconfig.h
 )
 
+add_library( gtestfixup INTERFACE IMPORTED )
+set_property( TARGET gtestfixup
+    APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${GTEST_INCLUDE_DIRS} )
+
 foreach(
   TEST
   001-meta-tool
@@ -19,16 +23,15 @@ foreach(
   009-definitions-one-func-in-namespace
   010-definitions-two-class-defs-with-funcs
   011-definitions-templates
+  012-meta-tool-arbitrary-args
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
   target_include_directories(
     ${TEST}.t
     PRIVATE
-    ${GTEST_INCLUDE_DIRS}
     ${CMAKE_BINARY_DIR}/t/include
     ${CMAKE_SOURCE_DIR}/t/include
-    ${CLANG_INCLUDE_DIRS}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${LLVM_INCLUDE_DIR}>
   )
@@ -37,6 +40,8 @@ foreach(
     ${TEST}.t
     clangmetatool
     clangTooling
+    clangfixup
+    gtestfixup
     ${GTEST_BOTH_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
   )

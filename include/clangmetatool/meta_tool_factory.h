@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <tuple>
 
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Core/Replacement.h>
@@ -14,9 +15,9 @@ namespace clangmetatool {
    * MetaToolFactory wraps around FrontendAction class that takes a
    * replacementsMap as argument to the construtor. You can use it in
    * conjunction with the MetaTool class to reduce boilerplate in the
-   * code requjired to write a clang tool.
+   * code required to write a clang tool.
    */
-  template <class T>
+  template <template <class...> class T, class... Args>
   class MetaToolFactory
     : public clang::tooling::FrontendActionFactory {
   private:
@@ -25,6 +26,7 @@ namespace clangmetatool {
      * List of replacements to be used in the run.
      */
     std::map<std::string, clang::tooling::Replacements> &replacements;
+    std::tuple<Args...> additionalArgs;
   public:
 
     /**
@@ -32,15 +34,18 @@ namespace clangmetatool {
      * will be used for this run.
      */
     MetaToolFactory
-    (std::map<std::string, clang::tooling::Replacements> &replacements)
-      :replacements(replacements) { }
+    (std::map<std::string, clang::tooling::Replacements> &replacements,
+     Args... args)
+      : replacements(replacements),
+        additionalArgs(std::make_tuple<Args...>(args...))
+    {}
     
     /**
      * This will create the object of your tool giving the
      * replacemnets map as an argument.
      */
     virtual clang::FrontendAction* create() {
-      return new T(replacements);
+      return new T<Args...>(replacements, additionalArgs);
     }
   };
 

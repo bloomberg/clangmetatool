@@ -4,8 +4,6 @@
 
 #include <clangmetatool/meta_tool_factory.h>
 #include <clangmetatool/meta_tool.h>
-#include <clangmetatool/collectors/member_method_decls_data.h>
-#include <clangmetatool/collectors/member_method_decls.h>
 
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Core/Replacement.h>
@@ -13,64 +11,47 @@
 #include <clang/Tooling/Tooling.h>
 #include <clang/Tooling/Refactoring.h>
 #include <llvm/Support/CommandLine.h>
-#include <llvm/ADT/APSInt.h>
 
-#include <iostream>
 #include <tuple>
+#include <typeinfo>
 
-template<class... Args>
+bool constructor_called;
+bool postprocessing_called;
+
+template <class... Args>
 class MyTool {
 private:
   clang::CompilerInstance* ci;
-  clangmetatool::collectors::MemberMethodDecls v;
+  clang::ast_matchers::MatchFinder *f;
   std::tuple<Args...> additionalArgs;
 public:
   MyTool(clang::CompilerInstance* ci,
          clang::ast_matchers::MatchFinder *f,
-         std::tuple<Args...> args)
-    :ci(ci), v(ci, f), additionalArgs(args) {
+         std::tuple<Args...>& args)
+    :ci(ci), f(f), additionalArgs(args) {
+    constructor_called = true;
   }
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
-    
-    std::set<
-      const clang::CXXMethodDecl*> *decls = &(v.getData()->decls);
+    ASSERT_NE((void*)NULL, ci);
+    ASSERT_NE((void*)NULL, f);
 
-    ASSERT_EQ(4, decls->size())
-      << "Found decl ref";
-
-    const char* names[] = { "count", "update", "run", "count"};
-    const char* parents[] = {
-        "MyObject", "MyObject",
-        "OurObject", "MyObject"};
-
-    int count = 0;
-    auto it = decls->begin();
-    while (it != decls->end()) {
-      const clang::CXXMethodDecl* decl = *it;
-
-      ASSERT_EQ(std::string(names[count]), decl->getNameAsString())
-        << "Got the expected method name";
-
-      ASSERT_EQ(std::string(parents[count]), decl->getParent()->getNameAsString())
-        << "Got the expected parent struct name";
-
-      count++;
-      it++;
-    }
+    ASSERT_EQ(6, std::tuple_size<std::tuple<Args...> >::value);
+    ASSERT_EQ("int", typeid(std::get<0>(additionalArgs)));
+    postprocessing_called = true;
   }
+};
+
+// A struct to pass as an argument to MyTool
+struct AStruct {
+    AStruct() {};
 };
 
 TEST(use_meta_tool, factory) {
   llvm::cl::OptionCategory MyToolCategory("my-tool options");
 
   int argc = 4;
-  const char* argv[] = {
-    "foo",
-    CMAKE_SOURCE_DIR "/t/data/005-membermethoddecls-basic/foo.cpp",
-    "--",
-    "-xc++"
-  };
+  const char* argv[] = { "foo", "/dev/null", "--", "-xc++"  };
 
   clang::tooling::CommonOptionsParser
     optionsParser
@@ -80,11 +61,26 @@ TEST(use_meta_tool, factory) {
     ( optionsParser.getCompilations(),
       optionsParser.getSourcePathList());
 
-  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool<> > >
-    raf(tool.getReplacements());
+  constructor_called = false;
+  postprocessing_called = false;
+
+  AStruct a;
+  clangmetatool::MetaToolFactory< clangmetatool::MetaTool, int> raf(tool.getReplacements(), 1);
+  // clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool >, int, std::string, char, bool, float, double, AStruct >
+  //   raf(tool.getReplacements(),
+  //       1,
+  //       std::string(),
+  //       'c',
+  //       true,
+  //       1.16f,
+  //       1.16,
+  //       a);
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);
+  ASSERT_EQ(true, constructor_called);
+  ASSERT_EQ(true, postprocessing_called);
+
 }
 
 

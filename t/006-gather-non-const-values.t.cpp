@@ -15,13 +15,20 @@
 #include <llvm/Support/CommandLine.h>
 #include <llvm/ADT/APSInt.h>
 
+#include <tuple>
+
+template <class... Args>
 class MyTool {
 private:
   clang::CompilerInstance* ci;
   clangmetatool::collectors::VariableRefs v;
+  std::tuple<Args...> additionalArgs;
+
 public:
-  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
-    :ci(ci), v(ci, f) {
+  MyTool(clang::CompilerInstance* ci,
+         clang::ast_matchers::MatchFinder *f,
+         std::tuple<Args...>& args)
+    :ci(ci), v(ci, f), additionalArgs(args) {
   }
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
@@ -136,7 +143,7 @@ TEST(use_meta_tool, factory) {
     ( optionsParser.getCompilations(),
       optionsParser.getSourcePathList());
 
-  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
+  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool<> > >
     raf(tool.getReplacements());
 
   int r = tool.runAndSave(&raf);
