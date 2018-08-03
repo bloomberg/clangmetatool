@@ -24,6 +24,7 @@ foreach(
   010-definitions-two-class-defs-with-funcs
   011-definitions-templates
   012-references-non-template
+  013-references-template
   014-meta-tool-arbitrary-args
   )
 
