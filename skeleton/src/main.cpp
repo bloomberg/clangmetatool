@@ -1,5 +1,6 @@
 #include <iosfwd>
 #include <map>
+#include <tuple>
 
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Core/Replacement.h>
@@ -14,7 +15,10 @@
 
 class MyTool {
 public:
-  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f) {
+  typedef std::tuple<> ArgTypes;
+  MyTool(clang::CompilerInstance* ci,
+         clang::ast_matchers::MatchFinder *f,
+         ArgTypes arguments) {
   }
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
@@ -33,8 +37,9 @@ int main(int argc, const char* argv[]) {
   clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
                                        optionsParser.getSourcePathList());
 
+  MyTool::ArgTypes toolArgs;
   clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
-    raf(tool.getReplacements());
+    raf(tool.getReplacements(), toolArgs);
 
   int r = tool.runAndSave(&raf);
 
