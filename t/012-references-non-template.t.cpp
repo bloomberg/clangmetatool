@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <typeinfo>
+#include <utility>
 
 class MyTool {
 private:
@@ -29,19 +30,35 @@ public:
 
     clangmetatool::collectors::ReferencesData *d = dc.getData();
 
-#if 1
+#if 0
     for (auto const& ref_pair : d->refs) {
         std::cerr << typeid(*ref_pair.second).name() << " -> ";
         std::cerr << typeid(*ref_pair.first).name() << std::endl;
-        std::cerr << ref_pair.second->getNameAsString() << " -> ";
-        std::cerr << ref_pair.first->getNameAsString() << std::endl;
+        std::cerr << ref_pair.first->getNameAsString() << " -> ";
+        std::cerr << ref_pair.second->getNameAsString() << std::endl;
         std::cerr << std::endl;
     }
 #endif
 
-    std::vector<std::string> ref_names_expected({
-        });
-    std::vector<std::string> ref_names_actual;
+    std::vector<std::pair<std::string, std::string> > ref_names_expected({
+            std::make_pair("Foo", "Foo"),
+            std::make_pair("Foo", "func2"),
+            std::make_pair("Foo", "func2"),
+            std::make_pair("bar_func", "Bar"),
+            std::make_pair("called_func", "func"),
+            std::make_pair("called_func", "func"),
+            std::make_pair("called_func_2", "global_uncalled_func"),
+            std::make_pair("called_func_2", "global_var_3"),
+            std::make_pair("extern_var", "func"),
+            std::make_pair("f", "Bar"),
+            std::make_pair("foo_mem", "Foo"),
+            std::make_pair("global_var", "func"),
+            std::make_pair("global_var", "func"),
+            std::make_pair("global_var", "global_var_2"),
+            std::make_pair("global_var", "global_var_3"),
+            std::make_pair("global_var", "static_local_var")
+            });
+    std::vector<std::pair<std::string, std::string> > ref_names_actual;
 
     size_t num_refs_expected = ref_names_expected.size();
 
@@ -49,7 +66,12 @@ public:
       << "Has the right number of references";
 
     for (auto const& ref_pair : d->refs) {
-        // ref_names_actual.push_back(ref_pair.second->getNameAsString());
+        ref_names_actual.push_back(
+                std::make_pair(
+                    ref_pair.first->getNameAsString(),
+                    ref_pair.second->getNameAsString()
+                    )
+                );
     }
 
     std::sort(ref_names_actual.begin(), ref_names_actual.end());
@@ -58,7 +80,7 @@ public:
         ASSERT_EQ(ref_names_expected[i], ref_names_actual[i])
             << "Reference name matches";
     }
-#if 1
+#if 0
     EXPECT_TRUE(false) << "Force failure to see output of test";
 #endif
   }
