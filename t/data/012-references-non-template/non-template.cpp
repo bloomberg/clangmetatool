@@ -24,15 +24,15 @@ int func(int f_arg) {
     return 0;
 }
 
-struct Foo {
-    int foo_mem;
+struct Foo { // (constructor) captured by funcInRecordMatcher
+    int foo_mem; // captured by fieldInRecordMatcher
 };
 
 class Bar {
 private:
-    Foo f;
+    Foo f; // captured by fieldInRecordMatcher
 public:
-    bool bar_func(Foo foo_param) {
+    bool bar_func(Foo foo_param) { // captured by funcInRecordMatcher
         return f.foo_mem == foo_param.foo_mem;
     }
 };

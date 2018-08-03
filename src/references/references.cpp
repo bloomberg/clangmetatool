@@ -110,6 +110,20 @@ private:
                     )
                     );
 
+    DeclarationMatcher funcInRecordMatcher =
+        recordDecl(
+                hasDescendant(
+                    functionDecl().bind("reference")
+                    )
+                ).bind("context");
+
+    DeclarationMatcher fieldInRecordMatcher =
+        recordDecl(
+                hasDescendant(
+                    fieldDecl().bind("reference")
+                    )
+                ).bind("context");
+
     ReferencesDataAppender refAppender;
 
 public:
@@ -119,6 +133,8 @@ public:
     {
         f->addMatcher(funcContextMatcher, &refAppender);
         f->addMatcher(varContextMatcher, &refAppender);
+        f->addMatcher(funcInRecordMatcher, &refAppender);
+        f->addMatcher(fieldInRecordMatcher, &refAppender);
     }
 
     ReferencesData* getData() {
