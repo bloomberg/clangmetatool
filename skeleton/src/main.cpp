@@ -15,6 +15,16 @@
 
 class MyTool {
 public:
+  /**
+   * This typedef is optional, causing two possible constructor signatures:
+   * For classes the define it:
+   *        MyTool( clang::CompilerInstance*,
+   *                clang::ast_matchers::MatchFinder*,
+   *                ArgTypes )
+   * Or, for classes that choose not to define ArgTypes:
+   *        MyTool( clang::CompilerInstance*,
+   *                clang::ast_matchers::MatchFinder* )
+   */
   typedef std::tuple<> ArgTypes;
   MyTool(clang::CompilerInstance* ci,
          clang::ast_matchers::MatchFinder *f,

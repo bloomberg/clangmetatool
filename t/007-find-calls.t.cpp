@@ -14,20 +14,14 @@
 #include <llvm/Support/CommandLine.h>
 
 class MyTool {
-public:
-  typedef std::tuple<> ArgTypes;
 private:
   std::string n = std::string("bar");
   clang::CompilerInstance* ci;
   clangmetatool::collectors::FindCalls fc;
-  ArgTypes args;
-
 public:
 
-  MyTool(clang::CompilerInstance* ci,
-         clang::ast_matchers::MatchFinder *f,
-         ArgTypes& args)
-    :ci(ci), fc(ci, f, n), args(args) {}
+  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
+    :ci(ci), fc(ci, f, n) {}
 
   const clang::DeclRefExpr* get_pointer_to(const clang::Expr* expr) {
     const clang::DeclRefExpr* ret = NULL;
@@ -80,9 +74,8 @@ TEST(use_meta_tool, factory) {
     ( optionsParser.getCompilations(),
       optionsParser.getSourcePathList());
 
-  MyTool::ArgTypes toolArgs;
   clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
-    raf(tool.getReplacements(), toolArgs);
+    raf(tool.getReplacements());
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);

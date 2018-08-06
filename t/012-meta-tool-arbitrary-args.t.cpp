@@ -20,7 +20,7 @@ bool postprocessing_called;
 
 class MyTool {
 public:
-  typedef std::tuple<char> ArgTypes;
+  typedef std::tuple<char, int, std::string> ArgTypes;
 
 private:
   clang::CompilerInstance* ci;
@@ -39,7 +39,9 @@ public:
     ASSERT_NE((void*)NULL, ci);
     ASSERT_NE((void*)NULL, f);
 
-    EXPECT_EQ('a', std::get<0>(args));
+    EXPECT_EQ('$',                          std::get<0>(args));
+    EXPECT_EQ(42,                           std::get<1>(args));
+    EXPECT_EQ(std::string("the answer"),    std::get<2>(args));
 
     postprocessing_called = true;
   }
@@ -71,7 +73,7 @@ TEST(use_meta_tool, factory) {
   constructor_called = false;
   postprocessing_called = false;
 
-  MyTool::ArgTypes toolArgs('a');
+  MyTool::ArgTypes toolArgs('$', 42, "the answer");
   clangmetatool::MetaToolFactory<
       clangmetatool::MetaTool< MyTool > > raf(tool.getReplacements(), toolArgs);
 

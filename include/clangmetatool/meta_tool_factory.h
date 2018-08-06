@@ -2,6 +2,7 @@
 #define INCLUDED_CLANGMETATOOL_META_TOOL_FACTORY_H
 
 #include <string>
+#include <typeinfo>
 #include <map>
 
 #include <clang/Frontend/FrontendAction.h>
@@ -19,8 +20,9 @@ namespace clangmetatool {
   class MetaToolFactory
     : public clang::tooling::FrontendActionFactory {
   private:
-    typedef typename T::ArgTypes ArgTypes;
-    ArgTypes args;
+    // T *must* provide this
+    typename T::ArgTypes args;
+
     /**
      * List of replacements to be used in the run.
      */
@@ -34,9 +36,13 @@ namespace clangmetatool {
      */
     MetaToolFactory
     (std::map<std::string, clang::tooling::Replacements> &replacements,
-     ArgTypes &args)
+     typename T::ArgTypes& args)
       :replacements(replacements), args(args) { }
-    
+
+    MetaToolFactory
+    (std::map<std::string, clang::tooling::Replacements> &replacements)
+      :replacements(replacements) { }
+
     /**
      * This will create the object of your tool giving the
      * replacemnets map as an argument.

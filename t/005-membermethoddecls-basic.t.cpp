@@ -18,17 +18,11 @@
 #include <iostream>
 
 class MyTool {
-public:
-  typedef std::tuple<> ArgTypes;
 private:
   clang::CompilerInstance* ci;
   clangmetatool::collectors::MemberMethodDecls v;
-  ArgTypes args;
-
 public:
-  MyTool(clang::CompilerInstance* ci,
-         clang::ast_matchers::MatchFinder *f,
-         ArgTypes& args)
+  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
     :ci(ci), v(ci, f) {
   }
   void postProcessing
@@ -81,9 +75,8 @@ TEST(use_meta_tool, factory) {
     ( optionsParser.getCompilations(),
       optionsParser.getSourcePathList());
 
-  MyTool::ArgTypes toolArgs;
   clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
-    raf(tool.getReplacements(), toolArgs);
+    raf(tool.getReplacements());
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);

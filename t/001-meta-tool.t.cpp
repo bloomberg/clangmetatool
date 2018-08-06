@@ -17,18 +17,12 @@ bool constructor_called;
 bool postprocessing_called;
 
 class MyTool {
-public:
-  typedef std::tuple<> ArgTypes;
 private:
   clang::CompilerInstance* ci;
   clang::ast_matchers::MatchFinder *f;
-  ArgTypes& args;
-
 public:
-  MyTool(clang::CompilerInstance* ci,
-         clang::ast_matchers::MatchFinder *f,
-         ArgTypes& args)
-    :ci(ci), f(f), args(args) {
+  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
+    :ci(ci), f(f) {
     constructor_called = true;
   }
   void postProcessing
@@ -56,9 +50,8 @@ TEST(use_meta_tool, factory) {
   constructor_called = false;
   postprocessing_called = false;
 
-  MyTool::ArgTypes toolArgs;
   clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
-    raf(tool.getReplacements(), toolArgs);
+    raf(tool.getReplacements());
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);
