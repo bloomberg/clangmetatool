@@ -99,8 +99,10 @@ private:
                 cxxConstructExpr(
                     allOf(
                         hasAncestor(
-                            functionDecl(
-                                isDefinition()
+                            varDecl(
+                                allOf(
+                                    isDefinition(), hasGlobalStorage()
+                                    )
                                 ).bind("context")
                             ),
                         hasDeclaration(

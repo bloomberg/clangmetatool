@@ -43,7 +43,7 @@ public:
     std::vector<std::pair<std::string, std::string> > ref_names_expected({
             std::make_pair("Foo", "Foo"),
             std::make_pair("Foo", "func2"),
-            std::make_pair("Foo", "func2"),
+            std::make_pair("Foo", "global_foo"),
             std::make_pair("bar_func", "Bar"),
             std::make_pair("called_func", "func"),
             std::make_pair("called_func", "func"),
