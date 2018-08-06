@@ -23,7 +23,7 @@ foreach(
   009-definitions-one-func-in-namespace
   010-definitions-two-class-defs-with-funcs
   011-definitions-templates
-  012-meta-tool-arbitrary-args
+  014-meta-tool-arbitrary-args
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
