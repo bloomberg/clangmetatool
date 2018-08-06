@@ -13,7 +13,6 @@
 #include <llvm/Support/CommandLine.h>
 
 #include <tuple>
-#include <typeinfo>
 
 bool constructor_called;
 bool postprocessing_called;
