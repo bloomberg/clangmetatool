@@ -2,7 +2,6 @@
 #define INCLUDED_CLANGMETATOOL_META_TOOL_FACTORY_H
 
 #include <string>
-#include <typeinfo>
 #include <map>
 
 #include <clang/Frontend/FrontendAction.h>
