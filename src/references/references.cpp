@@ -26,6 +26,7 @@ public:
         if (ctxt == nullptr) return;
 
         data->refs.insert(std::make_pair(ref, ctxt));
+        data->deps.insert(std::make_pair(ctxt, ref));
     }
 };
 

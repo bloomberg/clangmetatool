@@ -16,10 +16,15 @@ namespace collectors {
 class ReferencesData {
 public:
     /**
-     * Store data for references
-     * and the context in which the references exist.
+     * Map from reference back up to its context.
      */
     std::unordered_multimap<const clang::NamedDecl *, const clang::NamedDecl *> refs;
+
+    /**
+     * Map from context to reference.
+     * This is the inverse of "refs".
+     */
+    std::unordered_multimap<const clang::NamedDecl *, const clang::NamedDecl *> deps;
 };
 
 } // namespace collectors
