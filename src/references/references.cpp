@@ -114,15 +114,22 @@ private:
 
     DeclarationMatcher funcInRecordMatcher =
         recordDecl(
-                hasDescendant(
-                    functionDecl().bind("reference")
+                allOf(
+                    isDefinition(),
+                    hasDescendant(
+                        functionDecl().bind("reference")
+                        )
+
                     )
                 ).bind("context");
 
     DeclarationMatcher fieldInRecordMatcher =
         recordDecl(
-                hasDescendant(
-                    fieldDecl().bind("reference")
+                allOf(
+                    isDefinition(),
+                    hasDescendant(
+                        fieldDecl().bind("reference")
+                        )
                     )
                 ).bind("context");
 

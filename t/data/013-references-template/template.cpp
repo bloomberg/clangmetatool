@@ -11,7 +11,7 @@ T called_func_2(T cf2_arg) {
     return cf2_arg;
 }
 
-int global_var_3 = called_func_2(1) + global_var; // both deps captured by varContextMatcher
+int global_var_3 = called_func_2(1) + global_var; // 2x deps captured by varContextMatcher
 
 int (*global_uncalled_func)(int) = called_func_2<int>; // captured by varContextMatcher
 
@@ -29,14 +29,14 @@ T func(T f_arg) {
 
 template <typename T>
 struct Foo { // (constructor) captured by funcInRecordMatcher 2x (2 specializations)
-    T foo_mem; // captured by fieldInRecordMatcher 3x (one templated, 2 specializations)
+    T foo_mem; // captured by fieldInRecordMatcher 3x (1 templated, 2 specializations)
 };
 
 template <typename T>
 class Bar {
 private:
     Foo<int> f; // captured by fieldInRecordMatcher
-    T bar_mem;
+    T bar_mem; // (not captured, since no instantiation)
 public:
     bool bar_func(Foo<int> foo_param) { // captured by funcInRecordMatcher
         return f.foo_mem == foo_param.foo_mem;
@@ -44,7 +44,7 @@ public:
 };
 
 void func2() {
-    Foo<int> f; // captured by funcContextMatcher and varContextMatcher (TODO : why? this isn't a var context)
+    Foo<int> f; // captured by funcContextMatcher
 }
 
-Foo<bool> global_foo; // not captured (TODO : why? should be captured by varContextMatcher)
+Foo<bool> global_foo; // captured by varContextMatcher
