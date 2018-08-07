@@ -32,8 +32,8 @@ public:
 
 #if 0
     for (auto const& ref_pair : d->refs) {
-        std::cerr << typeid(*ref_pair.second).name() << " -> ";
-        std::cerr << typeid(*ref_pair.first).name() << std::endl;
+        std::cerr << typeid(*ref_pair.first).name() << " -> ";
+        std::cerr << typeid(*ref_pair.second).name() << std::endl;
         std::cerr << ref_pair.first->getNameAsString() << " -> ";
         std::cerr << ref_pair.second->getNameAsString() << std::endl;
         std::cerr << std::endl;
@@ -78,8 +78,60 @@ public:
 
     for (size_t i = 0; i < num_refs_expected; ++i) {
         ASSERT_EQ(ref_names_expected[i], ref_names_actual[i])
-            << "Reference name matches";
+            << "Reference names match";
     }
+
+#if 0
+    for (auto const& dep_pair : d->deps) {
+        std::cerr << typeid(*dep_pair.first).name() << " -> ";
+        std::cerr << typeid(*dep_pair.second).name() << std::endl;
+        std::cerr << dep_pair.first->getNameAsString() << " -> ";
+        std::cerr << dep_pair.second->getNameAsString() << std::endl;
+        std::cerr << std::endl;
+    }
+#endif
+
+    std::vector<std::pair<std::string, std::string> > dep_names_expected({
+            std::make_pair("Bar", "bar_func"),
+            std::make_pair("Bar", "f"),
+            std::make_pair("Foo", "Foo"),
+            std::make_pair("Foo", "foo_mem"),
+            std::make_pair("func", "called_func"),
+            std::make_pair("func", "called_func"),
+            std::make_pair("func", "extern_var"),
+            std::make_pair("func", "global_var"),
+            std::make_pair("func", "global_var"),
+            std::make_pair("func2", "Foo"),
+            std::make_pair("global_foo", "Foo"),
+            std::make_pair("global_uncalled_func", "called_func_2"),
+            std::make_pair("global_var_2", "global_var"),
+            std::make_pair("global_var_3", "called_func_2"),
+            std::make_pair("global_var_3", "global_var"),
+            std::make_pair("static_local_var", "global_var")
+            });
+    std::vector<std::pair<std::string, std::string> > dep_names_actual;
+
+    size_t num_deps_expected = dep_names_expected.size();
+
+    ASSERT_EQ(num_deps_expected, d->deps.size())
+      << "Has the right number of dependencies";
+
+    for (auto const& dep_pair : d->deps) {
+        dep_names_actual.push_back(
+                std::make_pair(
+                    dep_pair.first->getNameAsString(),
+                    dep_pair.second->getNameAsString()
+                    )
+                );
+    }
+
+    std::sort(dep_names_actual.begin(), dep_names_actual.end());
+
+    for (size_t i = 0; i < num_deps_expected; ++i) {
+        ASSERT_EQ(dep_names_expected[i], dep_names_actual[i])
+            << "Dependency names match";
+    }
+
 #if 0
     EXPECT_TRUE(false) << "Force failure to see output of test";
 #endif
