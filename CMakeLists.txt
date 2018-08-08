@@ -41,7 +41,9 @@ set_property(
 
 target_link_libraries(
   clangmetatool
+  PUBLIC
   clangTooling
+  PRIVATE
   clangfixup
 )
 
