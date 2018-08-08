@@ -9,7 +9,6 @@
 #include <clang/Tooling/Tooling.h>
 
 namespace clangmetatool {
-
   /**
    * MetaToolFactory wraps around FrontendAction class that takes a
    * replacementsMap as argument to the construtor. You can use it in
@@ -20,6 +19,8 @@ namespace clangmetatool {
   class MetaToolFactory
     : public clang::tooling::FrontendActionFactory {
   private:
+    // T *must* provide this
+    typename T::ArgTypes args;
 
     /**
      * List of replacements to be used in the run.
@@ -29,18 +30,24 @@ namespace clangmetatool {
 
     /**
      * Metatool factory takes a reference to the replacements map that
-     * will be used for this run.
+     * will be used for this run in, along with any additional arguments that
+     * need to be passed on to the Tool
      */
+    MetaToolFactory
+    (std::map<std::string, clang::tooling::Replacements> &replacements,
+     typename T::ArgTypes& args)
+      :replacements(replacements), args(args) { }
+
     MetaToolFactory
     (std::map<std::string, clang::tooling::Replacements> &replacements)
       :replacements(replacements) { }
-    
+
     /**
      * This will create the object of your tool giving the
      * replacemnets map as an argument.
      */
     virtual clang::FrontendAction* create() {
-      return new T(replacements);
+      return new T(replacements, args);
     }
   };
 

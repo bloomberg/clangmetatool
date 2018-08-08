@@ -26,14 +26,21 @@ add_library(
 )
 target_include_directories(
   clangmetatool
-  PRIVATE ${CLANG_INCLUDE_DIRS}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${LLVM_INCLUDE_DIR}>
 )
+
+add_library( clangfixup INTERFACE IMPORTED )
+set_property(
+  TARGET clangfixup
+  APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${CLANG_INCLUDE_DIRS}
+)
+
 target_link_libraries(
   clangmetatool
   clangTooling
+  clangfixup
 )
 
 install(

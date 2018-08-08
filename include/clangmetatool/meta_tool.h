@@ -15,7 +15,22 @@
 #include <llvm/ADT/StringRef.h>
 
 namespace clangmetatool {
+namespace {
 
+// Code to check if there exists a member T::ArgTypes that was created as a
+// typedef
+template <typename... Ts>
+using void_t = void;
+
+template <typename T, typename = void>
+struct has_typedef_ArgTypes : std::false_type {
+};
+
+template <typename T>
+struct has_typedef_ArgTypes<T, void_t<typename T::ArgTypes>> : std::true_type {
+};
+
+}
   /**
    * MetaTool is a template that reduces the amount of boilerplate
    * required to write a clang tool. The WrappedTool is a class that
@@ -36,10 +51,32 @@ namespace clangmetatool {
   template <class WrappedTool>
   class MetaTool : public clang::ASTFrontendAction {
   private:
+    static constexpr bool providesArgTypes = has_typedef_ArgTypes<WrappedTool>::value;
+    struct NoArgs { typedef void* ArgTypes; };
+  public:
+    typedef typename std::conditional_t<providesArgTypes, WrappedTool, NoArgs>::ArgTypes ArgTypes;
+  private:
     std::map<std::string, clang::tooling::Replacements> &replacementsMap;
     clang::ast_matchers::MatchFinder f;
     WrappedTool *tool;
+
+    ArgTypes& args;
+
+
+    template <class A>
+    WrappedTool* create_tool(clang::CompilerInstance &ci, A args) {
+        return new WrappedTool(&ci, &f, args);
+    }
+    WrappedTool* create_tool(clang::CompilerInstance &ci, typename NoArgs::ArgTypes& args) {
+        return new WrappedTool(&ci, &f);
+    }
+
   public:
+    MetaTool
+    (std::map<std::string, clang::tooling::Replacements> &replacementsMap,
+     ArgTypes& args)
+      :replacementsMap(replacementsMap), tool(NULL), args(args) { }
+
     MetaTool
     (std::map<std::string, clang::tooling::Replacements> &replacementsMap)
       :replacementsMap(replacementsMap), tool(NULL) { }
@@ -49,13 +86,14 @@ namespace clangmetatool {
         delete tool;
     }
 
+
     virtual bool BeginSourceFileAction(clang::CompilerInstance &ci) override {
       // we don't expect to ever have the metatool be invoked more
       // than once, it would eventually result in us holding
       // references to unused compiler instance objects, and
       // eventually segfaulting, so assert here.
       assert(tool == NULL);
-      tool = new WrappedTool(&ci, &f);
+      tool = create_tool(ci, args);
       return true;
     }
 
