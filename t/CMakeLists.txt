@@ -23,6 +23,8 @@ foreach(
   009-definitions-one-func-in-namespace
   010-definitions-two-class-defs-with-funcs
   011-definitions-templates
+  012-references-non-template
+  013-references-template
   014-meta-tool-arbitrary-args
   )
 
