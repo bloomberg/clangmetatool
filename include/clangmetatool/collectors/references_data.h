@@ -16,15 +16,19 @@ namespace collectors {
 class ReferencesData {
 public:
     /**
-     * Map from reference back up to its context.
-     */
-    std::unordered_multimap<const clang::NamedDecl *, const clang::NamedDecl *> refs;
-
-    /**
-     * Map from context to reference.
-     * This is the inverse of "refs".
+     * Contains all definitions that reference other identifiers.
+     *  Key is the definition of a class/function/variable.
+     *  Value is the declaration of an identifier referenced by that class/function/variable.
      */
     std::unordered_multimap<const clang::NamedDecl *, const clang::NamedDecl *> deps;
+
+    /**
+     * Contains all references that are used in definitions.
+     * (This is the inverse of "deps".)
+     *  Key is the declaration of the identifier referenced by a class/function/variable.
+     *  Value is the definition of a class/function/variable that references the Key.
+     */
+    std::unordered_multimap<const clang::NamedDecl *, const clang::NamedDecl *> refs;
 };
 
 } // namespace collectors
