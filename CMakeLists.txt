@@ -24,6 +24,11 @@ add_library(
 
   src/definitions/definitions.cpp
 
+  src/propagation/constant_cstring_propagator.cpp
+  src/propagation/strongly_connected_blocks.cpp
+  src/propagation/types/value_context_ordering.cpp
+  src/propagation/util/get_stmt_from_cfg_element.cpp
+
   src/references/references.cpp
 )
 target_include_directories(

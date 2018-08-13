@@ -90,7 +90,7 @@ in the `clangmetatool::types` namespace.
 
 ## Reusable data collection
 
-The other part of this library consists of a number of "Data
+Another part of this library consists of a number of "Data
 Collectors". Those will be in the `clangmetatool::collectors`
 namespace.
 
@@ -102,6 +102,38 @@ all required callbacks in order to collect the data later.
 The collector class will also have a "getData" method that will return
 the pointer to a struct with the data. The "getData" method should
 only be called in the 'post-processing' phase of the tool.
+
+## Constant Propagation
+
+Another part of this consists of constant propagators to assist
+with analysis. Those will be in the `clangmetatool::propagation`
+namespace.
+
+More specifically, the current implementation provides a constant
+C-style string propagator, which propagates constant strings through
+the control flow graph so that `char*` variables may be queried for there
+true value anywhere where that value is deterministic.
+
+This could be useful for various purposes but especially for identifing
+things like which database a function is actually calling out to, etc.
+
+### `clangmetatool::propagation::ConstantCStringPropagator`
+
+This provides infrastructure (utilizing
+`clangmetatool::propagation::ConstantPropagator` and
+`clangmetatool::propagation::PropagationVisitor`) to propagate constant
+C-style string values over the program. Resulting in the true value of a
+variable wherever the value is deterministic and "<UNRESOLVED>" anywhere else.
+
+#### `clangmetatool::propagation::ConstantPropagator` and `clangmetatool::propagation::PropagationVisitor`
+
+These two classes provide the boilerplate to create infrastructure
+to propagate constants of arbitrary types through the control flow graph
+of the program in such a way that anywhere the constant value of a variable
+would be deterministic one may query its value at that point.
+
+These classes are private to the library, but additional propagators could be easily
+made using these facilities.
 
 ## Skeleton for a new project
 

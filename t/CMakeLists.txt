@@ -22,6 +22,10 @@ foreach(
   012-references-non-template
   013-references-template
   014-meta-tool-arbitrary-args
+  015-basic-cstring-propagation
+  016-branching-cstring-propagation
+  017-looping-cstring-propagation
+  018-multi-function-cstring-propagation
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
