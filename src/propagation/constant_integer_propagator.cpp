@@ -43,6 +43,13 @@ private:
     return false;
   }
 
+  bool evalCompoundExprToInteger(std::string& result, const clang::Expr* E) {
+    llvm::APSInt ER;
+    E->EvaluateAsInt(ER, context);
+    result = ER.toString(10);
+    return true;
+  }
+
 public:
   // Use parent class's constructor
   using PropagationVisitor<IntegerVisitor, std::string>::PropagationVisitor;
@@ -95,7 +102,7 @@ public:
 
         std::string result;
 
-        if(evalExprToInteger(result, BO)) {
+        if(evalCompoundExprToInteger(result, BO)) {
             // If we can evaluate the expression to a string add the result
             // to the context map
             addToMap(LHS->getNameInfo().getAsString(), result, BO->getLocStart());
