@@ -82,16 +82,40 @@ class MyTool {
 private:
   clang::CompilerInstance* ci;
   FindVarDecls fvd;
-  clangmetatool::propagation::ConstantIntegerPropagator csp;
+  clangmetatool::propagation::ConstantIntegerPropagator cip;
 
 public:
   MyTool(clang::CompilerInstance* ci, MatchFinder *f)
-    : ci(ci), fvd(ci, f), csp(ci) {
+    : ci(ci), fvd(ci, f), cip(ci) {
   }
 
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
-      FAIL();
+    FindVarDeclsData* decls = fvd.getData();
+
+    for(auto decl : *decls) {
+      cip.runPropagation(decl.first, decl.second);
+    }
+
+    std::ostringstream stream;
+
+    cip.dump(stream);
+
+    const char* expectedResult =
+      "main >>>>>>>>>>>>>>>>>>>>>>>>>>\n"
+      "  ** v1\n"
+      "    - 4:3 '0' (Changed by code)\n"
+      "    - 9:3 '42' (Changed by code)\n"
+      "    - 14:3 '44' (Changed by code)\n"
+      "    - 15:3 '132' (Changed by code)\n"
+      "    - 16:3 '33' (Changed by code)\n"
+      "    - 17:3 '28' (Changed by code)\n"
+      "    - 21:3 '<UNRESOLVED>' (Changed by code)\n"
+      "    - 31:3 '42' (Changed by code)\n"
+      " "
+      "main <<<<<<<<<<<<<<<<<<<<<<<<<<\n";
+
+    EXPECT_STREQ(expectedResult, stream.str().c_str());
   }
 };
 

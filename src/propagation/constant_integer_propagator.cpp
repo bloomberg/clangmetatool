@@ -7,6 +7,7 @@
 
 #include <clang/Analysis/CFG.h>
 #include <clang/AST/Expr.h>
+#include <llvm/ADT/APSInt.h>
 
 namespace clangmetatool {
 namespace propagation {
@@ -14,7 +15,11 @@ namespace {
 
 // Given a type, determine if it is a int
 bool isIntegerType(const clang::Type* T) {
-  return T->getPointeeType().getTypePtr()->isIntegerType();
+  return T->isIntegerType();
+}
+
+bool isPtrToIntegerType(const clang::Type* T) {
+  return T->isPointerType() && isIntegerType(T->getPointeeType().getTypePtr());
 }
 
 // Utility class to visit the statements of a block and update the
@@ -29,15 +34,9 @@ private:
       clang::Expr::EvalResult ER;
 
       if(E->isEvaluatable(context) && E->EvaluateAsRValue(ER, context)) {
-        std::string r = ER.Val.getAsString(context, E->getType());
-
-        // So long as the string is not null
-        if("0" != r) {
-          // Clang returns results as &"actual-string"[0]
-          result = r.substr(2, r.length() - 6);
-
-          return true;
-        }
+        // TODO: Where can this fail?
+        result = ER.Val.getAsString(context, E->getType());
+        return true;
       }
     }
 
@@ -90,9 +89,26 @@ public:
         }
       }
     }
+    else if(BO->isCompoundAssignmentOp()) {
+      if(clang::Stmt::DeclRefExprClass == BO->getLHS()->getStmtClass()) {
+        auto LHS = reinterpret_cast<const clang::DeclRefExpr*>(BO->getLHS());
+
+        std::string result;
+
+        if(evalExprToInteger(result, BO)) {
+            // If we can evaluate the expression to a string add the result
+            // to the context map
+            addToMap(LHS->getNameInfo().getAsString(), result, BO->getLocStart());
+        } else {
+            // Otherwise, mark the variable as UNRESOLVED after this point
+            addToMap(LHS->getNameInfo().getAsString(), {}, BO->getLocStart());
+        }
+      }
+    }
   }
 
   // Visit a function call
+  // funciton calls only modify numeric types via pointers
   void VisitCallExpr(const clang::CallExpr* CE) {
     for(auto A : CE->arguments()) {
       auto base = A->IgnoreImpCasts();
@@ -100,8 +116,8 @@ public:
       if(clang::Stmt::DeclRefExprClass == base->getStmtClass()) {
         auto DR = reinterpret_cast<const clang::DeclRefExpr*>(base);
 
-        if(isIntegerType(DR->getType().getTypePtr())) {
-          // If the variable is a char*, mark it as UNRESOLVED
+        if(isPtrToIntegerType(DR->getType().getTypePtr())) {
+          // If the variable is a int*, mark it as UNRESOLVED
           addToMap(DR->getNameInfo().getAsString(), {}, CE->getLocEnd());
         }
       }
