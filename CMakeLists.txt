@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Clang REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system filesystem)
 
 add_library(
   clangmetatool
@@ -24,6 +25,8 @@ add_library(
 
   src/definitions/definitions.cpp
 
+  src/files/files.cpp
+
   src/propagation/constant_cstring_propagator.cpp
   src/propagation/strongly_connected_blocks.cpp
   src/propagation/types/value_context_ordering.cpp
@@ -42,10 +45,16 @@ target_include_directories(
   SYSTEM PRIVATE
   ${CLANG_INCLUDE_DIRS}
 )
+target_include_directories(
+  clangmetatool
+  SYSTEM PRIVATE
+  ${Boost_INCLUDE_DIRS}
+)
 
 target_link_libraries(
   clangmetatool
   clangTooling
+  ${Boost_LIBRARIES}
 )
 
 install(
