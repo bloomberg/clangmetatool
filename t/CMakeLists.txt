@@ -27,6 +27,7 @@ foreach(
   017-looping-cstring-propagation
   018-multi-function-cstring-propagation
   019-basic-integer-propagation
+  020-function-args-integer-propagation
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)

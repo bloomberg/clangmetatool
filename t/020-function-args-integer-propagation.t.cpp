@@ -104,10 +104,12 @@ public:
     const char* expectedResult =
       "main >>>>>>>>>>>>>>>>>>>>>>>>>>\n"
       "  ** v1\n"
-      "    - 4:3 '0' (Changed by code)\n"
-      "    - 9:3 '42' (Changed by code)\n"
-      "    - 21:3 '<UNRESOLVED>' (Changed by code)\n"
-      "    - 31:3 '42' (Changed by code)\n"
+      "    - 6:3 '0' (Changed by code)\n"
+      "    - 13:3 '1' (Changed by code)\n"
+      "    - 16:3 '<UNRESOLVED>' (Changed by code)\n"
+      "    - 18:3 '2' (Changed by code)\n"
+      "    - 20:3 '<UNRESOLVED>' (Changed by code)\n"
+      " "
       "main <<<<<<<<<<<<<<<<<<<<<<<<<<\n";
 
     EXPECT_STREQ(expectedResult, stream.str().c_str());
@@ -116,14 +118,15 @@ public:
 
 } // namespace anonymous
 
-TEST(propagation_ConstantIntegerPropagation, basic) {
+TEST(propagation_ConstantIntegerPropagation, functionArgs) {
   llvm::cl::OptionCategory MyToolCategory("my-tool options");
   int argc = 4;
   const char* argv[] = {
     "foo",
-    CMAKE_SOURCE_DIR "/t/data/019-basic-integer-propagation/main.c",
+    CMAKE_SOURCE_DIR "/t/data/020-function-args-integer-propagation/main.cpp",
     "--",
-    "-xc"
+    // Test C++ for confirming that this works on a superset
+    "-xc++"
   };
   clang::tooling::CommonOptionsParser optionsParser
     (argc, argv, MyToolCategory);

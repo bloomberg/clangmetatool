@@ -13,13 +13,28 @@ namespace clangmetatool {
 namespace propagation {
 namespace {
 
-// Given a type, determine if it is a int
-bool isIntegerType(const clang::Type* T) {
-  return T->isIntegerType();
+// Given a qualified type, determine if it is an int
+inline bool isIntegerType(const clang::QualType& QT) {
+  return QT.getTypePtr()->isIntegerType();
 }
 
-bool isPtrToIntegerType(const clang::Type* T) {
-  return T->isPointerType() && isIntegerType(T->getPointeeType().getTypePtr());
+// Given a type, determine if its a pointer to non-const int
+inline bool isPtrToMutableIntegerType(const clang::QualType& QT) {
+  return QT.getTypePtr()->isPointerType() &&
+         isIntegerType(QT.getTypePtr()->getPointeeType());
+}
+
+// Given a type determine if it is a reference to non-const int
+inline bool isRefToMutableIntegerType(const clang::QualType& QT) {
+  return !QT.isConstQualified() &&
+         QT.getTypePtr()->isReferenceType() &&
+         isIntegerType(QT);
+}
+
+// Does the qualified type allow mutating the variable it annotates?
+inline bool allowsMutation(const clang::QualType& QT) {
+  return isPtrToMutableIntegerType(QT) ||
+         isRefToMutableIntegerType(QT);
 }
 
 // Utility class to visit the statements of a block and update the
@@ -30,7 +45,7 @@ private:
   // false if this is not possible
   bool evalExprToInteger(std::string& result, const clang::Expr* E) {
     // We only care about char types
-    if(isIntegerType(E->getType().getTypePtr())) {
+    if(isIntegerType(E->getType())) {
       clang::Expr::EvalResult ER;
 
       if(E->isEvaluatable(context) && E->EvaluateAsRValue(ER, context)) {
@@ -41,13 +56,6 @@ private:
     }
 
     return false;
-  }
-
-  bool evalCompoundExprToInteger(std::string& result, const clang::Expr* E) {
-    llvm::APSInt ER;
-    E->EvaluateAsInt(ER, context);
-    result = ER.toString(10);
-    return true;
   }
 
 public:
@@ -96,38 +104,27 @@ public:
         }
       }
     }
-    else if(BO->isCompoundAssignmentOp()) {
-      if(clang::Stmt::DeclRefExprClass == BO->getLHS()->getStmtClass()) {
-        auto LHS = reinterpret_cast<const clang::DeclRefExpr*>(BO->getLHS());
-
-        std::string result;
-
-        if(evalCompoundExprToInteger(result, BO)) {
-            // If we can evaluate the expression to a string add the result
-            // to the context map
-            addToMap(LHS->getNameInfo().getAsString(), result, BO->getLocStart());
-        } else {
-            // Otherwise, mark the variable as UNRESOLVED after this point
-            addToMap(LHS->getNameInfo().getAsString(), {}, BO->getLocStart());
-        }
-      }
-    }
   }
 
   // Visit a function call
-  // funciton calls only modify numeric types via pointers
+  // Only types of function calls considered are those that take mutable refs
+  // or (const or non-const) pointers to mutable ints
   void VisitCallExpr(const clang::CallExpr* CE) {
+    std::cout << CE->getDirectCallee()->getNameAsString() << std::endl;
+    auto callArgTypes = CE->getDirectCallee()->parameters();
+    int idx = 0;
     for(auto A : CE->arguments()) {
       auto base = A->IgnoreImpCasts();
-
-      if(clang::Stmt::DeclRefExprClass == base->getStmtClass()) {
+      if(clang::Stmt::DeclRefExprClass == base->getStmtClass() ||
+         clang::Stmt::UnaryOperatorClass == base->getStmtClass()) {
         auto DR = reinterpret_cast<const clang::DeclRefExpr*>(base);
 
-        if(isPtrToIntegerType(DR->getType().getTypePtr())) {
+        if(allowsMutation(callArgTypes[idx]->getType())) {
           // If the variable is a int*, mark it as UNRESOLVED
           addToMap(DR->getNameInfo().getAsString(), {}, CE->getLocEnd());
         }
       }
+      ++idx;
     }
   }
 };
