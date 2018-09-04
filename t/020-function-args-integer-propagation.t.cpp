@@ -104,12 +104,11 @@ public:
     const char* expectedResult =
       "main >>>>>>>>>>>>>>>>>>>>>>>>>>\n"
       "  ** v1\n"
-      "    - 6:3 '0' (Changed by code)\n"
-      "    - 13:3 '1' (Changed by code)\n"
-      "    - 16:3 '<UNRESOLVED>' (Changed by code)\n"
-      "    - 18:3 '2' (Changed by code)\n"
-      "    - 20:3 '<UNRESOLVED>' (Changed by code)\n"
-      " "
+      "    - 9:3 '0' (Changed by code)\n"
+      "    - 17:3 '1' (Changed by code)\n"
+      "    - 21:3 '<UNRESOLVED>' (Changed by code)\n"
+      "    - 23:3 '2' (Changed by code)\n"
+      "    - 26:3 '<UNRESOLVED>' (Changed by code)\n"
       "main <<<<<<<<<<<<<<<<<<<<<<<<<<\n";
 
     EXPECT_STREQ(expectedResult, stream.str().c_str());

@@ -21,14 +21,15 @@ inline bool isIntegerType(const clang::QualType& QT) {
 // Given a type, determine if its a pointer to non-const int
 inline bool isPtrToMutableIntegerType(const clang::QualType& QT) {
   return QT.getTypePtr()->isPointerType() &&
+         !QT.getTypePtr()->getPointeeType().isConstQualified() &&
          isIntegerType(QT.getTypePtr()->getPointeeType());
 }
 
 // Given a type determine if it is a reference to non-const int
 inline bool isRefToMutableIntegerType(const clang::QualType& QT) {
-  return !QT.isConstQualified() &&
-         QT.getTypePtr()->isReferenceType() &&
-         isIntegerType(QT);
+  return QT.getTypePtr()->isReferenceType() &&
+         !QT.getNonReferenceType().isConstQualified() &&
+         isIntegerType(QT.getNonReferenceType());
 }
 
 // Does the qualified type allow mutating the variable it annotates?
@@ -110,19 +111,24 @@ public:
   // Only types of function calls considered are those that take mutable refs
   // or (const or non-const) pointers to mutable ints
   void VisitCallExpr(const clang::CallExpr* CE) {
-    std::cout << CE->getDirectCallee()->getNameAsString() << std::endl;
     auto callArgTypes = CE->getDirectCallee()->parameters();
     int idx = 0;
     for(auto A : CE->arguments()) {
       auto base = A->IgnoreImpCasts();
-      if(clang::Stmt::DeclRefExprClass == base->getStmtClass() ||
-         clang::Stmt::UnaryOperatorClass == base->getStmtClass()) {
-        auto DR = reinterpret_cast<const clang::DeclRefExpr*>(base);
+      const clang::DeclRefExpr* DR = nullptr;
 
-        if(allowsMutation(callArgTypes[idx]->getType())) {
-          // If the variable is a int*, mark it as UNRESOLVED
-          addToMap(DR->getNameInfo().getAsString(), {}, CE->getLocEnd());
-        }
+      if(clang::Stmt::DeclRefExprClass == base->getStmtClass()) {
+        DR = reinterpret_cast<const clang::DeclRefExpr*>(base);
+
+      }
+      else if(clang::Stmt::UnaryOperatorClass == base->getStmtClass()) {
+        auto UO = reinterpret_cast<const clang::UnaryOperator*>(base);
+        DR = reinterpret_cast<const clang::DeclRefExpr*>(UO->getSubExpr());
+      }
+
+      if(allowsMutation(callArgTypes[idx]->getType())) {
+        // If the variable is a int*, mark it as UNRESOLVED
+        addToMap(DR->getNameInfo().getAsString(), {}, CE->getLocStart());
       }
       ++idx;
     }
