@@ -26,6 +26,7 @@ foreach(
   016-branching-cstring-propagation
   017-looping-cstring-propagation
   018-multi-function-cstring-propagation
+  019-files
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
