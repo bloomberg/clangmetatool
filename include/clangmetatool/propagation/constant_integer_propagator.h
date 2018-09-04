@@ -2,7 +2,7 @@
 #define INCLUDED_CLANGMETATOOL_PROPAGATION_CONSTANT_INTEGER_PROPAGATOR_H
 
 #include <iostream>
-#include <string>
+#include <cstdint>
 
 #include <clangmetatool/propagation/propagation_result.h>
 
@@ -25,8 +25,8 @@ class ConstantIntegerPropagatorImpl;
 
 /**
  * ConstantIntegerPropagator is a tool to run a propagation
- * over the string variables that are used within functions
- * and attempt to determine the string values of those
+ * over integer variables that are used within functions
+ * and attempt to determine the integer values of those
  * variables.
  *
  * The analysis runs once per function even if runPropagation
@@ -63,7 +63,7 @@ public:
    * PropagationResult will return true for a call to `isUnresolved()` if a
    * deterministic value cannot be determined for the variable.
    */
-  PropagationResult<std::string> runPropagation
+  PropagationResult<std::intmax_t> runPropagation
   (const clang::FunctionDecl* function, const clang::DeclRefExpr* variable);
 
   /**

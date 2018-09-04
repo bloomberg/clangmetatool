@@ -3,7 +3,7 @@
 
 #include <clangmetatool/propagation/constant_integer_propagator.h>
 
-#include <string>
+#include <cstdint>
 
 #include <clang/Analysis/CFG.h>
 #include <clang/AST/Expr.h>
@@ -40,18 +40,18 @@ inline bool allowsMutation(const clang::QualType& QT) {
 
 // Utility class to visit the statements of a block and update the
 // ValueContextMap in the process
-class IntegerVisitor : public PropagationVisitor<IntegerVisitor, std::string> {
+class IntegerVisitor : public PropagationVisitor<IntegerVisitor, std::intmax_t> {
 private:
   // Given an expression, try to evaluate it to a int result. Return
   // false if this is not possible
-  bool evalExprToInteger(std::string& result, const clang::Expr* E) {
+  bool evalExprToInteger(std::intmax_t& result, const clang::Expr* E) {
     // We only care about char types
     if(isIntegerType(E->getType())) {
       clang::Expr::EvalResult ER;
 
       if(E->isEvaluatable(context) && E->EvaluateAsRValue(ER, context)) {
         // TODO: Where can this fail?
-        result = ER.Val.getAsString(context, E->getType());
+        result = ER.Val.getInt().getExtValue();
         return true;
       }
     }
@@ -61,7 +61,7 @@ private:
 
 public:
   // Use parent class's constructor
-  using PropagationVisitor<IntegerVisitor, std::string>::PropagationVisitor;
+  using PropagationVisitor<IntegerVisitor, std::intmax_t>::PropagationVisitor;
 
   // Visit a declaration of a variable
   void VisitDeclStmt(const clang::DeclStmt* DS) {
@@ -74,7 +74,7 @@ public:
           if(VD->hasInit()) {
             auto I = VD->getInit();
 
-            std::string result;
+            std::intmax_t result;
 
             if(evalExprToInteger(result, I)) {
               // If the variable is a string, add it to the map
@@ -93,7 +93,7 @@ public:
       if(clang::Stmt::DeclRefExprClass == BO->getLHS()->getStmtClass()) {
         auto LHS = reinterpret_cast<const clang::DeclRefExpr*>(BO->getLHS());
 
-        std::string result;
+        std::intmax_t result;
 
         if(evalExprToInteger(result, BO->getRHS())) {
             // If we can evaluate the expression to a string add the result
@@ -152,7 +152,7 @@ ConstantIntegerPropagator::~ConstantIntegerPropagator() {
   delete impl;
 }
 
-PropagationResult<std::string> ConstantIntegerPropagator::runPropagation
+PropagationResult<std::intmax_t> ConstantIntegerPropagator::runPropagation
 (const clang::FunctionDecl* function, const clang::DeclRefExpr* variable) {
   return impl->runPropagation(function, variable);
 }
