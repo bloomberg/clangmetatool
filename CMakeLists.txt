@@ -9,28 +9,23 @@ find_package(Clang REQUIRED)
 add_library(
   clangmetatool
 
-  src/include_graph/include_finder.cpp
-  src/include_graph/find_type_match_callback.cpp
-  src/include_graph/find_decl_match_callback.cpp
-  src/include_graph/find_decl_ref_match_callback.cpp
-  src/include_graph/include_graph_util.cpp
-  src/include_graph/include_graph.cpp
-
-  src/variable_refs/variable_refs.cpp
-
-  src/member_method_decls/member_method_decls.cpp
-
-  src/find_calls/find_calls.cpp
-
-  src/definitions/definitions.cpp
+  src/collectors/definitions.cpp
+  src/collectors/find_calls.cpp
+  src/collectors/include_graph/find_decl_match_callback.cpp
+  src/collectors/include_graph/find_decl_ref_match_callback.cpp
+  src/collectors/include_graph/find_type_match_callback.cpp
+  src/collectors/include_graph/include_finder.cpp
+  src/collectors/include_graph/include_graph.cpp
+  src/collectors/include_graph/include_graph_util.cpp
+  src/collectors/member_method_decls.cpp
+  src/collectors/references.cpp
+  src/collectors/variable_refs.cpp
 
   src/propagation/constant_cstring_propagator.cpp
   src/propagation/constant_integer_propagator.cpp
   src/propagation/strongly_connected_blocks.cpp
   src/propagation/types/value_context_ordering.cpp
   src/propagation/util/get_stmt_from_cfg_element.cpp
-
-  src/references/references.cpp
 )
 target_include_directories(
   clangmetatool
