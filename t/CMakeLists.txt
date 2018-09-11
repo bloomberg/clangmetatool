@@ -26,6 +26,11 @@ foreach(
   016-branching-cstring-propagation
   017-looping-cstring-propagation
   018-multi-function-cstring-propagation
+  019-basic-integer-propagation
+  020-function-args-integer-propagation
+  021-branching-integer-propagation
+  022-looping-integer-propagation
+  023-multi-function-integer-propagation
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)

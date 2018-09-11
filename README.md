@@ -109,10 +109,15 @@ Another part of this consists of constant propagators to assist
 with analysis. Those will be in the `clangmetatool::propagation`
 namespace.
 
-More specifically, the current implementation provides a constant
-C-style string propagator, which propagates constant strings through
-the control flow graph so that `char*` variables may be queried for there
-true value anywhere where that value is deterministic.
+More specifically, the current implementation provides propagation for the 
+follwing types so that variables may be queried for their true values anywhere
+within the control-flow, so long as the value is deterministic:
+
+* Constant C-style string propagator, which propagates constant strings through
+the control flow graph
+
+* Constant integer propagation which propagates integer values through the code
+considering references, pointers, const-ness of `int` & `int`-like types
 
 This could be useful for various purposes but especially for identifing
 things like which database a function is actually calling out to, etc.
