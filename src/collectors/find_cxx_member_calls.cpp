@@ -10,34 +10,38 @@ namespace clangmetatool {
 
   using namespace clang::ast_matchers;
 
-  class AnnotateCall1
-      : public clang::ast_matchers::MatchFinder::MatchCallback {
-    private:
-      clang::CompilerInstance *ci;
-      FindCXXMemberCallsData *data;
-    public:
-      AnnotateCall1
-      (clang::CompilerInstance* ci,
-       FindCXXMemberCallsData *data)
-        :ci(ci), data(data) {}
+  namespace {
 
-      virtual void
-      run(const clang::ast_matchers::MatchFinder::MatchResult &r)
-        override {
+    class AnnotateCall1
+        : public clang::ast_matchers::MatchFinder::MatchCallback {
+      private:
+        clang::CompilerInstance *ci;
+        FindCXXMemberCallsData *data;
+      public:
+        AnnotateCall1
+        (clang::CompilerInstance* ci,
+         FindCXXMemberCallsData *data)
+          :ci(ci), data(data) {}
 
-        const auto c =
-          r.Nodes.getNodeAs<clang::CXXMemberCallExpr>("call");
+        virtual void
+        run(const clang::ast_matchers::MatchFinder::MatchResult &r)
+          override {
 
-        const auto f =
-          r.Nodes.getNodeAs<clang::FunctionDecl>("context");
+          const auto c =
+            r.Nodes.getNodeAs<clang::CXXMemberCallExpr>("call");
 
-        data->insert
-          (std::pair
-          <const clang::FunctionDecl*,
-          const clang::CXXMemberCallExpr*>(f,c));
-      }
+          const auto f =
+            r.Nodes.getNodeAs<clang::FunctionDecl>("context");
 
-  };
+          data->insert
+            (std::pair
+            <const clang::FunctionDecl*,
+            const clang::CXXMemberCallExpr*>(f,c));
+        }
+
+    };
+
+  } // namespace anonymous
 
   class FindCXXMemberCallsImpl {
   private:

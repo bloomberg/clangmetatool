@@ -7,43 +7,47 @@ namespace clangmetatool {
 
   using namespace clang::ast_matchers;
 
-  class AnnotateCall1
-      : public clang::ast_matchers::MatchFinder::MatchCallback {
-    private:
-      clang::CompilerInstance *ci;
-      FindCallsData *data;
-    public:
-      AnnotateCall1
-      (clang::CompilerInstance* ci,
-       FindCallsData *data)
-        :ci(ci), data(data) {}
+  namespace {
 
-      virtual void
-      run(const clang::ast_matchers::MatchFinder::MatchResult &r)
-        override {
+    class AnnotateCall1
+        : public clang::ast_matchers::MatchFinder::MatchCallback {
+      private:
+        clang::CompilerInstance *ci;
+        FindCallsData *data;
+      public:
+        AnnotateCall1
+        (clang::CompilerInstance* ci,
+         FindCallsData *data)
+          :ci(ci), data(data) {}
 
-        const clang::CallExpr *c =
-          r.Nodes.getNodeAs<clang::CallExpr>("call");
+        virtual void
+        run(const clang::ast_matchers::MatchFinder::MatchResult &r)
+          override {
 
-        const clang::FunctionDecl *f =
-          r.Nodes.getNodeAs<clang::FunctionDecl>("context");
+          const clang::CallExpr *c =
+            r.Nodes.getNodeAs<clang::CallExpr>("call");
 
-        const clang::DeclRefExpr *e =
-          r.Nodes.getNodeAs<clang::DeclRefExpr>("ref");
+          const clang::FunctionDecl *f =
+            r.Nodes.getNodeAs<clang::FunctionDecl>("context");
 
-        data->call_context.insert
-          (std::pair
-          <const clang::FunctionDecl*,
-          const clang::CallExpr*>(f,c));
+          const clang::DeclRefExpr *e =
+            r.Nodes.getNodeAs<clang::DeclRefExpr>("ref");
 
-        data->call_ref.insert
-          (std::pair
-          <const clang::CallExpr*,
-          const clang::DeclRefExpr*>(c,e));
+          data->call_context.insert
+            (std::pair
+            <const clang::FunctionDecl*,
+            const clang::CallExpr*>(f,c));
 
-      }
+          data->call_ref.insert
+            (std::pair
+            <const clang::CallExpr*,
+            const clang::DeclRefExpr*>(c,e));
 
-  };
+        }
+
+    };
+
+  } // namespace anonymous
 
   class FindCallsImpl {
   private:
