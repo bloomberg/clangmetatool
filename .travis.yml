@@ -4,3 +4,6 @@ services:
 
 script:
     - sudo docker build -f .travis.Dockerfile .
+
+env:
+  - MAKEFLAGS="-j 2"
