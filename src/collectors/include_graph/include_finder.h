@@ -37,7 +37,7 @@ namespace clangmetatool {
                                         llvm::StringRef searchPath,
                                         llvm::StringRef relativePath,
                                         const clang::Module *imported,
-                                        clang::SrcMgr::CharacteristicKind FileType)
+                                        clang::SrcMgr::CharacteristicKind FileType_)
           override;
 
         virtual void MacroExpands(const clang::Token           &macroUsage,

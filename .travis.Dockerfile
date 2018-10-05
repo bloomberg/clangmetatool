@@ -53,8 +53,8 @@ RUN ln -s /usr/lib/llvm-7/include/clangmetatool /usr/include/clangmetatool
 
 # Build skeleton
 RUN mkdir skeleton/build && cd skeleton/build && \
-    cmake -DClang_DIR=/usr/share/llvm-7/cmake \
-          -Dclangmetatool_DIR=/usr/share/llvm-7/cmake .. && \
+    cmake -DClang_DIR=/usr/lib/llvm-7/cmake \
+          -Dclangmetatool_DIR=/usr/lib/llvm-7/cmake .. && \
     make all && \
     make install && \
     cd - && rm -rf skeleton/build
