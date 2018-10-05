@@ -1,8 +1,8 @@
 #ifndef INCLUDED_CLANGMETATOOL_PROPAGATION_CONSTANT_INTEGER_PROPAGATOR_H
 #define INCLUDED_CLANGMETATOOL_PROPAGATION_CONSTANT_INTEGER_PROPAGATOR_H
 
-#include <iostream>
 #include <cstdint>
+#include <iostream>
 
 #include <clangmetatool/propagation/propagation_result.h>
 
@@ -10,9 +10,9 @@
  * Forward declarations for clang types
  */
 namespace clang {
-  class CompilerInstance;
-  class DeclRefExpr;
-  class FunctionDecl;
+class CompilerInstance;
+class DeclRefExpr;
+class FunctionDecl;
 }
 
 namespace clangmetatool {
@@ -42,14 +42,14 @@ private:
   /**
     * Pointer to implementation.
     */
-  ConstantIntegerPropagatorImpl* impl;
+  ConstantIntegerPropagatorImpl *impl;
 
 public:
   /**
    * Explicit constructor to allow for implementation details.
    *    - ci is a pointer to an instance of the clang compiler
    */
-  ConstantIntegerPropagator(const clang::CompilerInstance* ci);
+  ConstantIntegerPropagator(const clang::CompilerInstance *ci);
 
   /**
     * Explicit destructor.
@@ -63,14 +63,15 @@ public:
    * PropagationResult will return true for a call to `isUnresolved()` if a
    * deterministic value cannot be determined for the variable.
    */
-  PropagationResult<std::intmax_t> runPropagation
-  (const clang::FunctionDecl* function, const clang::DeclRefExpr* variable);
+  PropagationResult<std::intmax_t>
+  runPropagation(const clang::FunctionDecl *function,
+                 const clang::DeclRefExpr *variable);
 
   /**
    * Print out the variable contexts for all the functions that have
    * been propagated.
    */
-  void dump(std::ostream& stream) const;
+  void dump(std::ostream &stream) const;
 };
 
 } // namespace propagation

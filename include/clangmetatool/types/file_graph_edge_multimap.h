@@ -7,12 +7,11 @@
 #include <clangmetatool/types/file_uid.h>
 
 namespace clangmetatool {
-  namespace types {
+namespace types {
 
-    template <typename OTHER>
-    using FileGraphEdgeMultimap = std::multimap<FileGraphEdge, OTHER>;
-
-  }
+template <typename OTHER>
+using FileGraphEdgeMultimap = std::multimap<FileGraphEdge, OTHER>;
+}
 }
 
 #endif

@@ -1,68 +1,60 @@
 #include <clangmetatool/collectors/member_method_decls.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    namespace {
-      class AnnotateMemberMethodDeclExpr
-        : public clang::ast_matchers::MatchFinder::MatchCallback {
-      private:
-        clang::CompilerInstance *ci;
-        MemberMethodDeclsData *data;
-      public:
-        AnnotateMemberMethodDeclExpr
-        (clang::CompilerInstance* ci,
-         MemberMethodDeclsData *data)
-          :ci(ci), data(data) {}
+namespace {
+class AnnotateMemberMethodDeclExpr
+    : public clang::ast_matchers::MatchFinder::MatchCallback {
+private:
+  clang::CompilerInstance *ci;
+  MemberMethodDeclsData *data;
 
-        virtual void
-        run(const clang::ast_matchers::MatchFinder::MatchResult &r)
-        override {
-            const clang::CXXMethodDecl *d =
-              r.Nodes.getNodeAs<clang::CXXMethodDecl>("decl");
+public:
+  AnnotateMemberMethodDeclExpr(clang::CompilerInstance *ci,
+                               MemberMethodDeclsData *data)
+      : ci(ci), data(data) {}
 
-            if (d == NULL) {
-                return;
-            }
+  virtual void
+  run(const clang::ast_matchers::MatchFinder::MatchResult &r) override {
+    const clang::CXXMethodDecl *d =
+        r.Nodes.getNodeAs<clang::CXXMethodDecl>("decl");
 
-            data->decls.insert(d);
-        }
-
-      };
+    if (d == NULL) {
+      return;
     }
 
-    class MemberMethodDeclsImpl {
-    private:
-      clang::CompilerInstance *ci;
-      MemberMethodDeclsData data;
-      clang::ast_matchers::DeclarationMatcher sm1 =
-        clang::ast_matchers::cxxMethodDecl().bind("decl");
-      AnnotateMemberMethodDeclExpr cb1;
-    public:
-      MemberMethodDeclsImpl
-      (clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder* f)
-        :cb1(ci, &data) {
-        f->addMatcher(sm1, &cb1);
-      }
-      MemberMethodDeclsData* getData() {
-        return &data;
-      }
-    };
-
-    MemberMethodDecls::MemberMethodDecls
-    (clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder* f) {
-      impl = new MemberMethodDeclsImpl(ci, f);
-    }
-
-    MemberMethodDecls::~MemberMethodDecls() {
-      delete impl;
-    }
-
-    MemberMethodDeclsData* MemberMethodDecls::getData() {
-      return impl->getData();
-    }
-
+    data->decls.insert(d);
   }
+};
+}
+
+class MemberMethodDeclsImpl {
+private:
+  clang::CompilerInstance *ci;
+  MemberMethodDeclsData data;
+  clang::ast_matchers::DeclarationMatcher sm1 =
+      clang::ast_matchers::cxxMethodDecl().bind("decl");
+  AnnotateMemberMethodDeclExpr cb1;
+
+public:
+  MemberMethodDeclsImpl(clang::CompilerInstance *ci,
+                        clang::ast_matchers::MatchFinder *f)
+      : cb1(ci, &data) {
+    f->addMatcher(sm1, &cb1);
+  }
+  MemberMethodDeclsData *getData() { return &data; }
+};
+
+MemberMethodDecls::MemberMethodDecls(clang::CompilerInstance *ci,
+                                     clang::ast_matchers::MatchFinder *f) {
+  impl = new MemberMethodDeclsImpl(ci, f);
+}
+
+MemberMethodDecls::~MemberMethodDecls() { delete impl; }
+
+MemberMethodDeclsData *MemberMethodDecls::getData() { return impl->getData(); }
+}
 }
 
 // ----------------------------------------------------------------------------

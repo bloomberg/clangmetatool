@@ -18,7 +18,9 @@ private:
   std::map<unsigned, std::set<std::string>> changed;
 
 public:
-  void save(unsigned loop, const std::string& name) { changed[loop].insert(name); }
+  void save(unsigned loop, const std::string &name) {
+    changed[loop].insert(name);
+  }
 
   auto changedBegin(unsigned loop) { return changed[loop].begin(); }
   auto changedEnd(unsigned loop) { return changed[loop].end(); }

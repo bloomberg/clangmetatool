@@ -14,19 +14,18 @@ private:
   ValueContextOrdering() = delete;
 
 public:
-  enum Value {
-      CONTROL_FLOW_MERGE = 0
-    , CHANGED_BY_CODE    = 1
-  };
+  enum Value { CONTROL_FLOW_MERGE = 0, CHANGED_BY_CODE = 1 };
 
-  static void print(std::ostream& stream, Value value);
+  static void print(std::ostream &stream, Value value);
 };
 
 } // namespace types
 } // namespace propagation
 } // namespace clangmetatool
 
-std::ostream& operator<<(std::ostream& stream, clangmetatool::propagation::types::ValueContextOrdering::Value value);
+std::ostream &operator<<(
+    std::ostream &stream,
+    clangmetatool::propagation::types::ValueContextOrdering::Value value);
 
 #endif
 

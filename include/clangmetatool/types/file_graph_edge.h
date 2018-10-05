@@ -6,11 +6,10 @@
 #include <clangmetatool/types/file_uid.h>
 
 namespace clangmetatool {
-  namespace types {
+namespace types {
 
-    typedef std::pair<FileUID, FileUID> FileGraphEdge;
- 
-  }
+typedef std::pair<FileUID, FileUID> FileGraphEdge;
+}
 }
 
 #endif

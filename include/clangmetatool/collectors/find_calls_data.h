@@ -1,33 +1,29 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CALLS_DATA_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CALLS_DATA_H
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchers.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * The data collected by the FindCalls collector
-     */
-    struct FindCallsData {
+/**
+ * The data collected by the FindCalls collector
+ */
+struct FindCallsData {
 
-      /**
-       * The declaration of the function and the context in which it occurs
-       */
-      std::multimap<const clang::FunctionDecl*,
-                    const clang::CallExpr*> call_context;
+  /**
+   * The declaration of the function and the context in which it occurs
+   */
+  std::multimap<const clang::FunctionDecl *, const clang::CallExpr *>
+      call_context;
 
-      /**
-       * The reference to the function and the context in which it occurs
-       */
-      std::map<const clang::CallExpr*,
-               const clang::DeclRefExpr*> call_ref;
-
-    };
-
-
-  }
+  /**
+   * The reference to the function and the context in which it occurs
+   */
+  std::map<const clang::CallExpr *, const clang::DeclRefExpr *> call_ref;
+};
+}
 }
 
 #endif

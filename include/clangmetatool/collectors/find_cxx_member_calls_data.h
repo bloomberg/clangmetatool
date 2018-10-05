@@ -7,18 +7,16 @@
 #include <clang/AST/ExprCXX.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * The data collected by the FindCXXMemberCalls collector
-     *
-     * The declaration of the function and the context in which it occurs
-     */
-    using FindCXXMemberCallsData =
-      std::multimap<const clang::FunctionDecl*,
-                    const clang::CXXMemberCallExpr*>;
-
-  }
+/**
+ * The data collected by the FindCXXMemberCalls collector
+ *
+ * The declaration of the function and the context in which it occurs
+ */
+using FindCXXMemberCallsData = std::multimap<const clang::FunctionDecl *,
+                                             const clang::CXXMemberCallExpr *>;
+}
 }
 
 #endif

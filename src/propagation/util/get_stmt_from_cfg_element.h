@@ -1,14 +1,15 @@
 #ifndef INCLUDED_CLANGMETATOOL_PROPAGATION_UTIL_GET_STMT_FROM_CFG_ELEMENT_H
 #define INCLUDED_CLANGMETATOOL_PROPAGATION_UTIL_GET_STMT_FROM_CFG_ELEMENT_H
 
-#include <clang/Analysis/CFG.h>
 #include <clang/AST/Stmt.h>
+#include <clang/Analysis/CFG.h>
 
 namespace clangmetatool {
 namespace propagation {
 namespace util {
 
-bool getStmtFromCFGElement(const clang::Stmt*& result, const clang::CFGElement& element);
+bool getStmtFromCFGElement(const clang::Stmt *&result,
+                           const clang::CFGElement &element);
 
 } // namespace util
 } // namespace propagation

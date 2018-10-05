@@ -44,19 +44,19 @@
 #include "include_graph_util.h"
 
 namespace clangmetatool {
-  namespace collectors {
-    namespace include_graph {
+namespace collectors {
+namespace include_graph {
 
-      void FindDeclRefMatchCallback::run
-      (const clang::ast_matchers::MatchFinder::MatchResult &r) {
-        if (const clang::DeclRefExpr *e =
-            r.Nodes.getNodeAs<clang::DeclRefExpr>("ref")) {
-            
-          add_decl_reference(ci, data, e);
-        }
-      }
-    }
+void FindDeclRefMatchCallback::run(
+    const clang::ast_matchers::MatchFinder::MatchResult &r) {
+  if (const clang::DeclRefExpr *e =
+          r.Nodes.getNodeAs<clang::DeclRefExpr>("ref")) {
+
+    add_decl_reference(ci, data, e);
   }
+}
+}
+}
 }
 
 // ----------------------------------------------------------------------------

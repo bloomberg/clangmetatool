@@ -10,9 +10,9 @@
  * Forward declarations for clang types
  */
 namespace clang {
-  class CompilerInstance;
-  class DeclRefExpr;
-  class FunctionDecl;
+class CompilerInstance;
+class DeclRefExpr;
+class FunctionDecl;
 }
 
 namespace clangmetatool {
@@ -42,14 +42,14 @@ private:
   /**
     * Pointer to implementation.
     */
-  ConstantCStringPropagatorImpl* impl;
+  ConstantCStringPropagatorImpl *impl;
 
 public:
   /**
    * Explicit constructor to allow for implementation details.
    *    - ci is a pointer to an instance of the clang compiler
    */
-  ConstantCStringPropagator(const clang::CompilerInstance* ci);
+  ConstantCStringPropagator(const clang::CompilerInstance *ci);
 
   /**
     * Explicit destructor.
@@ -63,14 +63,15 @@ public:
    * PropagationResult will return true for a call to `isUnresolved()` if a
    * deterministic value cannot be determined for the variable.
    */
-  PropagationResult<std::string> runPropagation
-  (const clang::FunctionDecl* function, const clang::DeclRefExpr* variable);
+  PropagationResult<std::string>
+  runPropagation(const clang::FunctionDecl *function,
+                 const clang::DeclRefExpr *variable);
 
   /**
    * Print out the variable contexts for all the functions that have
    * been propagated.
    */
-  void dump(std::ostream& stream) const;
+  void dump(std::ostream &stream) const;
 };
 
 } // namespace propagation

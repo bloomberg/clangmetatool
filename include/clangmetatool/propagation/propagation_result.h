@@ -12,10 +12,9 @@ namespace propagation {
  * point in the code is non-deterministic, or it may have a
  * deterministic value
  */
-template <typename ResultType>
-class PropagationResult {
+template <typename ResultType> class PropagationResult {
 private:
-  bool       unresolved;
+  bool unresolved;
   ResultType result;
 
 public:
@@ -27,7 +26,8 @@ public:
   /**
    * Constructor taking ResultType to produce a resolved value
    */
-  PropagationResult(const ResultType& result) : unresolved(false), result(result) {}
+  PropagationResult(const ResultType &result)
+      : unresolved(false), result(result) {}
 
   /**
    * Check if the result is unresolved.
@@ -40,26 +40,28 @@ public:
    * Calling this function before the result has been determined to indeed
    * be resolved  with a call to `isUnresolved()` is undefined behaviour.
    */
-  const ResultType& getResult() const { return result; }
+  const ResultType &getResult() const { return result; }
 
   /**
    * Print the result to a stream.
    *
    * When the result is undefined, it will output "<UNRESOLVED>".
    */
-  void print(std::ostream& stream) const {
-    if(unresolved) {
+  void print(std::ostream &stream) const {
+    if (unresolved) {
       stream << "<UNRESOLVED>";
     } else {
       stream << result;
     }
   }
 
-  bool operator<(const PropagationResult<ResultType>& rhs) const { return result < rhs.result; }
-  bool operator==(const PropagationResult<ResultType>& rhs) const {
+  bool operator<(const PropagationResult<ResultType> &rhs) const {
+    return result < rhs.result;
+  }
+  bool operator==(const PropagationResult<ResultType> &rhs) const {
     return unresolved == rhs.unresolved && result == rhs.result;
   }
-  bool operator!=(const PropagationResult<ResultType>& rhs) const {
+  bool operator!=(const PropagationResult<ResultType> &rhs) const {
     return unresolved != rhs.unresolved || result != rhs.result;
   }
 };
@@ -68,7 +70,9 @@ public:
 } // namespace clangmetatool
 
 template <typename T>
-std::ostream& operator<<(std::ostream& stream, const clangmetatool::propagation::PropagationResult<T>& result) {
+std::ostream &
+operator<<(std::ostream &stream,
+           const clangmetatool::propagation::PropagationResult<T> &result) {
   result.print(stream);
 
   return stream;

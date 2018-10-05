@@ -1,56 +1,52 @@
 #ifndef INCLUDED_CLANGMETATOOL_META_TOOL_FACTORY_H
 #define INCLUDED_CLANGMETATOOL_META_TOOL_FACTORY_H
 
-#include <string>
 #include <map>
+#include <string>
 
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Tooling.h>
 
 namespace clangmetatool {
+/**
+ * MetaToolFactory wraps around FrontendAction class that takes a
+ * replacementsMap as argument to the construtor. You can use it in
+ * conjunction with the MetaTool class to reduce boilerplate in the
+ * code requjired to write a clang tool.
+ */
+template <class T>
+class MetaToolFactory : public clang::tooling::FrontendActionFactory {
+private:
+  // T *must* provide this
+  typename T::ArgTypes args;
+
   /**
-   * MetaToolFactory wraps around FrontendAction class that takes a
-   * replacementsMap as argument to the construtor. You can use it in
-   * conjunction with the MetaTool class to reduce boilerplate in the
-   * code requjired to write a clang tool.
+   * List of replacements to be used in the run.
    */
-  template <class T>
-  class MetaToolFactory
-    : public clang::tooling::FrontendActionFactory {
-  private:
-    // T *must* provide this
-    typename T::ArgTypes args;
+  std::map<std::string, clang::tooling::Replacements> &replacements;
 
-    /**
-     * List of replacements to be used in the run.
-     */
-    std::map<std::string, clang::tooling::Replacements> &replacements;
-  public:
+public:
+  /**
+   * Metatool factory takes a reference to the replacements map that
+   * will be used for this run in, along with any additional arguments that
+   * need to be passed on to the Tool
+   */
+  MetaToolFactory(
+      std::map<std::string, clang::tooling::Replacements> &replacements,
+      typename T::ArgTypes &args)
+      : replacements(replacements), args(args) {}
 
-    /**
-     * Metatool factory takes a reference to the replacements map that
-     * will be used for this run in, along with any additional arguments that
-     * need to be passed on to the Tool
-     */
-    MetaToolFactory
-    (std::map<std::string, clang::tooling::Replacements> &replacements,
-     typename T::ArgTypes& args)
-      :replacements(replacements), args(args) { }
+  MetaToolFactory(
+      std::map<std::string, clang::tooling::Replacements> &replacements)
+      : replacements(replacements) {}
 
-    MetaToolFactory
-    (std::map<std::string, clang::tooling::Replacements> &replacements)
-      :replacements(replacements) { }
-
-    /**
-     * This will create the object of your tool giving the
-     * replacemnets map as an argument.
-     */
-    virtual clang::FrontendAction* create() {
-      return new T(replacements, args);
-    }
-  };
-
+  /**
+   * This will create the object of your tool giving the
+   * replacemnets map as an argument.
+   */
+  virtual clang::FrontendAction *create() { return new T(replacements, args); }
+};
 }
 
 #endif

@@ -13,156 +13,93 @@ using namespace clang::ast_matchers;
 
 class ReferencesDataAppender : public MatchFinder::MatchCallback {
 private:
-    clang::CompilerInstance *ci;
-    ReferencesData *data;
+  clang::CompilerInstance *ci;
+  ReferencesData *data;
+
 public:
-    ReferencesDataAppender(clang::CompilerInstance *ci, ReferencesData *data)
-        : ci(ci), data(data) {}
-    virtual void run(const MatchFinder::MatchResult & r) override {
-        const clang::NamedDecl *ref = r.Nodes.getNodeAs<clang::NamedDecl>("reference");
-        if (ref == nullptr) return;
+  ReferencesDataAppender(clang::CompilerInstance *ci, ReferencesData *data)
+      : ci(ci), data(data) {}
+  virtual void run(const MatchFinder::MatchResult &r) override {
+    const clang::NamedDecl *ref =
+        r.Nodes.getNodeAs<clang::NamedDecl>("reference");
+    if (ref == nullptr)
+      return;
 
-        const clang::NamedDecl *ctxt = r.Nodes.getNodeAs<clang::NamedDecl>("context");
-        if (ctxt == nullptr) return;
+    const clang::NamedDecl *ctxt =
+        r.Nodes.getNodeAs<clang::NamedDecl>("context");
+    if (ctxt == nullptr)
+      return;
 
-        data->refs.insert(std::make_pair(ref, ctxt));
-        data->deps.insert(std::make_pair(ctxt, ref));
-    }
+    data->refs.insert(std::make_pair(ref, ctxt));
+    data->deps.insert(std::make_pair(ctxt, ref));
+  }
 };
 
 } // close anonymous namespace
 
 class ReferencesImpl {
 private:
-    ReferencesData data;
+  ReferencesData data;
 
-    StatementMatcher funcContextMatcher =
-        anyOf(
-                // matches vars and funcs
-                declRefExpr(
-                    allOf(
-                        hasAncestor(
-                            functionDecl(
-                                isDefinition()
-                                ).bind("context")
-                            ),
-                        hasDeclaration(
-                            anyOf(
-                                varDecl(
-                                    allOf(
-                                        unless(
-                                            parmVarDecl()
-                                            ),
-                                        hasGlobalStorage()
-                                        )
-                                    ).bind("reference"),
-                                functionDecl().bind("reference")
-                                )
-                            )
-                        )
-                    ),
-                    // matches C++ classes from constructor
-                    cxxConstructExpr(
-                            allOf(
-                                hasAncestor(
-                                    functionDecl(
-                                        isDefinition()
-                                        ).bind("context")
-                                    ),
-                                hasDeclaration(
-                                    namedDecl().bind("reference")
-                                    )
-                                )
-                            )
-                        );
+  StatementMatcher funcContextMatcher = anyOf(
+      // matches vars and funcs
+      declRefExpr(
+          allOf(hasAncestor(functionDecl(isDefinition()).bind("context")),
+                hasDeclaration(anyOf(
+                    varDecl(allOf(unless(parmVarDecl()), hasGlobalStorage()))
+                        .bind("reference"),
+                    functionDecl().bind("reference"))))),
+      // matches C++ classes from constructor
+      cxxConstructExpr(
+          allOf(hasAncestor(functionDecl(isDefinition()).bind("context")),
+                hasDeclaration(namedDecl().bind("reference")))));
 
-    StatementMatcher varContextMatcher =
-        anyOf(
-                // matches vars and funcs
-                declRefExpr(
-                    allOf(
-                        hasAncestor(
-                            varDecl(
-                                allOf(
-                                    isDefinition(), hasGlobalStorage()
-                                    )
-                                ).bind("context")
-                            ),
-                        hasDeclaration(
-                            anyOf(
-                                varDecl().bind("reference"),
-                                functionDecl().bind("reference")
-                                )
-                            )
-                        )
-                    ),
-                // matches C++ classes from constructor
-                cxxConstructExpr(
-                    allOf(
-                        hasAncestor(
-                            varDecl(
-                                allOf(
-                                    isDefinition(), hasGlobalStorage()
-                                    )
-                                ).bind("context")
-                            ),
-                        hasDeclaration(
-                            namedDecl().bind("reference")
-                            )
-                        )
-                    )
-                    );
+  StatementMatcher varContextMatcher = anyOf(
+      // matches vars and funcs
+      declRefExpr(
+          allOf(hasAncestor(varDecl(allOf(isDefinition(), hasGlobalStorage()))
+                                .bind("context")),
+                hasDeclaration(anyOf(varDecl().bind("reference"),
+                                     functionDecl().bind("reference"))))),
+      // matches C++ classes from constructor
+      cxxConstructExpr(
+          allOf(hasAncestor(varDecl(allOf(isDefinition(), hasGlobalStorage()))
+                                .bind("context")),
+                hasDeclaration(namedDecl().bind("reference")))));
 
-    DeclarationMatcher funcInRecordMatcher =
-        recordDecl(
-                allOf(
-                    isDefinition(),
-                    hasDescendant(
-                        functionDecl().bind("reference")
-                        )
+  DeclarationMatcher funcInRecordMatcher =
+      recordDecl(
+          allOf(isDefinition(), hasDescendant(functionDecl().bind("reference"))
 
-                    )
-                ).bind("context");
+                    ))
+          .bind("context");
 
-    DeclarationMatcher fieldInRecordMatcher =
-        recordDecl(
-                allOf(
-                    isDefinition(),
-                    hasDescendant(
-                        fieldDecl().bind("reference")
-                        )
-                    )
-                ).bind("context");
+  DeclarationMatcher fieldInRecordMatcher =
+      recordDecl(
+          allOf(isDefinition(), hasDescendant(fieldDecl().bind("reference"))))
+          .bind("context");
 
-    ReferencesDataAppender refAppender;
+  ReferencesDataAppender refAppender;
 
 public:
-    ReferencesImpl (clang::CompilerInstance *ci
-            , MatchFinder *f)
-        : refAppender(ci, &data)
-    {
-        f->addMatcher(funcContextMatcher, &refAppender);
-        f->addMatcher(varContextMatcher, &refAppender);
-        f->addMatcher(funcInRecordMatcher, &refAppender);
-        f->addMatcher(fieldInRecordMatcher, &refAppender);
-    }
+  ReferencesImpl(clang::CompilerInstance *ci, MatchFinder *f)
+      : refAppender(ci, &data) {
+    f->addMatcher(funcContextMatcher, &refAppender);
+    f->addMatcher(varContextMatcher, &refAppender);
+    f->addMatcher(funcInRecordMatcher, &refAppender);
+    f->addMatcher(fieldInRecordMatcher, &refAppender);
+  }
 
-    ReferencesData* getData() {
-        return &data;
-    }
+  ReferencesData *getData() { return &data; }
 };
 
 References::References(clang::CompilerInstance *ci, MatchFinder *f) {
-    impl = new ReferencesImpl(ci, f);
+  impl = new ReferencesImpl(ci, f);
 }
 
-References::~References() {
-    delete impl;
-}
+References::~References() { delete impl; }
 
-ReferencesData* References::getData() {
-    return impl->getData();
-}
+ReferencesData *References::getData() { return impl->getData(); }
 
 } // namespace collectors
 } // namespace clangmetatool

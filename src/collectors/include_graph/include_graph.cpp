@@ -1,14 +1,14 @@
 #include <algorithm>
 #include <array>
 #include <clang/AST/ASTConsumer.h>
-#include <clang/AST/DeclBase.h>
 #include <clang/AST/Decl.h>
+#include <clang/AST/DeclBase.h>
 #include <clang/AST/Expr.h>
-#include <clang/ASTMatchers/ASTMatchers.h>
-#include <clang/ASTMatchers/ASTMatchersInternal.h>
-#include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/AST/Type.h>
 #include <clang/AST/TypeLoc.h>
+#include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/ASTMatchers/ASTMatchers.h>
+#include <clang/ASTMatchers/ASTMatchersInternal.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/Module.h>
 #include <clang/Basic/SourceLocation.h>
@@ -36,76 +36,64 @@
 #include <unistd.h>
 #include <utility>
 
-#include <clangmetatool/types/file_uid.h>
 #include <clangmetatool/collectors/include_graph.h>
 #include <clangmetatool/collectors/include_graph_data.h>
+#include <clangmetatool/types/file_uid.h>
 
 #include "find_decl_match_callback.h"
 #include "find_decl_ref_match_callback.h"
 #include "find_type_match_callback.h"
 #include "include_finder.h"
 
-
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    class IncludeGraphImpl {
-    private:
-      clang::CompilerInstance          *ci;
-      IncludeGraphData                 data;
+class IncludeGraphImpl {
+private:
+  clang::CompilerInstance *ci;
+  IncludeGraphData data;
 
-      clang::ast_matchers::StatementMatcher sm1 =
-        clang::ast_matchers::declRefExpr().bind("ref");
-      clang::ast_matchers::TypeLocMatcher sm2 =
-        clang::ast_matchers::typeLoc().bind("type");
-      clang::ast_matchers::DeclarationMatcher sm3 =
-        clang::ast_matchers::decl().bind("decl");
-      
-      clangmetatool::collectors::include_graph::FindDeclRefMatchCallback cb1;
-      clangmetatool::collectors::include_graph::FindTypeMatchCallback cb2;
-      clangmetatool::collectors::include_graph::FindDeclMatchCallback cb3;
+  clang::ast_matchers::StatementMatcher sm1 =
+      clang::ast_matchers::declRefExpr().bind("ref");
+  clang::ast_matchers::TypeLocMatcher sm2 =
+      clang::ast_matchers::typeLoc().bind("type");
+  clang::ast_matchers::DeclarationMatcher sm3 =
+      clang::ast_matchers::decl().bind("decl");
 
-    public:
+  clangmetatool::collectors::include_graph::FindDeclRefMatchCallback cb1;
+  clangmetatool::collectors::include_graph::FindTypeMatchCallback cb2;
+  clangmetatool::collectors::include_graph::FindDeclMatchCallback cb3;
 
-      IncludeGraphImpl(clang::CompilerInstance          *ci,
-                       clang::ast_matchers::MatchFinder *f   )
-        :ci(ci), cb1(ci, &data), cb2(ci, &data), cb3(ci, &data) {
-        
-        f->addMatcher(sm1, &cb1);
-        f->addMatcher(sm2, &cb2);
-        f->addMatcher(sm3, &cb3);
+public:
+  IncludeGraphImpl(clang::CompilerInstance *ci,
+                   clang::ast_matchers::MatchFinder *f)
+      : ci(ci), cb1(ci, &data), cb2(ci, &data), cb3(ci, &data) {
 
-        // preprocessor callbacks
-        ci->getPreprocessor().addPPCallbacks
-          (std::make_unique<
-           clangmetatool::collectors::include_graph::IncludeFinder
-           >(ci, &data));
+    f->addMatcher(sm1, &cb1);
+    f->addMatcher(sm2, &cb2);
+    f->addMatcher(sm3, &cb3);
 
-      }
-
-      ~IncludeGraphImpl() {}
-
-      IncludeGraphData* getData() {
-        return &data;
-      }
-
-    };
-
-
-    IncludeGraph::IncludeGraph( clang::CompilerInstance          *ci,
-                                clang::ast_matchers::MatchFinder *f   ) {
-      impl = new IncludeGraphImpl(ci,f);
-    }
-
-    IncludeGraph::~IncludeGraph() {
-      delete impl;
-    }
-
-    IncludeGraphData* IncludeGraph::getData() {
-      return impl->getData();
-    }
-
+    // preprocessor callbacks
+    ci->getPreprocessor().addPPCallbacks(
+        std::make_unique<
+            clangmetatool::collectors::include_graph::IncludeFinder>(ci,
+                                                                     &data));
   }
+
+  ~IncludeGraphImpl() {}
+
+  IncludeGraphData *getData() { return &data; }
+};
+
+IncludeGraph::IncludeGraph(clang::CompilerInstance *ci,
+                           clang::ast_matchers::MatchFinder *f) {
+  impl = new IncludeGraphImpl(ci, f);
+}
+
+IncludeGraph::~IncludeGraph() { delete impl; }
+
+IncludeGraphData *IncludeGraph::getData() { return impl->getData(); }
+}
 }
 
 // ----------------------------------------------------------------------------

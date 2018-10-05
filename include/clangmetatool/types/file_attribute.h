@@ -6,12 +6,10 @@
 #include <clangmetatool/types/file_uid.h>
 
 namespace clangmetatool {
-  namespace types {
+namespace types {
 
-    template <typename OTHER>
-    using FileAttribute = std::pair<FileUID, OTHER>;
- 
-  }
+template <typename OTHER> using FileAttribute = std::pair<FileUID, OTHER>;
+}
 }
 
 #endif

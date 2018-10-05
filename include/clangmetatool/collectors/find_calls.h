@@ -1,56 +1,52 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CALLS_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CALLS_H
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 #include <clangmetatool/collectors/find_calls_data.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * forward declaration to implementation details of the
-     * collector.
-     */
-    class FindCallsImpl;
+/**
+ * forward declaration to implementation details of the
+ * collector.
+ */
+class FindCallsImpl;
 
-    /**
-     * Find Calls data collector. Collects the caller and references
-     * to the specified function and one of its arguments.
-     */
-    class FindCalls {
-    private:
+/**
+ * Find Calls data collector. Collects the caller and references
+ * to the specified function and one of its arguments.
+ */
+class FindCalls {
+private:
+  /**
+   * Pointer to Implementation
+   */
+  FindCallsImpl *impl;
 
-      /**
-       * Pointer to Implementation
-       */
-      FindCallsImpl* impl;
+public:
+  /**
+   * Explicit constructor, to allow for implementation details:
+   *    - ci is a pointer to an instance of the clang compiler
+   *    - f is a pointer to an instance of the MatchFinder class
+   *    - n is a string value of the function name to match on
+   */
+  FindCalls(clang::CompilerInstance *ci, clang::ast_matchers::MatchFinder *f,
+            std::string n);
 
-    public:
+  /**
+   * Explicit destructor.
+   */
+  ~FindCalls();
 
-      /**
-       * Explicit constructor, to allow for implementation details:
-       *    - ci is a pointer to an instance of the clang compiler
-       *    - f is a pointer to an instance of the MatchFinder class
-       *    - n is a string value of the function name to match on
-       */
-      FindCalls( clang::CompilerInstance          *ci,
-                 clang::ast_matchers::MatchFinder *f,
-                 std::string                       n  );
-
-      /**
-       * Explicit destructor.
-       */
-      ~FindCalls();
-
-      /**
-       * Get the pointer to the data structure, populated or not.
-       */
-      FindCallsData* getData();
-
-    };
-  }
+  /**
+   * Get the pointer to the data structure, populated or not.
+   */
+  FindCallsData *getData();
+};
+}
 }
 
 #endif

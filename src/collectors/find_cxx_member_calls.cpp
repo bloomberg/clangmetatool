@@ -1,126 +1,86 @@
 #include <clangmetatool/collectors/find_cxx_member_calls.h>
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include <clangmetatool/collectors/find_cxx_member_calls_data.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-  using namespace clang::ast_matchers;
+using namespace clang::ast_matchers;
 
-  namespace {
+namespace {
 
-    class AnnotateCall1
-        : public clang::ast_matchers::MatchFinder::MatchCallback {
-      private:
-        clang::CompilerInstance *ci;
-        FindCXXMemberCallsData *data;
-      public:
-        AnnotateCall1
-        (clang::CompilerInstance* ci,
-         FindCXXMemberCallsData *data)
-          :ci(ci), data(data) {}
+class AnnotateCall1 : public clang::ast_matchers::MatchFinder::MatchCallback {
+private:
+  clang::CompilerInstance *ci;
+  FindCXXMemberCallsData *data;
 
-        virtual void
-        run(const clang::ast_matchers::MatchFinder::MatchResult &r)
-          override {
+public:
+  AnnotateCall1(clang::CompilerInstance *ci, FindCXXMemberCallsData *data)
+      : ci(ci), data(data) {}
 
-          const auto c =
-            r.Nodes.getNodeAs<clang::CXXMemberCallExpr>("call");
+  virtual void
+  run(const clang::ast_matchers::MatchFinder::MatchResult &r) override {
 
-          const auto f =
-            r.Nodes.getNodeAs<clang::FunctionDecl>("context");
+    const auto c = r.Nodes.getNodeAs<clang::CXXMemberCallExpr>("call");
 
-          data->insert
-            (std::pair
-            <const clang::FunctionDecl*,
-            const clang::CXXMemberCallExpr*>(f,c));
-        }
+    const auto f = r.Nodes.getNodeAs<clang::FunctionDecl>("context");
 
-    };
+    data->insert(std::pair<const clang::FunctionDecl *,
+                           const clang::CXXMemberCallExpr *>(f, c));
+  }
+};
 
-  } // namespace anonymous
+} // namespace anonymous
 
-  class FindCXXMemberCallsImpl {
-  private:
-    std::string            c;
-    std::string            n;
-    FindCXXMemberCallsData data;
-    clang::CompilerInstance *ci;
+class FindCXXMemberCallsImpl {
+private:
+  std::string c;
+  std::string n;
+  FindCXXMemberCallsData data;
+  clang::CompilerInstance *ci;
 
-    std::unique_ptr<StatementMatcher> sm;
-    AnnotateCall1 cb1;
+  std::unique_ptr<StatementMatcher> sm;
+  AnnotateCall1 cb1;
 
-  public:
-    FindCXXMemberCallsImpl
-    (clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder* f,
-     const std::string& c, const std::string& n)
-      : ci(ci), c(c), n(n), cb1(ci, &data)
-    {
-      const auto cType =
-        type(
-          hasUnqualifiedDesugaredType(
-            recordType(
-              hasDeclaration(
-                cxxRecordDecl(
-                  hasName(c)
-                )
-              )
-            )
-          )
-        );
+public:
+  FindCXXMemberCallsImpl(clang::CompilerInstance *ci,
+                         clang::ast_matchers::MatchFinder *f,
+                         const std::string &c, const std::string &n)
+      : ci(ci), c(c), n(n), cb1(ci, &data) {
+    const auto cType = type(hasUnqualifiedDesugaredType(
+        recordType(hasDeclaration(cxxRecordDecl(hasName(c))))));
 
-      const auto cExpr =
-        expr(
-          anyOf(
-            hasType(cType),
-            hasType(
-              qualType(
-                pointsTo(cType)
-              )
-            )
-          )
-        );
+    const auto cExpr =
+        expr(anyOf(hasType(cType), hasType(qualType(pointsTo(cType)))));
 
-      sm = std::make_unique<StatementMatcher>(
-        cxxMemberCallExpr(
-          on(cExpr),
-          callee(
-            cxxMethodDecl(
-              hasName(n)
-            )
-          ),
-          hasAncestor(functionDecl().bind("context"))
-        ).bind("call"));
+    sm = std::make_unique<StatementMatcher>(
+        cxxMemberCallExpr(on(cExpr), callee(cxxMethodDecl(hasName(n))),
+                          hasAncestor(functionDecl().bind("context")))
+            .bind("call"));
 
-      f->addMatcher(*sm, &cb1);
-    }
-
-    ~FindCXXMemberCallsImpl() {
-    }
-
-    FindCXXMemberCallsData* getData() {
-      return &data;
-    }
-
-  };
-
-  FindCXXMemberCalls::FindCXXMemberCalls
-  (clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder* f,
-   const std::string& c, const std::string& n)
-  {
-    impl = new FindCXXMemberCallsImpl(ci, f, c, n);
+    f->addMatcher(*sm, &cb1);
   }
 
-  FindCXXMemberCalls::~FindCXXMemberCalls() {
-    delete impl;
-  }
+  ~FindCXXMemberCallsImpl() {}
 
-  FindCXXMemberCallsData* FindCXXMemberCalls::getData() {
-    return impl->getData();
-  }
+  FindCXXMemberCallsData *getData() { return &data; }
+};
+
+FindCXXMemberCalls::FindCXXMemberCalls(clang::CompilerInstance *ci,
+                                       clang::ast_matchers::MatchFinder *f,
+                                       const std::string &c,
+                                       const std::string &n) {
+  impl = new FindCXXMemberCallsImpl(ci, f, c, n);
+}
+
+FindCXXMemberCalls::~FindCXXMemberCalls() { delete impl; }
+
+FindCXXMemberCallsData *FindCXXMemberCalls::getData() {
+  return impl->getData();
+}
 }
 }
 // ----------------------------------------------------------------------------

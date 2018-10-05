@@ -7,8 +7,8 @@
 #include <map>
 #include <string>
 
-#include <clang/Analysis/CFG.h>
 #include <clang/AST/Expr.h>
+#include <clang/Analysis/CFG.h>
 #include <clang/Frontend/CompilerInstance.h>
 
 namespace clangmetatool {
@@ -17,15 +17,14 @@ namespace propagation {
 /**
  * Class to run constant propagation given a visitor type
  */
-template <typename V>
-class ConstantPropagator {
+template <typename V> class ConstantPropagator {
 public:
-  using VisitorType    = V;
-  using ManagerType    = BlockVisitorManager<VisitorType>;
-  using ResultType     = typename VisitorType::ResultType;
+  using VisitorType = V;
+  using ManagerType = BlockVisitorManager<VisitorType>;
+  using ResultType = typename VisitorType::ResultType;
 
 private:
-  const clang::CompilerInstance* ci;
+  const clang::CompilerInstance *ci;
 
   std::map<std::string, ManagerType> managers;
 
@@ -33,9 +32,7 @@ public:
   /**
    * We need a CompilerInstance to be able to run the propagation
    */
-  ConstantPropagator(const clang::CompilerInstance* ci)
-    : ci(ci) {
-  }
+  ConstantPropagator(const clang::CompilerInstance *ci) : ci(ci) {}
 
   /**
    * Run the propagation (if not run already) on a variable usage
@@ -48,8 +45,8 @@ public:
    * variable at the location it is used in particular then the
    * PropagationResult will be marked as unresolved.
    */
-  ResultType runPropagation
-  (const clang::FunctionDecl* func, const clang::DeclRefExpr* var) {
+  ResultType runPropagation(const clang::FunctionDecl *func,
+                            const clang::DeclRefExpr *var) {
     ResultType result;
     bool wasFound = false;
 
@@ -57,12 +54,10 @@ public:
 
     auto it = managers.find(func->getQualifiedNameAsString());
 
-    if(managers.end() == it) {
+    if (managers.end() == it) {
       // If the propagation was not already run
-      std::unique_ptr<clang::CFG> cfg
-        = clang::CFG::buildCFG(func,
-                               func->getBody(),
-                               &ci->getASTContext(),
+      std::unique_ptr<clang::CFG> cfg =
+          clang::CFG::buildCFG(func, func->getBody(), &ci->getASTContext(),
                                clang::CFG::BuildOptions());
 
       // Store the propagation
@@ -71,7 +66,8 @@ public:
                        std::forward_as_tuple(ci->getASTContext(), cfg.get()));
 
       // Run the propagation
-      const auto& manager = managers.find(func->getQualifiedNameAsString())->second;
+      const auto &manager =
+          managers.find(func->getQualifiedNameAsString())->second;
 
       // Lookup the result
       wasFound = manager.lookup(result, varName, var->getLocStart());
@@ -80,7 +76,7 @@ public:
       wasFound = it->second.lookup(result, varName, var->getLocStart());
     }
 
-    if(wasFound) {
+    if (wasFound) {
       return result;
     }
 
@@ -94,8 +90,8 @@ public:
    * Note that this assumes that the stream operator has been set
    * up for the Visitor's ReturnType.
    */
-  void dump(std::ostream& stream) const {
-    for(const auto& it : managers) {
+  void dump(std::ostream &stream) const {
+    for (const auto &it : managers) {
       stream << it.first << " >>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
       it.second.dump(stream, ci->getSourceManager());
       stream << it.first << " <<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;

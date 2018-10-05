@@ -1,56 +1,53 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_INCLUDE_GRAPH_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_INCLUDE_GRAPH_H
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceLocation.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 #include <clangmetatool/collectors/include_graph_data.h>
 #include <clangmetatool/types/file_uid.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * forward declaration to implementation details of the
-     * collector.
-     */
-    class IncludeGraphImpl;
+/**
+ * forward declaration to implementation details of the
+ * collector.
+ */
+class IncludeGraphImpl;
 
-    /**
-     * Include Graph data collector. Collects the information related
-     * to include statements as well as references between different
-     * files in the translation unit.
-     */
-    class IncludeGraph {
-    private:
+/**
+ * Include Graph data collector. Collects the information related
+ * to include statements as well as references between different
+ * files in the translation unit.
+ */
+class IncludeGraph {
+private:
+  /**
+   * Pointer to Implementation
+   */
+  IncludeGraphImpl *impl;
 
-      /**
-       * Pointer to Implementation
-       */
-      IncludeGraphImpl* impl;
+public:
+  /**
+   * Explicit constructor, to allow for implementation details.
+   */
+  IncludeGraph(clang::CompilerInstance *ci,
+               clang::ast_matchers::MatchFinder *f);
 
-    public:
+  /**
+   * Explicit destructor.
+   */
+  ~IncludeGraph();
 
-      /**
-       * Explicit constructor, to allow for implementation details.
-       */
-      IncludeGraph( clang::CompilerInstance          *ci,
-                    clang::ast_matchers::MatchFinder *f   );
-
-      /**
-       * Explicit destructor.
-       */
-      ~IncludeGraph();
-
-      /**
-       * Get the pointer to the data structure, populated or not.
-       */
-      IncludeGraphData* getData();
-
-    };
-  }
+  /**
+   * Get the pointer to the data structure, populated or not.
+   */
+  IncludeGraphData *getData();
+};
+}
 }
 
 #endif

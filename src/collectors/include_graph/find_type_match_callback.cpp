@@ -1,14 +1,14 @@
 #include <algorithm>
 #include <array>
 #include <clang/AST/ASTConsumer.h>
-#include <clang/AST/DeclBase.h>
 #include <clang/AST/Decl.h>
+#include <clang/AST/DeclBase.h>
 #include <clang/AST/Expr.h>
-#include <clang/ASTMatchers/ASTMatchers.h>
-#include <clang/ASTMatchers/ASTMatchersInternal.h>
-#include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/AST/Type.h>
 #include <clang/AST/TypeLoc.h>
+#include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/ASTMatchers/ASTMatchers.h>
+#include <clang/ASTMatchers/ASTMatchersInternal.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/Module.h>
 #include <clang/Basic/SourceLocation.h>
@@ -23,6 +23,8 @@
 #include <clang/Lex/Token.h>
 #include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Tooling.h>
+#include <clangmetatool/collectors/include_graph_data.h>
+#include <clangmetatool/types/file_uid.h>
 #include <iosfwd>
 #include <limits.h>
 #include <llvm/ADT/StringRef.h>
@@ -34,30 +36,25 @@
 #include <string.h>
 #include <unistd.h>
 #include <utility>
-#include <clangmetatool/types/file_uid.h>
-#include <clangmetatool/collectors/include_graph_data.h>
 
 #include "include_graph_util.h"
 
 #include "find_type_match_callback.h"
 
 namespace clangmetatool {
-  namespace collectors {
-    namespace include_graph {
+namespace collectors {
+namespace include_graph {
 
-      void
-      FindTypeMatchCallback::run
-      (const clang::ast_matchers::MatchFinder::MatchResult &r) {
-        
-        if (const clang::TypeLoc *tl =
-            r.Nodes.getNodeAs<clang::TypeLoc>("type")) {
-          
-          add_type_reference(ci, data, tl);
+void FindTypeMatchCallback::run(
+    const clang::ast_matchers::MatchFinder::MatchResult &r) {
 
-        }
-      }
-    }
+  if (const clang::TypeLoc *tl = r.Nodes.getNodeAs<clang::TypeLoc>("type")) {
+
+    add_type_reference(ci, data, tl);
   }
+}
+}
+}
 }
 
 // ----------------------------------------------------------------------------
