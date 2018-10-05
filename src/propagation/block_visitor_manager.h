@@ -3,6 +3,7 @@
 
 #include "strongly_connected_blocks.h"
 #include "types/changed_in_loop.h"
+#include <clangmetatool/propagation/propagation_result.h>
 
 #include <iostream>
 #include <map>
