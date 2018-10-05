@@ -61,7 +61,10 @@ namespace clangmetatool {
        const clang::FileEntry *file,
        llvm::StringRef searchPath,
        llvm::StringRef relativePath,
-       const clang::Module *imported) {
+       const clang::Module *imported,
+       clang::SrcMgr::CharacteristicKind FileType_) {
+        // The filetype characteristic is unused for now, hence marked with
+        // a trailing '_'. We are recording all filetypes
         add_include_statement
           ( ci,
             data,
