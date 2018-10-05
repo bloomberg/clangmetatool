@@ -1,7 +1,7 @@
-int foo(char*);
+int foo(char *);
 
-int main(int argc, char* argv[]) {
-  char* v1 = "hello, world!";
+int main(int argc, char *argv[]) {
+  char *v1 = "hello, world!";
 
   foo(v1);
 

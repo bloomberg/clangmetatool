@@ -2,71 +2,64 @@
 
 #include <gtest/gtest.h>
 
-#include <clangmetatool/meta_tool_factory.h>
-#include <clangmetatool/meta_tool.h>
-#include <clangmetatool/collectors/variable_refs_data.h>
 #include <clangmetatool/collectors/variable_refs.h>
+#include <clangmetatool/collectors/variable_refs_data.h>
+#include <clangmetatool/meta_tool.h>
+#include <clangmetatool/meta_tool_factory.h>
 
 #include <clang/Frontend/FrontendAction.h>
-#include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/CommonOptionsParser.h>
-#include <clang/Tooling/Tooling.h>
+#include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Refactoring.h>
-#include <llvm/Support/CommandLine.h>
+#include <clang/Tooling/Tooling.h>
 #include <llvm/ADT/APSInt.h>
+#include <llvm/Support/CommandLine.h>
 
 class MyTool {
 private:
-  clang::CompilerInstance* ci;
+  clang::CompilerInstance *ci;
   clangmetatool::collectors::VariableRefs v;
+
 public:
-  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
-    :ci(ci), v(ci, f) {
-  }
-  void postProcessing
-  (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
+  MyTool(clang::CompilerInstance *ci, clang::ast_matchers::MatchFinder *f)
+      : ci(ci), v(ci, f) {}
+  void postProcessing(
+      std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
 
     const clang::ASTContext &ctx = ci->getASTContext();
 
-    std::multimap<
-      const clang::VarDecl*,
-      const clang::DeclRefExpr*
-      > *refs = &(v.getData()->refs);
+    std::multimap<const clang::VarDecl *, const clang::DeclRefExpr *> *refs =
+        &(v.getData()->refs);
 
-    ASSERT_EQ(6, refs->size())
-      << "Found decl ref";
+    ASSERT_EQ(6, refs->size()) << "Found decl ref";
 
     // these are the values and names from the references in the order
     // that we see them in the code.
-    int64_t values[] = { 3, 2, 5, 5, 6, 11 };
-    const char* names[] = { "a", "b", "c", "d", "e", "f" };
+    int64_t values[] = {3, 2, 5, 5, 6, 11};
+    const char *names[] = {"a", "b", "c", "d", "e", "f"};
 
     int count = 0;
     auto it = refs->begin();
     while (it != refs->end()) {
-      const clang::VarDecl* var = it->first;
-      const clang::DeclRefExpr* ref = it->second;
-
+      const clang::VarDecl *var = it->first;
+      const clang::DeclRefExpr *ref = it->second;
 
       ASSERT_EQ(std::string(names[count]), var->getNameAsString())
-        << "Got the expected variable name " << count;
+          << "Got the expected variable name " << count;
 
       llvm::APSInt value;
-      bool eval = ref->EvaluateAsInt
-        ( value, ctx,
-          clang::Expr::SideEffectsKind::SE_AllowSideEffects
-          );
+      bool eval = ref->EvaluateAsInt(
+          value, ctx, clang::Expr::SideEffectsKind::SE_AllowSideEffects);
 
-      ASSERT_EQ(true, eval)
-        << "Value can be evaluated " << names[count] << " " << count;
+      ASSERT_EQ(true, eval) << "Value can be evaluated " << names[count] << " "
+                            << count;
 
       ASSERT_EQ(values[count], value.getExtValue())
-        << "Has the expected value " << names[count] << " " << count;
+          << "Has the expected value " << names[count] << " " << count;
 
       count++;
       it++;
     }
-
   }
 };
 
@@ -74,28 +67,20 @@ TEST(use_meta_tool, factory) {
   llvm::cl::OptionCategory MyToolCategory("my-tool options");
 
   int argc = 4;
-  const char* argv[] = {
-    "foo",
-    CMAKE_SOURCE_DIR "/t/data/004-variablerefs-basic/foo.cpp",
-    "--",
-    "-xc++"
-  };
+  const char *argv[] = {"foo", CMAKE_SOURCE_DIR
+                        "/t/data/004-variablerefs-basic/foo.cpp",
+                        "--", "-xc++"};
 
-  clang::tooling::CommonOptionsParser
-    optionsParser
-    ( argc, argv,
-      MyToolCategory );
-  clang::tooling::RefactoringTool tool
-    ( optionsParser.getCompilations(),
-      optionsParser.getSourcePathList());
+  clang::tooling::CommonOptionsParser optionsParser(argc, argv, MyToolCategory);
+  clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
+                                       optionsParser.getSourcePathList());
 
-  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
-    raf(tool.getReplacements());
+  clangmetatool::MetaToolFactory<clangmetatool::MetaTool<MyTool>> raf(
+      tool.getReplacements());
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);
 }
-
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

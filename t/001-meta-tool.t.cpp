@@ -2,33 +2,33 @@
 
 #include <gtest/gtest.h>
 
-#include <clangmetatool/meta_tool_factory.h>
 #include <clangmetatool/meta_tool.h>
+#include <clangmetatool/meta_tool_factory.h>
 
 #include <clang/Frontend/FrontendAction.h>
-#include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/CommonOptionsParser.h>
-#include <clang/Tooling/Tooling.h>
+#include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Refactoring.h>
+#include <clang/Tooling/Tooling.h>
 #include <llvm/Support/CommandLine.h>
-
 
 bool constructor_called;
 bool postprocessing_called;
 
 class MyTool {
 private:
-  clang::CompilerInstance* ci;
+  clang::CompilerInstance *ci;
   clang::ast_matchers::MatchFinder *f;
+
 public:
-  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
-    :ci(ci), f(f) {
+  MyTool(clang::CompilerInstance *ci, clang::ast_matchers::MatchFinder *f)
+      : ci(ci), f(f) {
     constructor_called = true;
   }
-  void postProcessing
-  (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
-    ASSERT_NE((void*)NULL, ci);
-    ASSERT_NE((void*)NULL, f);
+  void postProcessing(
+      std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
+    ASSERT_NE((void *)NULL, ci);
+    ASSERT_NE((void *)NULL, f);
     postprocessing_called = true;
   }
 };
@@ -37,29 +37,23 @@ TEST(use_meta_tool, factory) {
   llvm::cl::OptionCategory MyToolCategory("my-tool options");
 
   int argc = 4;
-  const char* argv[] = { "foo", "/dev/null", "--", "-xc++"  };
+  const char *argv[] = {"foo", "/dev/null", "--", "-xc++"};
 
-  clang::tooling::CommonOptionsParser
-    optionsParser
-    ( argc, argv,
-      MyToolCategory );
-  clang::tooling::RefactoringTool tool
-    ( optionsParser.getCompilations(),
-      optionsParser.getSourcePathList());
+  clang::tooling::CommonOptionsParser optionsParser(argc, argv, MyToolCategory);
+  clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
+                                       optionsParser.getSourcePathList());
 
   constructor_called = false;
   postprocessing_called = false;
 
-  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
-    raf(tool.getReplacements());
+  clangmetatool::MetaToolFactory<clangmetatool::MetaTool<MyTool>> raf(
+      tool.getReplacements());
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);
   ASSERT_EQ(true, constructor_called);
   ASSERT_EQ(true, postprocessing_called);
-
 }
-
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

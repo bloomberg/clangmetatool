@@ -1,11 +1,11 @@
 int faa(const int);
 int foo(int);
-int boo(const int*);
-int bar(int*);
-int baz(const int&);
-int qux(int&);
+int boo(const int *);
+int bar(int *);
+int baz(const int &);
+int qux(int &);
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   int v1 = 0;
 
   // v1 retains its old value in this current scope

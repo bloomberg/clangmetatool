@@ -1,7 +1,5 @@
 
-int bar(int w, int z) {
-  return 1;
-}
+int bar(int w, int z) { return 1; }
 
 int a = 3;
 int foo() {

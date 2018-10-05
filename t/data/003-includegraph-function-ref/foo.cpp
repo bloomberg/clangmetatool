@@ -1,13 +1,13 @@
 #include "a.h"
 
 namespace bar {
-  int foo() {
-    if (somefunction() > 0) {
-      return 1;
-    } else {
-      return 0;
-    }
+int foo() {
+  if (somefunction() > 0) {
+    return 1;
+  } else {
+    return 0;
   }
+}
 }
 
 // ----------------------------------------------------------------------------

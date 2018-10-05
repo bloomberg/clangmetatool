@@ -1,6 +1,6 @@
 int foo(int);
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   int v1 = 0;
 
   // v1 retains its old value in this current scope

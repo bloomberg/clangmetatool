@@ -2,20 +2,20 @@
 
 #include <sstream>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
-#include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/Frontend/FrontendAction.h>
-#include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/CommonOptionsParser.h>
-#include <clang/Tooling/Tooling.h>
+#include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Refactoring.h>
-#include <llvm/Support/CommandLine.h>
-#include <clangmetatool/meta_tool_factory.h>
+#include <clang/Tooling/Tooling.h>
 #include <clangmetatool/meta_tool.h>
+#include <clangmetatool/meta_tool_factory.h>
 #include <clangmetatool/propagation/constant_cstring_propagator.h>
+#include <llvm/Support/CommandLine.h>
 
 #include <gtest/gtest.h>
 
@@ -23,23 +23,25 @@ namespace {
 
 using namespace clang::ast_matchers;
 
-using FindVarDeclsDatum = std::pair<const clang::FunctionDecl*, const clang::DeclRefExpr*>;
-using FindVarDeclsData  = std::vector<FindVarDeclsDatum>;
+using FindVarDeclsDatum =
+    std::pair<const clang::FunctionDecl *, const clang::DeclRefExpr *>;
+using FindVarDeclsData = std::vector<FindVarDeclsDatum>;
 
 class FindVarDeclsCallback : public MatchFinder::MatchCallback {
 private:
-  clang::CompilerInstance* ci;
-  FindVarDeclsData* data;
+  clang::CompilerInstance *ci;
+  FindVarDeclsData *data;
 
 public:
-  FindVarDeclsCallback(clang::CompilerInstance* ci, FindVarDeclsData* data)
-    : ci(ci), data(data) {
-  }
+  FindVarDeclsCallback(clang::CompilerInstance *ci, FindVarDeclsData *data)
+      : ci(ci), data(data) {}
 
-  virtual void run(const MatchFinder::MatchResult& r) override {
-    const clang::FunctionDecl* f = r.Nodes.getNodeAs<clang::FunctionDecl>("func");
+  virtual void run(const MatchFinder::MatchResult &r) override {
+    const clang::FunctionDecl *f =
+        r.Nodes.getNodeAs<clang::FunctionDecl>("func");
 
-    const clang::DeclRefExpr* d = r.Nodes.getNodeAs<clang::DeclRefExpr>("declRef");
+    const clang::DeclRefExpr *d =
+        r.Nodes.getNodeAs<clang::DeclRefExpr>("declRef");
 
     data->push_back({f, d});
   }
@@ -50,50 +52,36 @@ private:
   FindVarDeclsData data;
 
   StatementMatcher matcher =
-    (declRefExpr
-     (hasDeclaration
-      (varDecl
-       (hasAnyName
-        (
-         "v1"
-        )
-       )
-      ),
-      hasAncestor(
-       functionDecl().bind("func")
-      )
-     )
-    ).bind("declRef");
+      (declRefExpr(hasDeclaration(varDecl(hasAnyName("v1"))),
+                   hasAncestor(functionDecl().bind("func"))))
+          .bind("declRef");
 
   FindVarDeclsCallback callback;
 
 public:
-  FindVarDecls(clang::CompilerInstance* ci,
-               MatchFinder*             f)
-    : callback(ci, &data)
-  {
+  FindVarDecls(clang::CompilerInstance *ci, MatchFinder *f)
+      : callback(ci, &data) {
     f->addMatcher(matcher, &callback);
   }
 
-  FindVarDeclsData* getData() { return &data; }
+  FindVarDeclsData *getData() { return &data; }
 };
 
 class MyTool {
 private:
-  clang::CompilerInstance* ci;
+  clang::CompilerInstance *ci;
   FindVarDecls fvd;
   clangmetatool::propagation::ConstantCStringPropagator csp;
 
 public:
-  MyTool(clang::CompilerInstance* ci, MatchFinder *f)
-    : ci(ci), fvd(ci, f), csp(ci) {
-  }
+  MyTool(clang::CompilerInstance *ci, MatchFinder *f)
+      : ci(ci), fvd(ci, f), csp(ci) {}
 
-  void postProcessing
-  (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
-    FindVarDeclsData* decls = fvd.getData();
+  void postProcessing(
+      std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
+    FindVarDeclsData *decls = fvd.getData();
 
-    for(auto decl : *decls) {
+    for (auto decl : *decls) {
       csp.runPropagation(decl.first, decl.second);
     }
 
@@ -101,15 +89,15 @@ public:
 
     csp.dump(stream);
 
-    const char* expectedResult =
-      "main >>>>>>>>>>>>>>>>>>>>>>>>>>\n"
-      "  ** v1\n"
-      "    - 5:3 'wham' (Changed by code)\n"
-      "    - 8:5 'bam' (Changed by code)\n"
-      "    - 11:7 '<UNRESOLVED>' (Control flow merge)\n"
-      "    - 15:3 'thank you mam!' (Changed by code)\n"
-      "    - 19:17 '<UNRESOLVED>' (Changed by code)\n"
-      "main <<<<<<<<<<<<<<<<<<<<<<<<<<\n";
+    const char *expectedResult =
+        "main >>>>>>>>>>>>>>>>>>>>>>>>>>\n"
+        "  ** v1\n"
+        "    - 5:3 'wham' (Changed by code)\n"
+        "    - 8:5 'bam' (Changed by code)\n"
+        "    - 11:7 '<UNRESOLVED>' (Control flow merge)\n"
+        "    - 15:3 'thank you mam!' (Changed by code)\n"
+        "    - 19:17 '<UNRESOLVED>' (Changed by code)\n"
+        "main <<<<<<<<<<<<<<<<<<<<<<<<<<\n";
 
     EXPECT_STREQ(expectedResult, stream.str().c_str());
   }
@@ -120,18 +108,14 @@ public:
 TEST(propagation_ConstantCStringPropagation, basic) {
   llvm::cl::OptionCategory MyToolCategory("my-tool options");
   int argc = 4;
-  const char* argv[] = {
-    "foo",
-    CMAKE_SOURCE_DIR "/t/data/017-looping-cstring-propagation/main.c",
-    "--",
-    "-xc"
-  };
-  clang::tooling::CommonOptionsParser optionsParser
-    (argc, argv, MyToolCategory);
-  clang::tooling::RefactoringTool tool
-    (optionsParser.getCompilations(), optionsParser.getSourcePathList());
-  clangmetatool::MetaToolFactory<clangmetatool::MetaTool<MyTool>>
-    raf(tool.getReplacements());
+  const char *argv[] = {"foo", CMAKE_SOURCE_DIR
+                        "/t/data/017-looping-cstring-propagation/main.c",
+                        "--", "-xc"};
+  clang::tooling::CommonOptionsParser optionsParser(argc, argv, MyToolCategory);
+  clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
+                                       optionsParser.getSourcePathList());
+  clangmetatool::MetaToolFactory<clangmetatool::MetaTool<MyTool>> raf(
+      tool.getReplacements());
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);
 }

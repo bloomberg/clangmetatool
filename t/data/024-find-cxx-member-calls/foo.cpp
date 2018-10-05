@@ -1,30 +1,31 @@
 struct NakedStruct {
   int foo();
-  int bar(char* yo);
+  int bar(char *yo);
 };
 
 class NakedClass {
 public:
   char foo();
-  char bar(int* yo);
+  char bar(int *yo);
 };
 
 namespace suit {
 
 struct BusinessStruct {
   long foo();
-  long long bar(int* drinks);
+  long long bar(int *drinks);
 };
 
 class BusinessClass {
 public:
   unsigned long book();
-  unsigned long long diatribe(char** words) const;
+  unsigned long long diatribe(char **words) const;
 };
 
 } // namespace suit
 
-int foo(NakedStruct& nakedS, NakedClass* nakedC, suit::BusinessStruct* businessS, suit::BusinessClass& businessC) {
+int foo(NakedStruct &nakedS, NakedClass *nakedC,
+        suit::BusinessStruct *businessS, suit::BusinessClass &businessC) {
   nakedS.foo();
   nakedC->foo();
   businessS->foo();

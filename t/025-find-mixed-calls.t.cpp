@@ -2,21 +2,21 @@
 
 #include <gtest/gtest.h>
 
-#include <clangmetatool/meta_tool_factory.h>
-#include <clangmetatool/meta_tool.h>
 #include <clangmetatool/collectors/find_calls.h>
 #include <clangmetatool/collectors/find_cxx_member_calls.h>
+#include <clangmetatool/meta_tool.h>
+#include <clangmetatool/meta_tool_factory.h>
 
 #include <clang/Frontend/FrontendAction.h>
-#include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/CommonOptionsParser.h>
-#include <clang/Tooling/Tooling.h>
+#include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Refactoring.h>
+#include <clang/Tooling/Tooling.h>
 #include <llvm/Support/CommandLine.h>
 
 class MyTool {
 private:
-  clang::CompilerInstance* ci;
+  clang::CompilerInstance *ci;
 
   std::string func = std::string("foo");
 
@@ -34,19 +34,15 @@ private:
 
   std::string nHurdur = std::string("hurdur");
   clangmetatool::collectors::FindCalls fcHurdur;
+
 public:
+  MyTool(clang::CompilerInstance *ci, clang::ast_matchers::MatchFinder *f)
+      : ci(ci), fcNCfoo(ci, f, cNC, nNCfoo), fcNCbar(ci, f, cNC, nNCbar),
+        fcBCbook(ci, f, cBC, nBCbook), fcBCdiatribe(ci, f, cBC, nBCdiatribe),
+        fcHurdur(ci, f, nHurdur) {}
 
-  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
-    : ci(ci)
-    , fcNCfoo(ci, f, cNC, nNCfoo)
-    , fcNCbar(ci, f, cNC, nNCbar)
-    , fcBCbook(ci, f, cBC, nBCbook)
-    , fcBCdiatribe(ci, f, cBC, nBCdiatribe)
-    , fcHurdur(ci, f, nHurdur)
-  {}
-
-  void validateMemberFind(clangmetatool::collectors::FindCXXMemberCalls& fc,
-                          const std::string& c, const std::string n) {
+  void validateMemberFind(clangmetatool::collectors::FindCXXMemberCalls &fc,
+                          const std::string &c, const std::string n) {
     const auto data = fc.getData();
 
     ASSERT_EQ(1, data->size());
@@ -58,8 +54,8 @@ public:
     EXPECT_EQ(n, found->second->getMethodDecl()->getNameAsString());
   }
 
-  void postProcessing
-    (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
+  void postProcessing(
+      std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
     validateMemberFind(fcNCfoo, cNC, nNCfoo);
     validateMemberFind(fcNCbar, cNC, nNCbar);
     validateMemberFind(fcBCbook, cBC, nBCbook);
@@ -67,7 +63,7 @@ public:
 
     auto data = fcHurdur.getData();
     ASSERT_EQ(1, data->call_context.size());
-    const auto& item = *data->call_context.begin();
+    const auto &item = *data->call_context.begin();
     EXPECT_EQ(func, item.first->getNameAsString());
     EXPECT_EQ(nHurdur, item.second->getDirectCallee()->getNameAsString());
   }
@@ -77,28 +73,20 @@ TEST(use_meta_tool, factory) {
   llvm::cl::OptionCategory MyToolCategory("my-tool options");
 
   int argc = 4;
-  const char* argv[] = {
-    "foo",
-    CMAKE_SOURCE_DIR "/t/data/025-find-mixed-calls/foo.cpp",
-    "--",
-    "-xc++"
-  };
+  const char *argv[] = {"foo",
+                        CMAKE_SOURCE_DIR "/t/data/025-find-mixed-calls/foo.cpp",
+                        "--", "-xc++"};
 
-  clang::tooling::CommonOptionsParser
-    optionsParser
-    ( argc, argv,
-      MyToolCategory );
-  clang::tooling::RefactoringTool tool
-    ( optionsParser.getCompilations(),
-      optionsParser.getSourcePathList());
+  clang::tooling::CommonOptionsParser optionsParser(argc, argv, MyToolCategory);
+  clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
+                                       optionsParser.getSourcePathList());
 
-  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
-    raf(tool.getReplacements());
+  clangmetatool::MetaToolFactory<clangmetatool::MetaTool<MyTool>> raf(
+      tool.getReplacements());
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);
 }
-
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

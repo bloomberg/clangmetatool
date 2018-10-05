@@ -1,18 +1,15 @@
 struct MyObject {
-    int count() const;
+  int count() const;
 
-    void update(int a, double b);
+  void update(int a, double b);
 };
 namespace impl {
 struct OurObject {
-    int run();
+  int run();
 };
 }
 
-int MyObject::count() const
-{
-    return 5 + 3;
-}
+int MyObject::count() const { return 5 + 3; }
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

@@ -2,14 +2,14 @@
 
 #include <gtest/gtest.h>
 
-#include <clangmetatool/meta_tool_factory.h>
 #include <clangmetatool/meta_tool.h>
+#include <clangmetatool/meta_tool_factory.h>
 
 #include <clang/Frontend/FrontendAction.h>
-#include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/CommonOptionsParser.h>
-#include <clang/Tooling/Tooling.h>
+#include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Refactoring.h>
+#include <clang/Tooling/Tooling.h>
 #include <llvm/Support/CommandLine.h>
 
 #include <tuple>
@@ -22,25 +22,24 @@ public:
   typedef std::tuple<char, int, std::string> ArgTypes;
 
 private:
-  clang::CompilerInstance* ci;
+  clang::CompilerInstance *ci;
   clang::ast_matchers::MatchFinder *f;
   ArgTypes args;
 
 public:
-  MyTool(clang::CompilerInstance* ci,
-         clang::ast_matchers::MatchFinder *f,
-         ArgTypes& args)
-    :ci(ci), f(f), args(args) {
+  MyTool(clang::CompilerInstance *ci, clang::ast_matchers::MatchFinder *f,
+         ArgTypes &args)
+      : ci(ci), f(f), args(args) {
     constructor_called = true;
   }
-  void postProcessing
-  (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
-    ASSERT_NE((void*)NULL, ci);
-    ASSERT_NE((void*)NULL, f);
+  void postProcessing(
+      std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
+    ASSERT_NE((void *)NULL, ci);
+    ASSERT_NE((void *)NULL, f);
 
-    EXPECT_EQ('$',                          std::get<0>(args));
-    EXPECT_EQ(42,                           std::get<1>(args));
-    EXPECT_EQ(std::string("the answer"),    std::get<2>(args));
+    EXPECT_EQ('$', std::get<0>(args));
+    EXPECT_EQ(42, std::get<1>(args));
+    EXPECT_EQ(std::string("the answer"), std::get<2>(args));
 
     postprocessing_called = true;
   }
@@ -48,41 +47,35 @@ public:
 
 // A struct to pass as an argument to MyTool
 struct AStruct {
-    int dummyField;
-    AStruct() : dummyField(0) {};
-    bool operator==(const AStruct& other) const {
-        return dummyField == other.dummyField;
-    }
+  int dummyField;
+  AStruct() : dummyField(0){};
+  bool operator==(const AStruct &other) const {
+    return dummyField == other.dummyField;
+  }
 };
 
 TEST(use_meta_tool, factory) {
   llvm::cl::OptionCategory MyToolCategory("my-tool options");
 
   int argc = 4;
-  const char* argv[] = { "foo", "/dev/null", "--", "-xc++"  };
+  const char *argv[] = {"foo", "/dev/null", "--", "-xc++"};
 
-  clang::tooling::CommonOptionsParser
-    optionsParser
-    ( argc, argv,
-      MyToolCategory );
-  clang::tooling::RefactoringTool tool
-    ( optionsParser.getCompilations(),
-      optionsParser.getSourcePathList());
+  clang::tooling::CommonOptionsParser optionsParser(argc, argv, MyToolCategory);
+  clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
+                                       optionsParser.getSourcePathList());
 
   constructor_called = false;
   postprocessing_called = false;
 
   MyTool::ArgTypes toolArgs('$', 42, "the answer");
-  clangmetatool::MetaToolFactory<
-      clangmetatool::MetaTool< MyTool > > raf(tool.getReplacements(), toolArgs);
+  clangmetatool::MetaToolFactory<clangmetatool::MetaTool<MyTool>> raf(
+      tool.getReplacements(), toolArgs);
 
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);
   ASSERT_EQ(true, constructor_called);
   ASSERT_EQ(true, postprocessing_called);
-
 }
-
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
