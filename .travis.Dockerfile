@@ -2,7 +2,8 @@ FROM ubuntu:18.10
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
-    clang-7 \
+    gcc-7 \
+    g++-7 \
     clang-format-7 \
     clang-tools-7 \
     clang-tidy-7 \
@@ -12,8 +13,8 @@ RUN apt-get update && apt-get install -y \
     libgtest-dev
 
 # Set up clang compilers
-ENV CC=/usr/lib/llvm-7/bin/clang \
-    CXX=/usr/lib/llvm-7/bin/clang++
+ENV CC=/usr/bin/gcc-7 \
+    CXX=/usr/bin/g++-7
 
 # Fix issues with gtest installation from ubuntu debian
 RUN cd /usr/src/gtest && \
