@@ -12,8 +12,8 @@ RUN apt-get update && apt-get install -y \
     libgtest-dev
 
 # Set up clang compilers
-ENV CC=/usr/bin/clang-6.0 \
-    CXX=/usr/bin/clang++-6.0
+ENV CC=/usr/lib/llvm-6.0/bin/clang \
+    CXX=/usr/lib/llvm-6.0/bin/clang++
 
 # Fix issues with gtest installation from ubuntu debian
 RUN cd /usr/src/gtest && \
@@ -52,8 +52,8 @@ RUN ln -s /usr/lib/llvm-6.0/include/clangmetatool /usr/include/clangmetatool
 
 # Build skeleton
 RUN mkdir skeleton/build && cd skeleton/build && \
-    cmake -DClang_DIR=/usr/lib/llvm-6.0/lib/cmake/clang \
-          -Dclangmetatool_DIR=/usr/lib/llvm-6.0/lib/cmake/clang .. && \
+    cmake -DClang_DIR=/usr/share/llvm-6.0/cmake \
+          -Dclangmetatool_DIR=/usr/share/llvm-6.0/cmake .. && \
     make all && \
     make install && \
     cd - && rm -rf skeleton/build
