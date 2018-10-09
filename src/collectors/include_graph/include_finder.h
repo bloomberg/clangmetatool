@@ -13,6 +13,9 @@
 #include <clangmetatool/types/file_uid.h>
 #include <clangmetatool/collectors/include_graph_data.h>
 
+// local generated header with the llvm version
+#include <llvm_version.h>
+
 namespace clangmetatool {
   namespace collectors {
     namespace include_graph {

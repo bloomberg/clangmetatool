@@ -44,9 +44,6 @@
 
 #include "include_graph_util.h"
 
-// local generated header with the llvm version
-#include <llvm_version.h>
-
 namespace clangmetatool {
   namespace collectors {
     namespace include_graph {
