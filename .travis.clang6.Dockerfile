@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
-    clang-6.0
+    clang-6.0 \
     clang-format-6.0 \
     clang-tools-6.0 \
     clang-tidy-6.0 \
