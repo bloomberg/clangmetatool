@@ -44,12 +44,15 @@
 
 #include "include_graph_util.h"
 
+// local generated header with the llvm version
+#include <llvm_version.h>
 
 namespace clangmetatool {
   namespace collectors {
     namespace include_graph {
 
       using clangmetatool::types::MacroReferenceInfo;
+
       void
       IncludeFinder::InclusionDirective
       (clang::SourceLocation hashLoc,
@@ -84,7 +87,8 @@ namespace clangmetatool {
        llvm::StringRef searchPath,
        llvm::StringRef relativePath,
        const clang::Module *imported,
-       clang::SrcMgr::CharacteristicKind FileType_) {
+       clang::SrcMgr::CharacteristicKind FileType_) 
+      {
         // The filetype characteristic is unused for now, hence marked with
         // a trailing '_'. We are recording all filetypes
         add_include_statement

@@ -36,7 +36,12 @@ namespace clangmetatool {
                                         const clang::FileEntry *file,
                                         llvm::StringRef searchPath,
                                         llvm::StringRef relativePath,
-                                        const clang::Module *imported);
+                                        const clang::Module *imported)
+#if LLVM_VERSION_MAJOR == 6
+          override
+#endif
+        ;
+
 
         virtual void InclusionDirective(clang::SourceLocation hashLoc,
                                         const clang::Token &includeToken,
@@ -47,7 +52,11 @@ namespace clangmetatool {
                                         llvm::StringRef searchPath,
                                         llvm::StringRef relativePath,
                                         const clang::Module *imported,
-                                        clang::SrcMgr::CharacteristicKind FileType_);
+                                        clang::SrcMgr::CharacteristicKind FileType_)
+#if LLVM_VERSION_MAJOR == 7
+          override
+#endif
+          ;
 
         virtual void MacroExpands(const clang::Token           &macroUsage,
                                   const clang::MacroDefinition &macroDef,
