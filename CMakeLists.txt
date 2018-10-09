@@ -6,9 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Clang REQUIRED)
 
-configure_file( llvm_version.h.in llvm_version.h )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
-
 add_library(
   clangmetatool
 

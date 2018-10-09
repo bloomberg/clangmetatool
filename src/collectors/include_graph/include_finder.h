@@ -13,8 +13,8 @@
 #include <clangmetatool/types/file_uid.h>
 #include <clangmetatool/collectors/include_graph_data.h>
 
-// local generated header with the llvm version
-#include <llvm_version.h>
+// Required to know which version of LLVM/Clang we're building against
+#include <llvm/Config/llvm-config.h>
 
 namespace clangmetatool {
   namespace collectors {
