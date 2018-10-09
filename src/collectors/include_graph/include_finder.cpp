@@ -50,6 +50,28 @@ namespace clangmetatool {
     namespace include_graph {
 
       using clangmetatool::types::MacroReferenceInfo;
+      void
+      IncludeFinder::InclusionDirective
+      (clang::SourceLocation hashLoc,
+       const clang::Token &includeToken,
+       llvm::StringRef filename,
+       bool isAngled,
+       clang::CharSourceRange filenameRange,
+       const clang::FileEntry *file,
+       llvm::StringRef searchPath,
+       llvm::StringRef relativePath,
+       const clang::Module *imported) {
+        InclusionDirective(hashLoc,
+                           includeToken,
+                           filename,
+                           isAngled,
+                           filenameRange,
+                           file,
+                           searchPath,
+                           relativePath,
+                           imported,
+                           clang::SrcMgr::CharacteristicKind::C_User);
+      }
 
       void
       IncludeFinder::InclusionDirective
