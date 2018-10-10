@@ -13,6 +13,9 @@
 #include <clangmetatool/types/file_uid.h>
 #include <clangmetatool/collectors/include_graph_data.h>
 
+// Required to know which version of LLVM/Clang we're building against
+#include <llvm/Config/llvm-config.h>
+
 namespace clangmetatool {
   namespace collectors {
     namespace include_graph {
@@ -37,7 +40,26 @@ namespace clangmetatool {
                                         llvm::StringRef searchPath,
                                         llvm::StringRef relativePath,
                                         const clang::Module *imported)
-          override;
+#if LLVM_VERSION_MAJOR == 6
+          override
+#endif
+        ;
+
+
+        virtual void InclusionDirective(clang::SourceLocation hashLoc,
+                                        const clang::Token &includeToken,
+                                        llvm::StringRef filename,
+                                        bool isAngled,
+                                        clang::CharSourceRange filenameRange,
+                                        const clang::FileEntry *file,
+                                        llvm::StringRef searchPath,
+                                        llvm::StringRef relativePath,
+                                        const clang::Module *imported,
+                                        clang::SrcMgr::CharacteristicKind FileType_)
+#if LLVM_VERSION_MAJOR == 7
+          override
+#endif
+          ;
 
         virtual void MacroExpands(const clang::Token           &macroUsage,
                                   const clang::MacroDefinition &macroDef,

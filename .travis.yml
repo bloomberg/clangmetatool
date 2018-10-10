@@ -2,5 +2,17 @@ sudo: required
 services:
   - docker
 
-script:
-    - sudo docker build -f .travis.Dockerfile .
+matrix:
+    include:
+        - os: linux
+          compiler: gcc
+          language: cpp
+          sudo: true
+          env: MAKEFLAGS="-j 2"
+          script: docker build -f .travis.clang6.Dockerfile .
+        - os: linux
+          compiler: gcc
+          language: cpp
+          sudo: true
+          env:  MAKEFLAGS="-j 2"
+          script: docker build -f .travis.clang7.Dockerfile .

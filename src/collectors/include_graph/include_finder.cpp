@@ -44,7 +44,6 @@
 
 #include "include_graph_util.h"
 
-
 namespace clangmetatool {
   namespace collectors {
     namespace include_graph {
@@ -62,6 +61,33 @@ namespace clangmetatool {
        llvm::StringRef searchPath,
        llvm::StringRef relativePath,
        const clang::Module *imported) {
+        InclusionDirective(hashLoc,
+                           includeToken,
+                           filename,
+                           isAngled,
+                           filenameRange,
+                           file,
+                           searchPath,
+                           relativePath,
+                           imported,
+                           clang::SrcMgr::CharacteristicKind::C_User);
+      }
+
+      void
+      IncludeFinder::InclusionDirective
+      (clang::SourceLocation hashLoc,
+       const clang::Token &includeToken,
+       llvm::StringRef filename,
+       bool isAngled,
+       clang::CharSourceRange filenameRange,
+       const clang::FileEntry *file,
+       llvm::StringRef searchPath,
+       llvm::StringRef relativePath,
+       const clang::Module *imported,
+       clang::SrcMgr::CharacteristicKind FileType_) 
+      {
+        // The filetype characteristic is unused for now, hence marked with
+        // a trailing '_'. We are recording all filetypes
         add_include_statement
           ( ci,
             data,
