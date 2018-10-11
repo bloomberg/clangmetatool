@@ -18,7 +18,8 @@ namespace types {
  *    - The value at that context
  */
 template <typename T>
-using ValueContext = std::tuple<clang::SourceLocation, ValueContextOrdering::Value, T>;
+using ValueContext =
+    std::tuple<clang::SourceLocation, ValueContextOrdering::Value, T>;
 
 } // namespace types
 } // namespace propagation

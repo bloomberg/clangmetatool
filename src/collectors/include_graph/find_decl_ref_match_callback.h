@@ -8,29 +8,27 @@
 #include <clangmetatool/types/file_uid.h>
 
 namespace clangmetatool {
-  namespace collectors {
-    namespace include_graph {
+namespace collectors {
+namespace include_graph {
 
-      using clangmetatool::collectors::IncludeGraphData;
+using clangmetatool::collectors::IncludeGraphData;
 
-      class FindDeclRefMatchCallback
-        : public clang::ast_matchers::MatchFinder::MatchCallback {
+class FindDeclRefMatchCallback
+    : public clang::ast_matchers::MatchFinder::MatchCallback {
 
-      private:
-        clang::CompilerInstance *ci;
-        IncludeGraphData* data;
+private:
+  clang::CompilerInstance *ci;
+  IncludeGraphData *data;
 
-      public:
-        FindDeclRefMatchCallback(clang::CompilerInstance *ci,
-                                 IncludeGraphData* d)
-          :ci(ci), data(d) {}
+public:
+  FindDeclRefMatchCallback(clang::CompilerInstance *ci, IncludeGraphData *d)
+      : ci(ci), data(d) {}
 
-        virtual void
-        run(const clang::ast_matchers::MatchFinder::MatchResult &r)
-          override;
-      };
-    }
-  }
+  virtual void
+  run(const clang::ast_matchers::MatchFinder::MatchResult &r) override;
+};
+}
+}
 }
 
 #endif

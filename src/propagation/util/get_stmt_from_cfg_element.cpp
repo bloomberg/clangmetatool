@@ -6,8 +6,9 @@ namespace clangmetatool {
 namespace propagation {
 namespace util {
 
-bool getStmtFromCFGElement(const clang::Stmt*& result, const clang::CFGElement& element) {
-  if(llvm::Optional<clang::CFGStmt> opStmt = element.getAs<clang::CFGStmt>()) {
+bool getStmtFromCFGElement(const clang::Stmt *&result,
+                           const clang::CFGElement &element) {
+  if (llvm::Optional<clang::CFGStmt> opStmt = element.getAs<clang::CFGStmt>()) {
     result = opStmt->getStmt();
 
     return true;
@@ -35,4 +36,3 @@ bool getStmtFromCFGElement(const clang::Stmt*& result, const clang::CFGElement& 
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

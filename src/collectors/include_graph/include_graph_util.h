@@ -16,42 +16,34 @@
 #include <clangmetatool/types/macro_reference_info.h>
 
 namespace clangmetatool {
-  namespace collectors {
-    namespace include_graph {
+namespace collectors {
+namespace include_graph {
 
-      using clangmetatool::collectors::IncludeGraphData;
+using clangmetatool::collectors::IncludeGraphData;
 
-      void add_include_statement
-      (clang::CompilerInstance *ci,
-       IncludeGraphData* data,
-       clang::SourceLocation hashLoc,
-       const clang::Token &includeToken,
-       llvm::StringRef filename,
-       bool isAngled,
-       clang::CharSourceRange filenameRange,
-       const clang::FileEntry *file,
-       llvm::StringRef searchPath,
-       llvm::StringRef relativePath,
-       const clang::Module *imported);
+void add_include_statement(clang::CompilerInstance *ci, IncludeGraphData *data,
+                           clang::SourceLocation hashLoc,
+                           const clang::Token &includeToken,
+                           llvm::StringRef filename, bool isAngled,
+                           clang::CharSourceRange filenameRange,
+                           const clang::FileEntry *file,
+                           llvm::StringRef searchPath,
+                           llvm::StringRef relativePath,
+                           const clang::Module *imported);
 
-      void add_macro_reference(clang::CompilerInstance *ci,
-                               IncludeGraphData* data,
-                               clangmetatool::types::MacroReferenceInfo m);
+void add_macro_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
+                         clangmetatool::types::MacroReferenceInfo m);
 
-      void add_redeclaration(clang::CompilerInstance *ci,
-                             IncludeGraphData* data,
-                             const clang::Decl* n);
+void add_redeclaration(clang::CompilerInstance *ci, IncludeGraphData *data,
+                       const clang::Decl *n);
 
-      void add_decl_reference(clang::CompilerInstance *ci,
-                              IncludeGraphData* data,
-                              const clang::DeclRefExpr* n);
+void add_decl_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
+                        const clang::DeclRefExpr *n);
 
-      void add_type_reference(clang::CompilerInstance *ci,
-                              IncludeGraphData* data,
-                              const clang::TypeLoc* n);
-
-    }
-  }
+void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
+                        const clang::TypeLoc *n);
+}
+}
 }
 
 #endif

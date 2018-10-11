@@ -4,8 +4,8 @@ namespace clangmetatool {
 namespace propagation {
 namespace types {
 
-void ValueContextOrdering::print(std::ostream& stream, Value value) {
-  switch(value) {
+void ValueContextOrdering::print(std::ostream &stream, Value value) {
+  switch (value) {
   case ValueContextOrdering::CONTROL_FLOW_MERGE:
     stream << "Control flow merge";
     break;
@@ -21,7 +21,9 @@ void ValueContextOrdering::print(std::ostream& stream, Value value) {
 } // namespace propagation
 } // namespace clangmetatool
 
-std::ostream& operator<<(std::ostream& stream, clangmetatool::propagation::types::ValueContextOrdering::Value value) {
+std::ostream &operator<<(
+    std::ostream &stream,
+    clangmetatool::propagation::types::ValueContextOrdering::Value value) {
   clangmetatool::propagation::types::ValueContextOrdering::print(stream, value);
 
   return stream;

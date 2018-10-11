@@ -7,12 +7,10 @@
 #include <clangmetatool/types/file_attribute.h>
 
 namespace clangmetatool {
-  namespace types {
+namespace types {
 
-    template <typename OTHER>
-    using FileAttributeMap = std::map<FileUID, OTHER>;
- 
-  }
+template <typename OTHER> using FileAttributeMap = std::map<FileUID, OTHER>;
+}
 }
 
 #endif

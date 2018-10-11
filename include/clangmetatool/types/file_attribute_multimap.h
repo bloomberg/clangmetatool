@@ -6,12 +6,11 @@
 #include <clangmetatool/types/file_uid.h>
 
 namespace clangmetatool {
-  namespace types {
+namespace types {
 
-    template <typename OTHER>
-    using FileAttributeMultimap = std::multimap<FileUID, OTHER>;
- 
-  }
+template <typename OTHER>
+using FileAttributeMultimap = std::multimap<FileUID, OTHER>;
+}
 }
 
 #endif

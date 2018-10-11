@@ -45,103 +45,71 @@
 #include "include_graph_util.h"
 
 namespace clangmetatool {
-  namespace collectors {
-    namespace include_graph {
+namespace collectors {
+namespace include_graph {
 
-      using clangmetatool::types::MacroReferenceInfo;
+using clangmetatool::types::MacroReferenceInfo;
 
-      void
-      IncludeFinder::InclusionDirective
-      (clang::SourceLocation hashLoc,
-       const clang::Token &includeToken,
-       llvm::StringRef filename,
-       bool isAngled,
-       clang::CharSourceRange filenameRange,
-       const clang::FileEntry *file,
-       llvm::StringRef searchPath,
-       llvm::StringRef relativePath,
-       const clang::Module *imported) {
-        InclusionDirective(hashLoc,
-                           includeToken,
-                           filename,
-                           isAngled,
-                           filenameRange,
-                           file,
-                           searchPath,
-                           relativePath,
-                           imported,
-                           clang::SrcMgr::CharacteristicKind::C_User);
-      }
-
-      void
-      IncludeFinder::InclusionDirective
-      (clang::SourceLocation hashLoc,
-       const clang::Token &includeToken,
-       llvm::StringRef filename,
-       bool isAngled,
-       clang::CharSourceRange filenameRange,
-       const clang::FileEntry *file,
-       llvm::StringRef searchPath,
-       llvm::StringRef relativePath,
-       const clang::Module *imported,
-       clang::SrcMgr::CharacteristicKind FileType_) 
-      {
-        // The filetype characteristic is unused for now, hence marked with
-        // a trailing '_'. We are recording all filetypes
-        add_include_statement
-          ( ci,
-            data,
-            hashLoc, includeToken, filename,
-            isAngled, filenameRange, file, searchPath,
-            relativePath, imported );
-      }
-      
-      void IncludeFinder::MacroExpands
-      (const clang::Token           &macroUsage,
-       const clang::MacroDefinition &macroDef,
-       clang::SourceRange           range,
-       const clang::MacroArgs       *args) {
-        add_macro_reference( ci, data,
-                             MacroReferenceInfo
-                             ( macroUsage, macroDef, range, args ) );
-      }
-
-      void
-      IncludeFinder::Defined
-      (const clang::Token             &macroUsage,
-       const clang::MacroDefinition   &macroDef,
-       clang::SourceRange             range) {
-        add_macro_reference( ci, data,
-                             MacroReferenceInfo
-                             ( macroUsage, macroDef, range, NULL ) );
-      }
-
-      void
-      IncludeFinder::Ifdef
-      (clang::SourceLocation          loc,
-       const clang::Token             &macroUsage,
-       const clang::MacroDefinition   &macroDef) {
-        add_macro_reference( ci, data,
-                             MacroReferenceInfo
-                             ( macroUsage, macroDef,
-                               clang::SourceRange(loc,loc), NULL ) );
-      }
-
-      void
-      IncludeFinder::Ifndef
-      (clang::SourceLocation          loc,
-       const clang::Token             &macroUsage,
-       const clang::MacroDefinition   &macroDef) {
-        add_macro_reference( ci, data,
-                             MacroReferenceInfo
-                             ( macroUsage, macroDef,
-                               clang::SourceRange(loc,loc), NULL ) );
-      }
-
-    }
-  }
+void IncludeFinder::InclusionDirective(clang::SourceLocation hashLoc,
+                                       const clang::Token &includeToken,
+                                       llvm::StringRef filename, bool isAngled,
+                                       clang::CharSourceRange filenameRange,
+                                       const clang::FileEntry *file,
+                                       llvm::StringRef searchPath,
+                                       llvm::StringRef relativePath,
+                                       const clang::Module *imported) {
+  InclusionDirective(hashLoc, includeToken, filename, isAngled, filenameRange,
+                     file, searchPath, relativePath, imported,
+                     clang::SrcMgr::CharacteristicKind::C_User);
 }
 
+void IncludeFinder::InclusionDirective(
+    clang::SourceLocation hashLoc, const clang::Token &includeToken,
+    llvm::StringRef filename, bool isAngled,
+    clang::CharSourceRange filenameRange, const clang::FileEntry *file,
+    llvm::StringRef searchPath, llvm::StringRef relativePath,
+    const clang::Module *imported,
+    clang::SrcMgr::CharacteristicKind FileType_) {
+  // The filetype characteristic is unused for now, hence marked with
+  // a trailing '_'. We are recording all filetypes
+  add_include_statement(ci, data, hashLoc, includeToken, filename, isAngled,
+                        filenameRange, file, searchPath, relativePath,
+                        imported);
+}
+
+void IncludeFinder::MacroExpands(const clang::Token &macroUsage,
+                                 const clang::MacroDefinition &macroDef,
+                                 clang::SourceRange range,
+                                 const clang::MacroArgs *args) {
+  add_macro_reference(ci, data,
+                      MacroReferenceInfo(macroUsage, macroDef, range, args));
+}
+
+void IncludeFinder::Defined(const clang::Token &macroUsage,
+                            const clang::MacroDefinition &macroDef,
+                            clang::SourceRange range) {
+  add_macro_reference(ci, data,
+                      MacroReferenceInfo(macroUsage, macroDef, range, NULL));
+}
+
+void IncludeFinder::Ifdef(clang::SourceLocation loc,
+                          const clang::Token &macroUsage,
+                          const clang::MacroDefinition &macroDef) {
+  add_macro_reference(ci, data,
+                      MacroReferenceInfo(macroUsage, macroDef,
+                                         clang::SourceRange(loc, loc), NULL));
+}
+
+void IncludeFinder::Ifndef(clang::SourceLocation loc,
+                           const clang::Token &macroUsage,
+                           const clang::MacroDefinition &macroDef) {
+  add_macro_reference(ci, data,
+                      MacroReferenceInfo(macroUsage, macroDef,
+                                         clang::SourceRange(loc, loc), NULL));
+}
+}
+}
+}
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

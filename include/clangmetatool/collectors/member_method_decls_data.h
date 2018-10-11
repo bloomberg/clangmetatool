@@ -20,23 +20,19 @@
 #include <iosfwd>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * The data collected by the MemberMethodDecls collector
-     */
-    struct MemberMethodDeclsData {
+/**
+ * The data collected by the MemberMethodDecls collector
+ */
+struct MemberMethodDeclsData {
 
-      /**
-       * Contains member method declarations.
-       */
-      std::set<
-        const clang::CXXMethodDecl*
-        >                             decls;
-
-    };
-
-  }
+  /**
+   * Contains member method declarations.
+   */
+  std::set<const clang::CXXMethodDecl *> decls;
+};
+}
 }
 
 #endif

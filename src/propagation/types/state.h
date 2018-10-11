@@ -10,8 +10,7 @@ namespace types {
 /**
  * Mapping of a variable to its state.
  */
-template <typename T>
-using State = std::map<std::string, T>;
+template <typename T> using State = std::map<std::string, T>;
 
 } // namespace types
 } // namespace propagation
@@ -34,4 +33,3 @@ using State = std::map<std::string, T>;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

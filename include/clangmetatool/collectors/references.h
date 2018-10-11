@@ -15,37 +15,39 @@ namespace collectors {
 class ReferencesImpl;
 
 /**
- * References data collector. Collects References of functions and variables with global storage.
+ * References data collector. Collects References of functions and variables
+ * with global storage.
  */
 class References {
 private:
-    /**
-     * Pointer to implementation.
-     */
-    ReferencesImpl* impl;
+  /**
+   * Pointer to implementation.
+   */
+  ReferencesImpl *impl;
+
 public:
-    /**
-     * Explicit constructor to allow for implementation details.
-     *    - ci is a pointer to an instance of the clang compiler
-     *    - f is a pointer to an instance of the MatchFinder class
-     */
-    References(clang::CompilerInstance *ci, clang::ast_matchers::MatchFinder *f);
+  /**
+   * Explicit constructor to allow for implementation details.
+   *    - ci is a pointer to an instance of the clang compiler
+   *    - f is a pointer to an instance of the MatchFinder class
+   */
+  References(clang::CompilerInstance *ci, clang::ast_matchers::MatchFinder *f);
 
-    /**
-     * Explicit destructor.
-     */
-    ~References();
+  /**
+   * Explicit destructor.
+   */
+  ~References();
 
-    /**
-     * Get the pointer to the object containing the data; populated or not.
-     */
-    ReferencesData* getData();
+  /**
+   * Get the pointer to the object containing the data; populated or not.
+   */
+  ReferencesData *getData();
 };
 
 } // namespace collectors
 } // namespace clangmetatool
 
-#endif //INCLUDED_CLANGMETATOOL_COLLECTORS_REFERENCES_H
+#endif // INCLUDED_CLANGMETATOOL_COLLECTORS_REFERENCES_H
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

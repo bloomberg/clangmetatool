@@ -20,86 +20,83 @@
 #include <iosfwd>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * The data collected by the IncludeGraph collector
-     */
-    struct IncludeGraphData {
+/**
+ * The data collected by the IncludeGraph collector
+ */
+struct IncludeGraphData {
 
-      /**
-       * Translate file uid to name (as used in the include statement)
-       */
-      clangmetatool::types::FileAttributeMap<std::string>   fuid2name;
+  /**
+   * Translate file uid to name (as used in the include statement)
+   */
+  clangmetatool::types::FileAttributeMap<std::string> fuid2name;
 
-      /**
-       * Translate file uid to the FileEntry pointer.
-       */
-      clangmetatool::types::FileAttributeMap<
-        const clang::FileEntry* >                           fuid2entry;
+  /**
+   * Translate file uid to the FileEntry pointer.
+   */
+  clangmetatool::types::FileAttributeMap<const clang::FileEntry *> fuid2entry;
 
-      /**
-       * Does the given file uid belong to a system header?
-       */
-      clangmetatool::types::FileAttributeMap<bool>          is_system;
+  /**
+   * Does the given file uid belong to a system header?
+   */
+  clangmetatool::types::FileAttributeMap<bool> is_system;
 
-      /**
-       * Captures "include next" statements, since they are addressed
-       * by the same "name"
-       */
-      clangmetatool::types::FileAttributeMap<
-        clangmetatool::types::FileUID >                     include_next;
+  /**
+   * Captures "include next" statements, since they are addressed
+   * by the same "name"
+   */
+  clangmetatool::types::FileAttributeMap<clangmetatool::types::FileUID>
+      include_next;
 
-      /**
-       * The location of the last include statement on the file (by
-       * file uid).
-       */
-      clangmetatool::types::FileAttributeMap<
-        clang::SourceLocation >                             last_include;
+  /**
+   * The location of the last include statement on the file (by
+   * file uid).
+   */
+  clangmetatool::types::FileAttributeMap<clang::SourceLocation> last_include;
 
-      /**
-       * file uid A includes file uid B
-       */
-      clangmetatool::types::FileGraph                       include_graph;
+  /**
+   * file uid A includes file uid B
+   */
+  clangmetatool::types::FileGraph include_graph;
 
-      /**
-       * Where are the include statements
-       */
-      clangmetatool::types::FileGraphEdgeMultimap<
-        clang::SourceRange>                                 include_statements;
+  /**
+   * Where are the include statements
+   */
+  clangmetatool::types::FileGraphEdgeMultimap<clang::SourceRange>
+      include_statements;
 
-      /**
-       * file uid A uses file uid B
-       */
-      clangmetatool::types::FileGraph                       use_graph;
+  /**
+   * file uid A uses file uid B
+   */
+  clangmetatool::types::FileGraph use_graph;
 
-      /**
-       * file uid A references macro defined in B
-       */
-      clangmetatool::types::FileGraphEdgeMultimap<
-        clangmetatool::types::MacroReferenceInfo >          macro_references;
+  /**
+   * file uid A references macro defined in B
+   */
+  clangmetatool::types::FileGraphEdgeMultimap<
+      clangmetatool::types::MacroReferenceInfo>
+      macro_references;
 
-      /**
-       * file uid A declares something canonically declared in B
-       */
-      clangmetatool::types::FileGraphEdgeMultimap<
-        const clang::Decl* >                                redeclarations;
+  /**
+   * file uid A declares something canonically declared in B
+   */
+  clangmetatool::types::FileGraphEdgeMultimap<const clang::Decl *>
+      redeclarations;
 
-      /**
-       * file uid A references something declared in B
-       */
-      clangmetatool::types::FileGraphEdgeMultimap<
-        const clang::DeclRefExpr* >                         decl_references;
+  /**
+   * file uid A references something declared in B
+   */
+  clangmetatool::types::FileGraphEdgeMultimap<const clang::DeclRefExpr *>
+      decl_references;
 
-      /**
-       * file uid A references a type declared in B
-       */
-      clangmetatool::types::FileGraphEdgeMultimap<
-        const clang::TypeLoc* >                             type_references;
-
-    };
-
-  }
+  /**
+   * file uid A references a type declared in B
+   */
+  clangmetatool::types::FileGraphEdgeMultimap<const clang::TypeLoc *>
+      type_references;
+};
+}
 }
 
 #endif

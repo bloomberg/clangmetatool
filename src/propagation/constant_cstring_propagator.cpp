@@ -13,7 +13,7 @@ namespace propagation {
 namespace {
 
 // Given a type, determine if it is a char*
-bool isCharPtrType(const clang::Type* T) {
+bool isCharPtrType(const clang::Type *T) {
   return T->isPointerType() && T->getPointeeType().getTypePtr()->isCharType();
 }
 
@@ -23,16 +23,16 @@ class CStringVisitor : public PropagationVisitor<CStringVisitor, std::string> {
 private:
   // Given an expression, try to evaluate it to a string result. Return
   // false if this is not possible
-  bool evalExprToString(std::string& result, const clang::Expr* E) {
+  bool evalExprToString(std::string &result, const clang::Expr *E) {
     // We only care about char types
-    if(isCharPtrType(E->getType().getTypePtr())) {
+    if (isCharPtrType(E->getType().getTypePtr())) {
       clang::Expr::EvalResult ER;
 
-      if(E->isEvaluatable(context) && E->EvaluateAsRValue(ER, context)) {
+      if (E->isEvaluatable(context) && E->EvaluateAsRValue(ER, context)) {
         std::string r = ER.Val.getAsString(context, E->getType());
 
         // So long as the string is not null
-        if("0" != r) {
+        if ("0" != r) {
           // Clang returns results as &"actual-string"[0]
           result = r.substr(2, r.length() - 6);
 
@@ -49,19 +49,19 @@ public:
   using PropagationVisitor<CStringVisitor, std::string>::PropagationVisitor;
 
   // Visit a declaration of a variable
-  void VisitDeclStmt(const clang::DeclStmt* DS) {
-    for(auto D : DS->decls()) {
-      if(clang::Decl::Var == D->getKind()) {
-        auto VD = reinterpret_cast<const clang::VarDecl*>(D);
+  void VisitDeclStmt(const clang::DeclStmt *DS) {
+    for (auto D : DS->decls()) {
+      if (clang::Decl::Var == D->getKind()) {
+        auto VD = reinterpret_cast<const clang::VarDecl *>(D);
 
         // Only the local non-static variables are possibly deterministic
-        if(VD->isLocalVarDecl() && VD->hasLocalStorage()) {
-          if(VD->hasInit()) {
+        if (VD->isLocalVarDecl() && VD->hasLocalStorage()) {
+          if (VD->hasInit()) {
             auto I = VD->getInit();
 
             std::string result;
 
-            if(evalExprToString(result, I)) {
+            if (evalExprToString(result, I)) {
               // If the variable is a string, add it to the map
               addToMap(VD->getNameAsString(), result, VD->getLocStart());
             }
@@ -72,35 +72,35 @@ public:
   }
 
   // Visit a binary operator
-  void VisitBinaryOperator(const clang::BinaryOperator* BO) {
+  void VisitBinaryOperator(const clang::BinaryOperator *BO) {
     // We only care about assignments (=) in this context
-    if(clang::BO_Assign == BO->getOpcode()) {
-      if(clang::Stmt::DeclRefExprClass == BO->getLHS()->getStmtClass()) {
-        auto LHS = reinterpret_cast<const clang::DeclRefExpr*>(BO->getLHS());
+    if (clang::BO_Assign == BO->getOpcode()) {
+      if (clang::Stmt::DeclRefExprClass == BO->getLHS()->getStmtClass()) {
+        auto LHS = reinterpret_cast<const clang::DeclRefExpr *>(BO->getLHS());
 
         std::string result;
 
-        if(evalExprToString(result, BO->getRHS())) {
-            // If we can evaluate the expression to a string add the result
-            // to the context map
-            addToMap(LHS->getNameInfo().getAsString(), result, BO->getLocStart());
+        if (evalExprToString(result, BO->getRHS())) {
+          // If we can evaluate the expression to a string add the result
+          // to the context map
+          addToMap(LHS->getNameInfo().getAsString(), result, BO->getLocStart());
         } else {
-            // Otherwise, mark the variable as UNRESOLVED after this point
-            addToMap(LHS->getNameInfo().getAsString(), {}, BO->getLocStart());
+          // Otherwise, mark the variable as UNRESOLVED after this point
+          addToMap(LHS->getNameInfo().getAsString(), {}, BO->getLocStart());
         }
       }
     }
   }
 
   // Visit a function call
-  void VisitCallExpr(const clang::CallExpr* CE) {
-    for(auto A : CE->arguments()) {
+  void VisitCallExpr(const clang::CallExpr *CE) {
+    for (auto A : CE->arguments()) {
       auto base = A->IgnoreImpCasts();
 
-      if(clang::Stmt::DeclRefExprClass == base->getStmtClass()) {
-        auto DR = reinterpret_cast<const clang::DeclRefExpr*>(base);
+      if (clang::Stmt::DeclRefExprClass == base->getStmtClass()) {
+        auto DR = reinterpret_cast<const clang::DeclRefExpr *>(base);
 
-        if(isCharPtrType(DR->getType().getTypePtr())) {
+        if (isCharPtrType(DR->getType().getTypePtr())) {
           // If the variable is a char*, mark it as UNRESOLVED
           addToMap(DR->getNameInfo().getAsString(), {}, CE->getLocEnd());
         }
@@ -111,27 +111,27 @@ public:
 
 } // namespace anonymous
 
-class ConstantCStringPropagatorImpl : public ConstantPropagator<CStringVisitor> {
+class ConstantCStringPropagatorImpl
+    : public ConstantPropagator<CStringVisitor> {
 public:
-  ConstantCStringPropagatorImpl(const clang::CompilerInstance* ci)
-    : ConstantPropagator<CStringVisitor>(ci) {
-  }
+  ConstantCStringPropagatorImpl(const clang::CompilerInstance *ci)
+      : ConstantPropagator<CStringVisitor>(ci) {}
 };
 
-ConstantCStringPropagator::ConstantCStringPropagator(const clang::CompilerInstance* ci) {
+ConstantCStringPropagator::ConstantCStringPropagator(
+    const clang::CompilerInstance *ci) {
   impl = new ConstantCStringPropagatorImpl(ci);
 }
 
-ConstantCStringPropagator::~ConstantCStringPropagator() {
-  delete impl;
-}
+ConstantCStringPropagator::~ConstantCStringPropagator() { delete impl; }
 
-PropagationResult<std::string> ConstantCStringPropagator::runPropagation
-(const clang::FunctionDecl* function, const clang::DeclRefExpr* variable) {
+PropagationResult<std::string>
+ConstantCStringPropagator::runPropagation(const clang::FunctionDecl *function,
+                                          const clang::DeclRefExpr *variable) {
   return impl->runPropagation(function, variable);
 }
 
-void ConstantCStringPropagator::dump(std::ostream& stream) const {
+void ConstantCStringPropagator::dump(std::ostream &stream) const {
   impl->dump(stream);
 }
 
