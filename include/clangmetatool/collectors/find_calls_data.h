@@ -5,29 +5,25 @@
 #include <clang/ASTMatchers/ASTMatchers.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * The data collected by the FindCalls collector
-     */
-    struct FindCallsData {
+/**
+ * The data collected by the FindCalls collector
+ */
+struct FindCallsData {
 
-      /**
-       * The declaration of the function and the context in which it occurs
-       */
-      std::multimap<const clang::FunctionDecl*,
-                    const clang::CallExpr*> call_context;
+  /**
+   * The declaration of the function and the context in which it occurs
+   */
+  std::multimap<const clang::FunctionDecl *, const clang::CallExpr *>
+      call_context;
 
-      /**
-       * The reference to the function and the context in which it occurs
-       */
-      std::map<const clang::CallExpr*,
-               const clang::DeclRefExpr*> call_ref;
-
-    };
-
-
-  }
+  /**
+   * The reference to the function and the context in which it occurs
+   */
+  std::map<const clang::CallExpr *, const clang::DeclRefExpr *> call_ref;
+};
+}
 }
 
 #endif

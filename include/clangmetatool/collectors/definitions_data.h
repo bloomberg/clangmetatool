@@ -15,17 +15,17 @@ namespace collectors {
  */
 class DefinitionsData {
 public:
-    /**
-     * Map from UID of file containing definition
-     * to pointer to AST node for definition.
-     */
-    std::unordered_multimap<types::FileUID, const clang::NamedDecl *> defs;
+  /**
+   * Map from UID of file containing definition
+   * to pointer to AST node for definition.
+   */
+  std::unordered_multimap<types::FileUID, const clang::NamedDecl *> defs;
 };
 
 } // namespace collectors
 } // namespace clangmetatool
 
-#endif //INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_DATA_H 
+#endif // INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_DATA_H
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

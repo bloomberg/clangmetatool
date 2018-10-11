@@ -42,22 +42,19 @@
 #include "find_type_match_callback.h"
 
 namespace clangmetatool {
-  namespace collectors {
-    namespace include_graph {
+namespace collectors {
+namespace include_graph {
 
-      void
-      FindTypeMatchCallback::run
-      (const clang::ast_matchers::MatchFinder::MatchResult &r) {
-        
-        if (const clang::TypeLoc *tl =
-            r.Nodes.getNodeAs<clang::TypeLoc>("type")) {
-          
-          add_type_reference(ci, data, tl);
+void FindTypeMatchCallback::run(
+    const clang::ast_matchers::MatchFinder::MatchResult &r) {
 
-        }
-      }
-    }
+  if (const clang::TypeLoc *tl = r.Nodes.getNodeAs<clang::TypeLoc>("type")) {
+
+    add_type_reference(ci, data, tl);
   }
+}
+}
+}
 }
 
 // ----------------------------------------------------------------------------

@@ -9,48 +9,44 @@
 #include <clangmetatool/collectors/member_method_decls_data.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * forward declaration to implementation details of the
-     * collector.
-     */
-    class MemberMethodDeclsImpl;
+/**
+ * forward declaration to implementation details of the
+ * collector.
+ */
+class MemberMethodDeclsImpl;
 
-    /**
-     * Member Method Declarations data collector. Collects the information
-     * related to struct member method declarations and their usages.
-     */
-    class MemberMethodDecls {
-    private:
+/**
+ * Member Method Declarations data collector. Collects the information
+ * related to struct member method declarations and their usages.
+ */
+class MemberMethodDecls {
+private:
+  /**
+   * Pointer to Implementation
+   */
+  MemberMethodDeclsImpl *impl;
 
-      /**
-       * Pointer to Implementation
-       */
-      MemberMethodDeclsImpl *impl;
+public:
+  /**
+   * Explicit constructor, to allow for implementation details.
+   */
+  MemberMethodDecls(clang::CompilerInstance *ci,
+                    clang::ast_matchers::MatchFinder *f);
 
-    public:
+  /**
+   * Explicit destructor.
+   */
+  ~MemberMethodDecls();
 
-      /**
-       * Explicit constructor, to allow for implementation details.
-       */
-      MemberMethodDecls( clang::CompilerInstance          *ci,
-                    clang::ast_matchers::MatchFinder *f   );
-
-      /**
-       * Explicit destructor.
-       */
-      ~MemberMethodDecls();
-
-      /**
-       * Get the pointer to the data structure, populated or not.
-       */
-      MemberMethodDeclsData* getData();
-      
-    };
-  }
+  /**
+   * Get the pointer to the data structure, populated or not.
+   */
+  MemberMethodDeclsData *getData();
+};
 }
-
+}
 
 #endif
 

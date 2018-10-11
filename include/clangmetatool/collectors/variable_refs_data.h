@@ -20,46 +20,39 @@
 #include <iosfwd>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * The data collected by the VariableRefs collector
-     */
-    struct VariableRefsData {
+/**
+ * The data collected by the VariableRefs collector
+ */
+struct VariableRefsData {
 
-      /**
-       * List all the references for that valuedecl.
-       */
-      std::multimap<
-        const clang::VarDecl*,
-        const clang::DeclRefExpr*
-        >                                     refs;
+  /**
+   * List all the references for that valuedecl.
+   */
+  std::multimap<const clang::VarDecl *, const clang::DeclRefExpr *> refs;
 
-      /**
-       * List usages of that variable as rvalue.  You may actually be
-       * interested in the usages that are *not* rvalues, but the way
-       * the collector works requires us to do this indirection.
-       */
-      std::set< const clang::DeclRefExpr* >   rvalue_refs;
+  /**
+   * List usages of that variable as rvalue.  You may actually be
+   * interested in the usages that are *not* rvalues, but the way
+   * the collector works requires us to do this indirection.
+   */
+  std::set<const clang::DeclRefExpr *> rvalue_refs;
 
-      /**
-       * List usages of that variable that are plain variable
-       * assignment. The idea is that if the variable is never
-       * initialized, and the only non-rvalue usage is a clear
-       * assignment, then its value is deterministic.
-       *
-       * More elaborate execution-path analysis would be able to tell
-       * this better, but there are situations where this will be
-       * sufficient.
-       */
-      std::map<
-        const clang::DeclRefExpr*,
-        const clang::Expr*
-        >                                     clear_assignment_refs;
-
-    };
-
-  }
+  /**
+   * List usages of that variable that are plain variable
+   * assignment. The idea is that if the variable is never
+   * initialized, and the only non-rvalue usage is a clear
+   * assignment, then its value is deterministic.
+   *
+   * More elaborate execution-path analysis would be able to tell
+   * this better, but there are situations where this will be
+   * sufficient.
+   */
+  std::map<const clang::DeclRefExpr *, const clang::Expr *>
+      clear_assignment_refs;
+};
+}
 }
 
 #endif

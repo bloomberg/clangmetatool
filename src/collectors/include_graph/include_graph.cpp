@@ -45,67 +45,55 @@
 #include "find_type_match_callback.h"
 #include "include_finder.h"
 
-
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    class IncludeGraphImpl {
-    private:
-      clang::CompilerInstance          *ci;
-      IncludeGraphData                 data;
+class IncludeGraphImpl {
+private:
+  clang::CompilerInstance *ci;
+  IncludeGraphData data;
 
-      clang::ast_matchers::StatementMatcher sm1 =
-        clang::ast_matchers::declRefExpr().bind("ref");
-      clang::ast_matchers::TypeLocMatcher sm2 =
-        clang::ast_matchers::typeLoc().bind("type");
-      clang::ast_matchers::DeclarationMatcher sm3 =
-        clang::ast_matchers::decl().bind("decl");
-      
-      clangmetatool::collectors::include_graph::FindDeclRefMatchCallback cb1;
-      clangmetatool::collectors::include_graph::FindTypeMatchCallback cb2;
-      clangmetatool::collectors::include_graph::FindDeclMatchCallback cb3;
+  clang::ast_matchers::StatementMatcher sm1 =
+      clang::ast_matchers::declRefExpr().bind("ref");
+  clang::ast_matchers::TypeLocMatcher sm2 =
+      clang::ast_matchers::typeLoc().bind("type");
+  clang::ast_matchers::DeclarationMatcher sm3 =
+      clang::ast_matchers::decl().bind("decl");
 
-    public:
+  clangmetatool::collectors::include_graph::FindDeclRefMatchCallback cb1;
+  clangmetatool::collectors::include_graph::FindTypeMatchCallback cb2;
+  clangmetatool::collectors::include_graph::FindDeclMatchCallback cb3;
 
-      IncludeGraphImpl(clang::CompilerInstance          *ci,
-                       clang::ast_matchers::MatchFinder *f   )
-        :ci(ci), cb1(ci, &data), cb2(ci, &data), cb3(ci, &data) {
-        
-        f->addMatcher(sm1, &cb1);
-        f->addMatcher(sm2, &cb2);
-        f->addMatcher(sm3, &cb3);
+public:
+  IncludeGraphImpl(clang::CompilerInstance *ci,
+                   clang::ast_matchers::MatchFinder *f)
+      : ci(ci), cb1(ci, &data), cb2(ci, &data), cb3(ci, &data) {
 
-        // preprocessor callbacks
-        ci->getPreprocessor().addPPCallbacks
-          (std::make_unique<
-           clangmetatool::collectors::include_graph::IncludeFinder
-           >(ci, &data));
+    f->addMatcher(sm1, &cb1);
+    f->addMatcher(sm2, &cb2);
+    f->addMatcher(sm3, &cb3);
 
-      }
-
-      ~IncludeGraphImpl() {}
-
-      IncludeGraphData* getData() {
-        return &data;
-      }
-
-    };
-
-
-    IncludeGraph::IncludeGraph( clang::CompilerInstance          *ci,
-                                clang::ast_matchers::MatchFinder *f   ) {
-      impl = new IncludeGraphImpl(ci,f);
-    }
-
-    IncludeGraph::~IncludeGraph() {
-      delete impl;
-    }
-
-    IncludeGraphData* IncludeGraph::getData() {
-      return impl->getData();
-    }
-
+    // preprocessor callbacks
+    ci->getPreprocessor().addPPCallbacks(
+        std::make_unique<
+            clangmetatool::collectors::include_graph::IncludeFinder>(ci,
+                                                                     &data));
   }
+
+  ~IncludeGraphImpl() {}
+
+  IncludeGraphData *getData() { return &data; }
+};
+
+IncludeGraph::IncludeGraph(clang::CompilerInstance *ci,
+                           clang::ast_matchers::MatchFinder *f) {
+  impl = new IncludeGraphImpl(ci, f);
+}
+
+IncludeGraph::~IncludeGraph() { delete impl; }
+
+IncludeGraphData *IncludeGraph::getData() { return impl->getData(); }
+}
 }
 
 // ----------------------------------------------------------------------------

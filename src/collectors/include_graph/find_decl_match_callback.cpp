@@ -43,26 +43,22 @@
 #include "include_graph_util.h"
 
 namespace clangmetatool {
-  namespace collectors {
-    namespace include_graph {
+namespace collectors {
+namespace include_graph {
 
-      void FindDeclMatchCallback::run
-      (const clang::ast_matchers::MatchFinder::MatchResult &r) {
-        
-        if (r.Nodes.getNodeAs<clang::NamespaceDecl>("decl")) {
-          // namespace declarations are not usage
-        } else if (const clang::Decl *tl =
-                   r.Nodes.getNodeAs<clang::Decl>("decl")) {
-          
-          add_redeclaration(ci, data, tl);
+void FindDeclMatchCallback::run(
+    const clang::ast_matchers::MatchFinder::MatchResult &r) {
 
-        }
-      }
+  if (r.Nodes.getNodeAs<clang::NamespaceDecl>("decl")) {
+    // namespace declarations are not usage
+  } else if (const clang::Decl *tl = r.Nodes.getNodeAs<clang::Decl>("decl")) {
 
-    }
+    add_redeclaration(ci, data, tl);
   }
 }
-
+}
+}
+}
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

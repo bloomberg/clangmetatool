@@ -17,69 +17,62 @@
 #include <llvm/Config/llvm-config.h>
 
 namespace clangmetatool {
-  namespace collectors {
-    namespace include_graph {
+namespace collectors {
+namespace include_graph {
 
-      using clangmetatool::collectors::IncludeGraphData;
+using clangmetatool::collectors::IncludeGraphData;
 
-      class IncludeFinder : public clang::PPCallbacks {
-      private:
-        clang::CompilerInstance *ci;
-        IncludeGraphData* data;
-      public:
-      IncludeFinder(clang::CompilerInstance *ci,
-                    IncludeGraphData* d)
-        :ci(ci), data(d) {}
+class IncludeFinder : public clang::PPCallbacks {
+private:
+  clang::CompilerInstance *ci;
+  IncludeGraphData *data;
 
-        virtual void InclusionDirective(clang::SourceLocation hashLoc,
-                                        const clang::Token &includeToken,
-                                        llvm::StringRef filename,
-                                        bool isAngled,
-                                        clang::CharSourceRange filenameRange,
-                                        const clang::FileEntry *file,
-                                        llvm::StringRef searchPath,
-                                        llvm::StringRef relativePath,
-                                        const clang::Module *imported)
+public:
+  IncludeFinder(clang::CompilerInstance *ci, IncludeGraphData *d)
+      : ci(ci), data(d) {}
+
+  virtual void
+  InclusionDirective(clang::SourceLocation hashLoc,
+                     const clang::Token &includeToken, llvm::StringRef filename,
+                     bool isAngled, clang::CharSourceRange filenameRange,
+                     const clang::FileEntry *file, llvm::StringRef searchPath,
+                     llvm::StringRef relativePath,
+                     const clang::Module *imported)
 #if LLVM_VERSION_MAJOR == 6
-          override
+      override
 #endif
-        ;
+      ;
 
-
-        virtual void InclusionDirective(clang::SourceLocation hashLoc,
-                                        const clang::Token &includeToken,
-                                        llvm::StringRef filename,
-                                        bool isAngled,
-                                        clang::CharSourceRange filenameRange,
-                                        const clang::FileEntry *file,
-                                        llvm::StringRef searchPath,
-                                        llvm::StringRef relativePath,
-                                        const clang::Module *imported,
-                                        clang::SrcMgr::CharacteristicKind FileType_)
+  virtual void
+  InclusionDirective(clang::SourceLocation hashLoc,
+                     const clang::Token &includeToken, llvm::StringRef filename,
+                     bool isAngled, clang::CharSourceRange filenameRange,
+                     const clang::FileEntry *file, llvm::StringRef searchPath,
+                     llvm::StringRef relativePath,
+                     const clang::Module *imported,
+                     clang::SrcMgr::CharacteristicKind FileType_)
 #if LLVM_VERSION_MAJOR == 7
-          override
+      override
 #endif
-          ;
+      ;
 
-        virtual void MacroExpands(const clang::Token           &macroUsage,
-                                  const clang::MacroDefinition &macroDef,
-                                  clang::SourceRange           range,
-                                  const clang::MacroArgs       *args) override;
+  virtual void MacroExpands(const clang::Token &macroUsage,
+                            const clang::MacroDefinition &macroDef,
+                            clang::SourceRange range,
+                            const clang::MacroArgs *args) override;
 
-        virtual void Defined(const clang::Token             &macroUsage,
-                             const clang::MacroDefinition   &macroDef,
-                             clang::SourceRange             range) override;
+  virtual void Defined(const clang::Token &macroUsage,
+                       const clang::MacroDefinition &macroDef,
+                       clang::SourceRange range) override;
 
-        virtual void Ifdef(clang::SourceLocation          loc,
-                           const clang::Token             &macroUsage,
-                           const clang::MacroDefinition   &macroDef) override;
+  virtual void Ifdef(clang::SourceLocation loc, const clang::Token &macroUsage,
+                     const clang::MacroDefinition &macroDef) override;
 
-        virtual void Ifndef(clang::SourceLocation          loc,
-                            const clang::Token             &macroUsage,
-                            const clang::MacroDefinition   &macroDef) override;
-      };
-    }
-  }
+  virtual void Ifndef(clang::SourceLocation loc, const clang::Token &macroUsage,
+                      const clang::MacroDefinition &macroDef) override;
+};
+}
+}
 }
 
 #endif

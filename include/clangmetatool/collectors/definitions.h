@@ -19,33 +19,34 @@ class DefinitionsImpl;
  */
 class Definitions {
 private:
-    /**
-     * Pointer to implementation.
-     */
-    DefinitionsImpl* impl;
+  /**
+   * Pointer to implementation.
+   */
+  DefinitionsImpl *impl;
+
 public:
-    /**
-     * Explicit constructor to allow for implementation details.
-     *    - ci is a pointer to an instance of the clang compiler
-     *    - f is a pointer to an instance of the MatchFinder class
-     */
-    Definitions(clang::CompilerInstance *ci, clang::ast_matchers::MatchFinder *f);
+  /**
+   * Explicit constructor to allow for implementation details.
+   *    - ci is a pointer to an instance of the clang compiler
+   *    - f is a pointer to an instance of the MatchFinder class
+   */
+  Definitions(clang::CompilerInstance *ci, clang::ast_matchers::MatchFinder *f);
 
-    /**
-     * Explicit destructor.
-     */
-    ~Definitions();
+  /**
+   * Explicit destructor.
+   */
+  ~Definitions();
 
-    /**
-     * Get the pointer to the object containing the data; populated or not.
-     */
-    DefinitionsData* getData();
+  /**
+   * Get the pointer to the object containing the data; populated or not.
+   */
+  DefinitionsData *getData();
 };
 
 } // namespace collectors
 } // namespace clangmetatool
 
-#endif //INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_H 
+#endif // INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_H
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

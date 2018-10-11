@@ -7,52 +7,49 @@
 #include <clangmetatool/collectors/find_cxx_member_calls_data.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * forward declaration to implementation details of the
-     * collector.
-     */
-    class FindCXXMemberCallsImpl;
+/**
+ * forward declaration to implementation details of the
+ * collector.
+ */
+class FindCXXMemberCallsImpl;
 
-    /**
-     * Find Calls data collector. Collects the caller and references
-     * to the specified function and one of its arguments.
-     */
-    class FindCXXMemberCalls {
-    private:
+/**
+ * Find Calls data collector. Collects the caller and references
+ * to the specified function and one of its arguments.
+ */
+class FindCXXMemberCalls {
+private:
+  /**
+   * Pointer to Implementation
+   */
+  FindCXXMemberCallsImpl *impl;
 
-      /**
-       * Pointer to Implementation
-       */
-      FindCXXMemberCallsImpl* impl;
+public:
+  /**
+   * Explicit constructor, to allow for implementation details:
+   *    - ci is a pointer to an instance of the clang compiler
+   *    - f is a pointer to an instance of the MatchFinder class
+   *    - c is a string value of the fully-qualified class/struct name to match
+   * on
+   *    - n is a string value of the method name to match on
+   */
+  FindCXXMemberCalls(clang::CompilerInstance *ci,
+                     clang::ast_matchers::MatchFinder *f, const std::string &c,
+                     const std::string &n);
 
-    public:
+  /**
+   * Explicit destructor.
+   */
+  ~FindCXXMemberCalls();
 
-      /**
-       * Explicit constructor, to allow for implementation details:
-       *    - ci is a pointer to an instance of the clang compiler
-       *    - f is a pointer to an instance of the MatchFinder class
-       *    - c is a string value of the fully-qualified class/struct name to match on
-       *    - n is a string value of the method name to match on
-       */
-      FindCXXMemberCalls( clang::CompilerInstance          *ci,
-                          clang::ast_matchers::MatchFinder *f,
-                          const std::string&                c,
-                          const std::string&                n  );
-
-      /**
-       * Explicit destructor.
-       */
-      ~FindCXXMemberCalls();
-
-      /**
-       * Get the pointer to the data structure, populated or not.
-       */
-      FindCXXMemberCallsData* getData();
-
-    };
-  }
+  /**
+   * Get the pointer to the data structure, populated or not.
+   */
+  FindCXXMemberCallsData *getData();
+};
+}
 }
 
 #endif

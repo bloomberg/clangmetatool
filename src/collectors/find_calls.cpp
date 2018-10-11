@@ -3,111 +3,76 @@
 #include <clangmetatool/collectors/find_calls_data.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-  using namespace clang::ast_matchers;
+using namespace clang::ast_matchers;
 
-  namespace {
+namespace {
 
-    class AnnotateCall1
-        : public clang::ast_matchers::MatchFinder::MatchCallback {
-      private:
-        clang::CompilerInstance *ci;
-        FindCallsData *data;
-      public:
-        AnnotateCall1
-        (clang::CompilerInstance* ci,
-         FindCallsData *data)
-          :ci(ci), data(data) {}
+class AnnotateCall1 : public clang::ast_matchers::MatchFinder::MatchCallback {
+private:
+  clang::CompilerInstance *ci;
+  FindCallsData *data;
 
-        virtual void
-        run(const clang::ast_matchers::MatchFinder::MatchResult &r)
-          override {
+public:
+  AnnotateCall1(clang::CompilerInstance *ci, FindCallsData *data)
+      : ci(ci), data(data) {}
 
-          const clang::CallExpr *c =
-            r.Nodes.getNodeAs<clang::CallExpr>("call");
+  virtual void
+  run(const clang::ast_matchers::MatchFinder::MatchResult &r) override {
 
-          const clang::FunctionDecl *f =
-            r.Nodes.getNodeAs<clang::FunctionDecl>("context");
+    const clang::CallExpr *c = r.Nodes.getNodeAs<clang::CallExpr>("call");
 
-          const clang::DeclRefExpr *e =
-            r.Nodes.getNodeAs<clang::DeclRefExpr>("ref");
+    const clang::FunctionDecl *f =
+        r.Nodes.getNodeAs<clang::FunctionDecl>("context");
 
-          data->call_context.insert
-            (std::pair
-            <const clang::FunctionDecl*,
-            const clang::CallExpr*>(f,c));
+    const clang::DeclRefExpr *e = r.Nodes.getNodeAs<clang::DeclRefExpr>("ref");
 
-          data->call_ref.insert
-            (std::pair
-            <const clang::CallExpr*,
-            const clang::DeclRefExpr*>(c,e));
+    data->call_context.insert(
+        std::pair<const clang::FunctionDecl *, const clang::CallExpr *>(f, c));
 
-        }
+    data->call_ref.insert(
+        std::pair<const clang::CallExpr *, const clang::DeclRefExpr *>(c, e));
+  }
+};
 
-    };
+} // namespace anonymous
 
-  } // namespace anonymous
+class FindCallsImpl {
+private:
+  std::string n;
+  unsigned int a;
+  FindCallsData data;
+  clang::CompilerInstance *ci;
 
-  class FindCallsImpl {
-  private:
-    std::string n;
-    unsigned int a;
-    FindCallsData data;
-    clang::CompilerInstance *ci;
+  StatementMatcher sm1 =
+      callExpr(callee(implicitCastExpr(
+                   has(declRefExpr(hasDeclaration(functionDecl(hasAnyName(n))))
+                           .bind("ref")))),
+               hasAncestor(functionDecl().bind("context")))
+          .bind("call");
+  AnnotateCall1 cb1;
 
-    StatementMatcher sm1 =
-      callExpr(
-        callee(
-          implicitCastExpr(
-            has(
-              declRefExpr(
-                hasDeclaration(
-                  functionDecl(
-                    hasAnyName(
-                      n
-                    )
-                  )
-                )
-              ).bind("ref")
-            )
-          )
-        ),
-        hasAncestor(functionDecl().bind("context"))
-      ).bind("call");
-    AnnotateCall1 cb1;
-
-  public:
-    FindCallsImpl
-    (clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder* f, std::string n)
-      : ci(ci),n(n),
-        cb1(ci, &data)
-    {
-      f->addMatcher(sm1, &cb1);
-    }
-
-    ~FindCallsImpl() {
-    }
-
-    FindCallsData* getData() {
-      return &data;
-    }
-
-  };
-
-  FindCalls::FindCalls
-  (clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder* f, std::string n)
-  {
-    impl = new FindCallsImpl(ci, f, n);
+public:
+  FindCallsImpl(clang::CompilerInstance *ci,
+                clang::ast_matchers::MatchFinder *f, std::string n)
+      : ci(ci), n(n), cb1(ci, &data) {
+    f->addMatcher(sm1, &cb1);
   }
 
-  FindCalls::~FindCalls() {
-    delete impl;
-  }
+  ~FindCallsImpl() {}
 
-  FindCallsData* FindCalls::getData() {
-    return impl->getData();
-  }
+  FindCallsData *getData() { return &data; }
+};
+
+FindCalls::FindCalls(clang::CompilerInstance *ci,
+                     clang::ast_matchers::MatchFinder *f, std::string n) {
+  impl = new FindCallsImpl(ci, f, n);
+}
+
+FindCalls::~FindCalls() { delete impl; }
+
+FindCallsData *FindCalls::getData() { return impl->getData(); }
 }
 }
 // ----------------------------------------------------------------------------

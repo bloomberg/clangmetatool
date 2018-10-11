@@ -2,9 +2,9 @@
 #define INCLUDED_CLANGMETATOOL_TYPES_FILE_UID_H
 
 namespace clangmetatool {
-  namespace types {
-    typedef unsigned int FileUID;
-  }
+namespace types {
+typedef unsigned int FileUID;
+}
 }
 
 #endif

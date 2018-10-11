@@ -11,18 +11,15 @@
 #include <clangmetatool/types/file_uid.h>
 
 namespace clangmetatool {
-  namespace types {
+namespace types {
 
-    /**
-     * Record the information about a reference to a macro usage.
-     */
-    typedef std::tuple<
-      const clang::Token,
-      const clang::MacroDefinition,
-      const clang::SourceRange,
-      const clang::MacroArgs*
-      > MacroReferenceInfo;
-  }
+/**
+ * Record the information about a reference to a macro usage.
+ */
+typedef std::tuple<const clang::Token, const clang::MacroDefinition,
+                   const clang::SourceRange, const clang::MacroArgs *>
+    MacroReferenceInfo;
+}
 }
 
 #endif

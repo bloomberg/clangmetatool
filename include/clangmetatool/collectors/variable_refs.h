@@ -9,48 +9,44 @@
 #include <clangmetatool/collectors/variable_refs_data.h>
 
 namespace clangmetatool {
-  namespace collectors {
+namespace collectors {
 
-    /**
-     * forward declaration to implementation details of the
-     * collector.
-     */
-    class VariableRefsImpl;
+/**
+ * forward declaration to implementation details of the
+ * collector.
+ */
+class VariableRefsImpl;
 
-    /**
-     * Variable Refs data collector. Collects the information related
-     * to variable declarations and their usages.
-     */
-    class VariableRefs {
-    private:
+/**
+ * Variable Refs data collector. Collects the information related
+ * to variable declarations and their usages.
+ */
+class VariableRefs {
+private:
+  /**
+   * Pointer to Implementation
+   */
+  VariableRefsImpl *impl;
 
-      /**
-       * Pointer to Implementation
-       */
-      VariableRefsImpl* impl;
+public:
+  /**
+   * Explicit constructor, to allow for implementation details.
+   */
+  VariableRefs(clang::CompilerInstance *ci,
+               clang::ast_matchers::MatchFinder *f);
 
-    public:
+  /**
+   * Explicit destructor.
+   */
+  ~VariableRefs();
 
-      /**
-       * Explicit constructor, to allow for implementation details.
-       */
-      VariableRefs( clang::CompilerInstance          *ci,
-                    clang::ast_matchers::MatchFinder *f   );
-
-      /**
-       * Explicit destructor.
-       */
-      ~VariableRefs();
-
-      /**
-       * Get the pointer to the data structure, populated or not.
-       */
-      VariableRefsData* getData();
-      
-    };
-  }
+  /**
+   * Get the pointer to the data structure, populated or not.
+   */
+  VariableRefsData *getData();
+};
 }
-
+}
 
 #endif
 
