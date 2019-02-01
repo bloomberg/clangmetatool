@@ -153,7 +153,7 @@ public:
 
 } // namespace anonymous
 
-TEST(propagation_ConstantCStringPropagation, basic) {
+TEST(propagation_MacroConstantPropagation, basic) {
   llvm::cl::OptionCategory MyToolCategory("my-tool options");
   int argc = 4;
   const char* argv[] = {
