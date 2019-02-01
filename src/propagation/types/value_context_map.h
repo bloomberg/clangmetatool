@@ -2,11 +2,14 @@
 #define INCLUDED_CLANGMETATOOL_PROPAGATION_TYPES_VALUE_CONTEXT_MAP_H
 
 #include "value_context.h"
+#include "../util/compare_src_loc.h"
 
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
+
+#include <clang/Basic/SourceManager.h>
 
 namespace clangmetatool {
 namespace propagation {
@@ -91,13 +94,14 @@ public:
    * Return false if no context is found.
    */
   bool lookup(ResultType &result, const std::string &variable,
-              const clang::SourceLocation &location) const {
+              const clang::SourceLocation &location,
+              clang::SourceManager &SM) const {
     auto it = map.find(variable);
 
     if (map.end() != it) {
       // Find the last definition before the location
       for (auto sit = it->second.rbegin(); sit != it->second.rend(); ++sit) {
-        if (std::get<0>(*sit) < location) {
+        if (util::compSrcLoc(std::get<0>(*sit), location, SM)) {
           result = std::get<2>(*sit);
 
           return true;

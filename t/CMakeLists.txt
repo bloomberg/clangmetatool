@@ -33,6 +33,7 @@ foreach(
   023-multi-function-integer-propagation
   024-find-cxx-member-calls
   025-find-mixed-calls
+  026-macro-propagation
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)

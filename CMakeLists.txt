@@ -27,6 +27,7 @@ add_library(
   src/propagation/strongly_connected_blocks.cpp
   src/propagation/types/value_context_ordering.cpp
   src/propagation/util/get_stmt_from_cfg_element.cpp
+  src/propagation/util/compare_src_loc.cpp
 )
 target_include_directories(
   clangmetatool
