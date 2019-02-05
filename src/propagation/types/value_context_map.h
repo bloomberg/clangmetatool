@@ -2,7 +2,6 @@
 #define INCLUDED_CLANGMETATOOL_PROPAGATION_TYPES_VALUE_CONTEXT_MAP_H
 
 #include "value_context.h"
-#include "../util/compare_src_loc.h"
 
 #include <map>
 #include <set>
@@ -101,7 +100,7 @@ public:
     if (map.end() != it) {
       // Find the last definition before the location
       for (auto sit = it->second.rbegin(); sit != it->second.rend(); ++sit) {
-        if (util::compSrcLoc(std::get<0>(*sit), location, SM)) {
+        if (SM.isBeforeInTranslationUnit(std::get<0>(*sit), location)) {
           result = std::get<2>(*sit);
 
           return true;

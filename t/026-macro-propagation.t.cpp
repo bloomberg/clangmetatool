@@ -101,12 +101,6 @@ public:
   }
 
 
-  bool compSrcLoc(const clang::SourceLocation& LHS,
-                const clang::SourceLocation& RHS,
-                clang::SourceManager& SM){
-      clang::BeforeThanCompare<clang::SourceLocation> btc(SM);
-      return btc(LHS, RHS);
-  }
 
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
@@ -127,9 +121,10 @@ public:
     EXPECT_FALSE(decls->at(0).second->getLocStart() < decls->at(1).second->getLocStart());
     // Using "<" for comparing source location is not correct 
 
-    EXPECT_TRUE(compSrcLoc(decls->at(0).second->getLocStart(),
-                           decls->at(1).second->getLocStart(),
-                           ci->getASTContext().getSourceManager()));
+    EXPECT_TRUE(
+        ci->getASTContext().getSourceManager().isBeforeInTranslationUnit(
+            decls->at(0).second->getLocStart(),
+            decls->at(1).second->getLocStart()));
 
 
     auto call_context = callObject->getData()->call_context;
