@@ -215,7 +215,7 @@ public:
    */
   bool lookup(ResultType &result, const std::string &variable,
               const clang::SourceLocation &location) const {
-    return valueMap.lookup(result, variable, location);
+    return valueMap.lookup(result, variable, location, context.getSourceManager());
   }
 
   /**

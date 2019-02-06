@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include <clang/Basic/SourceManager.h>
+
 namespace clangmetatool {
 namespace propagation {
 namespace types {
@@ -91,13 +93,14 @@ public:
    * Return false if no context is found.
    */
   bool lookup(ResultType &result, const std::string &variable,
-              const clang::SourceLocation &location) const {
+              const clang::SourceLocation &location,
+              clang::SourceManager &SM) const {
     auto it = map.find(variable);
 
     if (map.end() != it) {
       // Find the last definition before the location
       for (auto sit = it->second.rbegin(); sit != it->second.rend(); ++sit) {
-        if (std::get<0>(*sit) < location) {
+        if (SM.isBeforeInTranslationUnit(std::get<0>(*sit), location)) {
           result = std::get<2>(*sit);
 
           return true;
