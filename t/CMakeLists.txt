@@ -1,6 +1,14 @@
 find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)
 
+execute_process(
+  COMMAND
+    "${PROJECT_SOURCE_DIR}/cmake/clangmetatool-get-clang-std-include.sh"
+    "${CLANG_INCLUDE_DIRS}"
+  OUTPUT_VARIABLE CLANG_STD_INCLUDE_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 configure_file(
   include/clangmetatool-testconfig.h.in
   include/clangmetatool-testconfig.h
@@ -34,6 +42,7 @@ foreach(
   024-find-cxx-member-calls
   025-find-mixed-calls
   026-macro-propagation
+  027-c-style-variadic-integer-propagation
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)

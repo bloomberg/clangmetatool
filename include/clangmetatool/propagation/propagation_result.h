@@ -59,10 +59,16 @@ public:
     return result < rhs.result;
   }
   bool operator==(const PropagationResult<ResultType> &rhs) const {
-    return unresolved == rhs.unresolved && result == rhs.result;
+    if (unresolved && rhs.unresolved) {
+      return true;
+    } else if (unresolved == rhs.unresolved) {
+      return result == rhs.result;
+    }
+
+    return false;
   }
   bool operator!=(const PropagationResult<ResultType> &rhs) const {
-    return unresolved != rhs.unresolved || result != rhs.result;
+    return !(*this == rhs);
   }
 };
 

@@ -15,19 +15,22 @@ namespace {
 
 // Given a qualified type, determine if it is an int
 inline bool isIntegerType(const clang::QualType &QT) {
-  return QT.getTypePtr()->isIntegerType();
+  return !QT.isNull() &&
+         QT.getTypePtr()->isIntegerType();
 }
 
 // Given a type, determine if its a pointer to non-const int
 inline bool isPtrToMutableIntegerType(const clang::QualType &QT) {
-  return QT.getTypePtr()->isPointerType() &&
+  return !QT.isNull() &&
+         QT.getTypePtr()->isPointerType() &&
          !QT.getTypePtr()->getPointeeType().isConstQualified() &&
          isIntegerType(QT.getTypePtr()->getPointeeType());
 }
 
 // Given a type determine if it is a reference to non-const int
 inline bool isRefToMutableIntegerType(const clang::QualType &QT) {
-  return QT.getTypePtr()->isReferenceType() &&
+  return !QT.isNull() &&
+         QT.getTypePtr()->isReferenceType() &&
          !QT.getNonReferenceType().isConstQualified() &&
          isIntegerType(QT.getNonReferenceType());
 }
@@ -111,25 +114,39 @@ public:
   // Only types of function calls considered are those that take mutable refs
   // or (const or non-const) pointers to mutable ints
   void VisitCallExpr(const clang::CallExpr *CE) {
-    auto callArgTypes = CE->getDirectCallee()->parameters();
-    int idx = 0;
-    for (auto A : CE->arguments()) {
-      auto base = A->IgnoreImpCasts();
-      const clang::DeclRefExpr *DR = nullptr;
+    auto DC = CE->getDirectCallee();
+    if (nullptr != DC) {
+      auto callArgTypes = DC->parameters();
+      int idx = 0;
+      for (auto A : CE->arguments()) {
+        auto base = A->IgnoreImpCasts();
+        const clang::DeclRefExpr *DR = nullptr;
 
-      if (clang::Stmt::DeclRefExprClass == base->getStmtClass()) {
-        DR = reinterpret_cast<const clang::DeclRefExpr *>(base);
+        if (clang::Stmt::DeclRefExprClass == base->getStmtClass()) {
+          DR = reinterpret_cast<const clang::DeclRefExpr *>(base);
 
-      } else if (clang::Stmt::UnaryOperatorClass == base->getStmtClass()) {
-        auto UO = reinterpret_cast<const clang::UnaryOperator *>(base);
-        DR = reinterpret_cast<const clang::DeclRefExpr *>(UO->getSubExpr());
+        } else if (clang::Stmt::UnaryOperatorClass == base->getStmtClass()) {
+          auto SE = reinterpret_cast<const clang::UnaryOperator *>(base)->getSubExpr();
+
+          if (clang::Stmt::DeclRefExprClass == SE->getStmtClass()) {
+            DR = reinterpret_cast<const clang::DeclRefExpr *>(SE);
+          }
+        }
+
+        bool allowsM;
+        // If we are into the variadic arguments to a function
+        if (idx >= DC->getNumParams()) {
+          allowsM = allowsMutation(base->getType());
+        } else {
+          allowsM = allowsMutation(callArgTypes[idx]->getType());
+        }
+
+        if (nullptr != DR && allowsM) {
+          // If the variable is a int*, mark it as UNRESOLVED
+          addToMap(DR->getNameInfo().getAsString(), {}, CE->getLocEnd());
+        }
+        ++idx;
       }
-
-      if (allowsMutation(callArgTypes[idx]->getType())) {
-        // If the variable is a int*, mark it as UNRESOLVED
-        addToMap(DR->getNameInfo().getAsString(), {}, CE->getLocStart());
-      }
-      ++idx;
     }
   }
 };

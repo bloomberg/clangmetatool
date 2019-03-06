@@ -4,6 +4,8 @@ int boo(const int*);
 int bar(int*);
 int baz(const int&);
 int qux(int&);
+int dud(const int* const);
+int qax(int* const);
 
 int main(int argc, char* argv[]) {
   int v1 = 0;
@@ -24,6 +26,11 @@ int main(int argc, char* argv[]) {
 
   baz(v1);
   qux(v1);
+
+  v1 = 3;
+
+  dud(&v1);
+  qax(&v1);
 
   return 0;
 }
