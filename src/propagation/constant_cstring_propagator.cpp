@@ -12,9 +12,15 @@ namespace clangmetatool {
 namespace propagation {
 namespace {
 
-// Given a type, determine if it is a char*
-bool isCharPtrType(const clang::Type *T) {
-  return T->isPointerType() && T->getPointeeType().getTypePtr()->isCharType();
+// Given an expression, determine if it is a char*
+bool isCharPtrType(const clang::Expr *E) {
+  auto QT = E->getType();
+
+  if (QT.isNull() || !QT.getTypePtr()->isPointerType()) return false;
+
+  auto QT2 = QT.getTypePtr()->getPointeeType();
+
+  return !QT2.isNull() && QT2.getTypePtr()->isCharType();
 }
 
 // Utility class to visit the statements of a block and update the
@@ -25,7 +31,7 @@ private:
   // false if this is not possible
   bool evalExprToString(std::string &result, const clang::Expr *E) {
     // We only care about char types
-    if (isCharPtrType(E->getType().getTypePtr())) {
+    if (isCharPtrType(E)) {
       clang::Expr::EvalResult ER;
 
       if (E->isEvaluatable(context) && E->EvaluateAsRValue(ER, context)) {
@@ -100,7 +106,7 @@ public:
       if (clang::Stmt::DeclRefExprClass == base->getStmtClass()) {
         auto DR = reinterpret_cast<const clang::DeclRefExpr *>(base);
 
-        if (isCharPtrType(DR->getType().getTypePtr())) {
+        if (isCharPtrType(DR)) {
           // If the variable is a char*, mark it as UNRESOLVED
           addToMap(DR->getNameInfo().getAsString(), {}, CE->getLocEnd());
         }

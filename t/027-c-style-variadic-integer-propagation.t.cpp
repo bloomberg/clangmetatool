@@ -55,7 +55,11 @@ private:
       (varDecl
        (hasAnyName
         (
-         "v1"
+         "a",
+         "b",
+         "c",
+         "d",
+         "e"
         )
        )
       ),
@@ -103,14 +107,19 @@ public:
 
     const char* expectedResult =
       "main >>>>>>>>>>>>>>>>>>>>>>>>>>\n"
-      "  ** v1\n"
-      "    - 11:3 '0' (Changed by code)\n"
-      "    - 19:3 '1' (Changed by code)\n"
-      "    - 23:10 '<UNRESOLVED>' (Changed by code)\n"
-      "    - 25:3 '2' (Changed by code)\n"
-      "    - 28:9 '<UNRESOLVED>' (Changed by code)\n"
-      "    - 30:3 '3' (Changed by code)\n"
-      "    - 33:10 '<UNRESOLVED>' (Changed by code)\n"
+      "  ** a\n"
+      "    - 6:3 '0' (Changed by code)\n"
+      "  ** b\n"
+      "    - 7:3 '1' (Changed by code)\n"
+      "    - 12:22 '<UNRESOLVED>' (Changed by code)\n"
+      "  ** c\n"
+      "    - 8:3 '2' (Changed by code)\n"
+      "    - 12:22 '<UNRESOLVED>' (Changed by code)\n"
+      "  ** d\n"
+      "    - 9:3 '3' (Changed by code)\n"
+      "  ** e\n"
+      "    - 10:3 '4' (Changed by code)\n"
+      "    - 12:22 '<UNRESOLVED>' (Changed by code)\n"
       "main <<<<<<<<<<<<<<<<<<<<<<<<<<\n";
 
     EXPECT_STREQ(expectedResult, stream.str().c_str());
@@ -124,7 +133,8 @@ TEST(propagation_ConstantIntegerPropagation, functionArgs) {
   int argc = 4;
   const char* argv[] = {
     "foo",
-    CMAKE_SOURCE_DIR "/t/data/020-function-args-integer-propagation/main.cpp",
+    CMAKE_SOURCE_DIR "/t/data/027-c-style-variadic-integer-propagation/main.cpp",
+    "--extra-arg-before=-I" CLANG_STD_INCLUDE_DIR,
     "--",
     // Test C++ for confirming that this works on a superset
     "-xc++"
