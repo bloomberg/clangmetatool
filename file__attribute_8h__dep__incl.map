@@ -1,0 +1,9 @@
+<map id="clangmetatool/types/file_attribute.h" name="clangmetatool/types/file_attribute.h">
+<area shape="rect" id="node2" href="$file__attribute__map_8h.html" title="clangmetatool/types\l/file_attribute_map.h" alt="" coords="225,95,365,136"/>
+<area shape="rect" id="node3" href="$include__graph__data_8h.html" title="clangmetatool/collectors\l/include_graph_data.h" alt="" coords="5,184,168,225"/>
+<area shape="rect" id="node5" href="$member__method__decls__data_8h.html" title="clangmetatool/collectors\l/member_method_decls_data.h" alt="" coords="193,184,397,225"/>
+<area shape="rect" id="node7" href="$variable__refs__data_8h.html" title="clangmetatool/collectors\l/variable_refs_data.h" alt="" coords="421,184,584,225"/>
+<area shape="rect" id="node4" href="$include__graph_8h.html" title="clangmetatool/collectors\l/include_graph.h" alt="" coords="5,273,168,315"/>
+<area shape="rect" id="node6" href="$member__method__decls_8h.html" title="clangmetatool/collectors\l/member_method_decls.h" alt="" coords="209,273,381,315"/>
+<area shape="rect" id="node8" href="$variable__refs_8h.html" title="clangmetatool/collectors\l/variable_refs.h" alt="" coords="421,273,584,315"/>
+</map>

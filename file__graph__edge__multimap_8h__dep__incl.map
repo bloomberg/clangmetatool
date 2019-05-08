@@ -1,0 +1,8 @@
+<map id="clangmetatool/types/file_graph_edge_multimap.h" name="clangmetatool/types/file_graph_edge_multimap.h">
+<area shape="rect" id="node2" href="$include__graph__data_8h.html" title="clangmetatool/collectors\l/include_graph_data.h" alt="" coords="5,95,168,136"/>
+<area shape="rect" id="node4" href="$member__method__decls__data_8h.html" title="clangmetatool/collectors\l/member_method_decls_data.h" alt="" coords="193,95,397,136"/>
+<area shape="rect" id="node6" href="$variable__refs__data_8h.html" title="clangmetatool/collectors\l/variable_refs_data.h" alt="" coords="421,95,584,136"/>
+<area shape="rect" id="node3" href="$include__graph_8h.html" title="clangmetatool/collectors\l/include_graph.h" alt="" coords="5,184,168,225"/>
+<area shape="rect" id="node5" href="$member__method__decls_8h.html" title="clangmetatool/collectors\l/member_method_decls.h" alt="" coords="209,184,381,225"/>
+<area shape="rect" id="node7" href="$variable__refs_8h.html" title="clangmetatool/collectors\l/variable_refs.h" alt="" coords="421,184,584,225"/>
+</map>
