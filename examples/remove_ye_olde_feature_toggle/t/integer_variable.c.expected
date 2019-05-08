@@ -1,0 +1,9 @@
+int test_function() {
+  int feature_id = 3;
+  if (1 /* removed ye_olde_feature_toggle 3 */)
+    return 1;
+  feature_id = 5;
+  if (0 /* removed ye_olde_feature_toggle 5 */)
+    return 0;
+  return 42;
+}

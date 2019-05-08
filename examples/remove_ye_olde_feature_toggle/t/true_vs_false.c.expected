@@ -1,0 +1,9 @@
+int test_function() {
+  if (1 /* removed ye_olde_feature_toggle 3 */ ||
+      0 /* removed ye_olde_feature_toggle 5 */ ||
+      7 /* removed ye_olde_feature_toggle 7 */) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
