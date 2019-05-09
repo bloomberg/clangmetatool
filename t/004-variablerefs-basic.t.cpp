@@ -23,6 +23,34 @@ public:
   MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
     :ci(ci), v(ci, f) {
   }
+
+  void check_evaluated_int(const clang::Expr* expr, const clang::ASTContext &ctx, uint64_t expected_value) {
+#if LLVM_VERSION_MAJOR >= 8
+    clang::Expr::EvalResult result;
+#else
+    llvm::APSInt result;
+#endif
+      bool eval = expr->EvaluateAsInt
+        ( result, ctx,
+          clang::Expr::SideEffectsKind::SE_AllowSideEffects
+          );
+
+      ASSERT_EQ(true, eval)
+        << "Value can be evaluated";
+
+      llvm::APSInt value;
+#if LLVM_VERSION_MAJOR >= 8
+      ASSERT_EQ(true, result.Val.isInt())
+        << "Failed to get integer";
+      value = result.Val.getInt();
+#else
+      value = result;
+#endif
+
+      ASSERT_EQ(expected_value, value.getExtValue())
+        << "has the expected value";
+  }
+
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
 
@@ -50,18 +78,7 @@ public:
 
       ASSERT_EQ(std::string(names[count]), var->getNameAsString())
         << "Got the expected variable name " << count;
-
-      llvm::APSInt value;
-      bool eval = ref->EvaluateAsInt
-        ( value, ctx,
-          clang::Expr::SideEffectsKind::SE_AllowSideEffects
-          );
-
-      ASSERT_EQ(true, eval)
-        << "Value can be evaluated " << names[count] << " " << count;
-
-      ASSERT_EQ(values[count], value.getExtValue())
-        << "Has the expected value " << names[count] << " " << count;
+      check_evaluated_int(ref, ctx, values[count]);
 
       count++;
       it++;

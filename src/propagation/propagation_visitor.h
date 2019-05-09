@@ -97,7 +97,7 @@ public:
       for (const auto &it : state) {
         // Add all the variable values in the starting state to the top of
         // the block's context
-        map->addToMap(it.first, it.second, startStmt->getLocStart(),
+        map->addToMap(it.first, it.second, startStmt->getBeginLoc(),
                       types::ValueContextOrdering::CONTROL_FLOW_MERGE);
       }
 

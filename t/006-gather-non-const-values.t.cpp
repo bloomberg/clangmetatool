@@ -7,6 +7,9 @@
 #include <clangmetatool/collectors/variable_refs_data.h>
 #include <clangmetatool/collectors/variable_refs.h>
 
+// Required to know which version of LLVM/Clang we're building against
+#include <llvm/Config/llvm-config.h>
+
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/CommonOptionsParser.h>
@@ -23,6 +26,34 @@ public:
   MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
     :ci(ci), v(ci, f) {
   }
+
+  void check_evaluated_int(const clang::Expr* expr, const clang::ASTContext &ctx, uint64_t expected_value) {
+#if LLVM_VERSION_MAJOR >= 8
+    clang::Expr::EvalResult result;
+#else
+    llvm::APSInt result;
+#endif
+      bool eval = expr->EvaluateAsInt
+        ( result, ctx,
+          clang::Expr::SideEffectsKind::SE_AllowSideEffects
+          );
+
+      ASSERT_EQ(true, eval)
+        << "Succesfully evaluated integer";
+
+      llvm::APSInt value;
+#if LLVM_VERSION_MAJOR >= 8
+      ASSERT_EQ(true, result.Val.isInt())
+        << "evaluated value was an integer";
+      value = result.Val.getInt();
+#else
+      value = result;
+#endif
+
+      ASSERT_EQ(expected_value, value.getExtValue())
+        << "evaluated value matches expected value";
+  }
+
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
 
@@ -42,18 +73,8 @@ public:
     ASSERT_NE((void*)NULL, init)
       << "Found the initializer for a";
 
-    llvm::APSInt value;
-    bool eval = init->EvaluateAsInt
-      ( value, ctx,
-        clang::Expr::SideEffectsKind::SE_AllowSideEffects
-        );
-
-    ASSERT_EQ(true, eval)
-      << "Initalizer for a can be evaluated";
-
-    ASSERT_EQ(3, value.getExtValue())
-      << "Iniitalizer for a has the right value";
-
+  
+    check_evaluated_int(init, ctx, 3);
     ASSERT_EQ(0, data->clear_assignment_refs.count(ref))
       << "The ref to a is not an assignment";
 
@@ -83,16 +104,7 @@ public:
     ASSERT_NE((void*)NULL, init)
       << "Found the expression for the assignment";
 
-    eval = init->EvaluateAsInt
-      ( value, ctx,
-        clang::Expr::SideEffectsKind::SE_AllowSideEffects
-        );
-
-    ASSERT_EQ(true, eval)
-      << "Expression used in b assignment can be evaluated";
-
-    ASSERT_EQ(2, value.getExtValue())
-      << "Assignment to b has the right value";
+    check_evaluated_int(init, ctx, 2);
 
     it++;
     var = it->first;

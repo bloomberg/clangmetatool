@@ -81,7 +81,7 @@ public:
 
             if (evalExprToInteger(result, I)) {
               // If the variable is a string, add it to the map
-              addToMap(VD->getNameAsString(), result, VD->getLocStart());
+              addToMap(VD->getNameAsString(), result, VD->getBeginLoc());
             }
           }
         }
@@ -101,10 +101,10 @@ public:
         if (evalExprToInteger(result, BO->getRHS())) {
           // If we can evaluate the expression to a string add the result
           // to the context map
-          addToMap(LHS->getNameInfo().getAsString(), result, BO->getLocStart());
+          addToMap(LHS->getNameInfo().getAsString(), result, BO->getBeginLoc());
         } else {
           // Otherwise, mark the variable as UNRESOLVED after this point
-          addToMap(LHS->getNameInfo().getAsString(), {}, BO->getLocStart());
+          addToMap(LHS->getNameInfo().getAsString(), {}, BO->getBeginLoc());
         }
       }
     }
@@ -143,7 +143,7 @@ public:
 
         if (nullptr != DR && allowsM) {
           // If the variable is a int*, mark it as UNRESOLVED
-          addToMap(DR->getNameInfo().getAsString(), {}, CE->getLocEnd());
+          addToMap(DR->getNameInfo().getAsString(), {}, CE->getEndLoc());
         }
         ++idx;
       }

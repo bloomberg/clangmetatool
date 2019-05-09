@@ -70,10 +70,10 @@ public:
           managers.find(func->getQualifiedNameAsString())->second;
 
       // Lookup the result
-      wasFound = manager.lookup(result, varName, var->getLocStart());
+      wasFound = manager.lookup(result, varName, var->getBeginLoc());
     } else {
       // Otherwise, look up the variable in the saved propagation
-      wasFound = it->second.lookup(result, varName, var->getLocStart());
+      wasFound = it->second.lookup(result, varName, var->getBeginLoc());
     }
 
     if (wasFound) {
