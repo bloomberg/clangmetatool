@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y \
 
 # Set up clang compilers
 ENV CC=/usr/bin/gcc-7 \
-    CXX=/usr/bin/g++-7
+    CXX=/usr/bin/g++-7 \
+    MAKEFLAGS="-j2"
 
 # Fix issues with gtest installation from ubuntu debian
 RUN cd /usr/src/gtest && \

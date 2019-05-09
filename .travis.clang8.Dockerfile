@@ -23,7 +23,8 @@ RUN apt-get update && apt-get install -y \
 
 # Set up clang compilers
 ENV CC=/usr/lib/llvm-8/bin/clang \
-    CXX=/usr/lib/llvm-8/bin/clang++
+    CXX=/usr/lib/llvm-8/bin/clang++ \
+    MAKEFLAGS="-j2"
 
 # Fix issues with gtest installation from ubuntu debian
 RUN cd /usr/src/gtest && \
