@@ -110,21 +110,21 @@ public:
 
     EXPECT_EQ(decls->size(), 2);
 
-    auto macroStr = decls->at(0).second->getLocStart().printToString(ci->getSourceManager()); 
+    auto macroStr = decls->at(0).second->getBeginLoc().printToString(ci->getSourceManager()); 
     EXPECT_EQ("5:3", macroStr.substr(macroStr.find(":", 0) + 1, 3));
     // FUNC(v1)
     
-    auto funcStr = decls->at(1).second->getLocStart().printToString(ci->getSourceManager()); 
+    auto funcStr = decls->at(1).second->getBeginLoc().printToString(ci->getSourceManager()); 
     EXPECT_EQ("6:7", funcStr.substr(macroStr.find(":", 0) + 1, 3));
     // foo(v1);
 
-    EXPECT_FALSE(decls->at(0).second->getLocStart() < decls->at(1).second->getLocStart());
+    EXPECT_FALSE(decls->at(0).second->getBeginLoc() < decls->at(1).second->getBeginLoc());
     // Using "<" for comparing source location is not correct 
 
     EXPECT_TRUE(
         ci->getASTContext().getSourceManager().isBeforeInTranslationUnit(
-            decls->at(0).second->getLocStart(),
-            decls->at(1).second->getLocStart()));
+            decls->at(0).second->getBeginLoc(),
+            decls->at(1).second->getBeginLoc()));
 
 
     auto call_context = callObject->getData()->call_context;

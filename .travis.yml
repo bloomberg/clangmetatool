@@ -8,11 +8,9 @@ matrix:
           compiler: gcc
           language: cpp
           sudo: true
-          env: MAKEFLAGS="-j 2"
-          script: docker build -f .travis.clang6.Dockerfile .
+          script: docker build -f .travis.clang7.Dockerfile .
         - os: linux
           compiler: gcc
           language: cpp
           sudo: true
-          env:  MAKEFLAGS="-j 2"
-          script: docker build -f .travis.clang7.Dockerfile .
+          script: docker build -f .travis.clang8.Dockerfile .
