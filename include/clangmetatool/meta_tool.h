@@ -96,7 +96,8 @@ public:
     return true;
   }
 
-  virtual void EndSourceFileAction() override {
+  virtual void ExecuteAction() override {
+    ASTFrontendAction::ExecuteAction();
     tool->postProcessing(replacementsMap);
   }
 
