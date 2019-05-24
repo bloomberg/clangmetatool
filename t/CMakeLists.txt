@@ -43,6 +43,7 @@ foreach(
   025-find-mixed-calls
   026-macro-propagation
   027-c-style-variadic-integer-propagation
+  028-diagnostic-during-postprocessing
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
