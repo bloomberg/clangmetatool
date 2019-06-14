@@ -6,6 +6,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Clang REQUIRED)
 
+# Install in the clang install directory. Also, use relative paths when
+# installing the module. This way the installation will be relocatable.
+set(CMAKE_INSTALL_PREFIX ${CLANG_INSTALL_PREFIX})
+file(RELATIVE_PATH LLVM_INCLUDE_RELATIVE_DIR ${CMAKE_INSTALL_PREFIX}
+                   ${LLVM_INCLUDE_DIR})
+file(RELATIVE_PATH LLVM_LIBRARY_RELATIVE_DIR ${CMAKE_INSTALL_PREFIX}
+                   ${LLVM_LIBRARY_DIR})
+file(RELATIVE_PATH CLANG_CMAKE_RELATIVE_DIR ${CMAKE_INSTALL_PREFIX}
+                   ${CLANG_CMAKE_DIR})
+
 add_library(
   clangmetatool
 
@@ -32,7 +42,7 @@ target_include_directories(
   clangmetatool
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:${LLVM_INCLUDE_DIR}>
+  $<INSTALL_INTERFACE:${LLVM_INCLUDE_RELATIVE_DIR}>
 )
 target_include_directories(
   clangmetatool
@@ -47,22 +57,22 @@ target_link_libraries(
 
 install(
   TARGETS clangmetatool EXPORT clangmetatool
-  LIBRARY DESTINATION ${LLVM_LIBRARY_DIR}
-  ARCHIVE DESTINATION ${LLVM_LIBRARY_DIR}
-  PUBLIC_HEADER DESTINATION ${LLVM_INCLUDE_DIR}
+  LIBRARY DESTINATION ${LLVM_LIBRARY_RELATIVE_DIR}
+  ARCHIVE DESTINATION ${LLVM_LIBRARY_RELATIVE_DIR}
+  PUBLIC_HEADER DESTINATION ${LLVM_INCLUDE_RELATIVE_DIR}
 )
 install(
   DIRECTORY include/
-  DESTINATION ${LLVM_INCLUDE_DIR}
+  DESTINATION ${LLVM_INCLUDE_RELATIVE_DIR}
 )
 install(
   EXPORT clangmetatool
-  DESTINATION ${CLANG_CMAKE_DIR}
+  DESTINATION ${CLANG_CMAKE_RELATIVE_DIR}
 )
 install(
   FILES
    cmake/clangmetatool-find-clang-include-dir.pl
-  DESTINATION ${CLANG_CMAKE_DIR}
+  DESTINATION ${CLANG_CMAKE_RELATIVE_DIR}
   PERMISSIONS
     OWNER_READ OWNER_WRITE OWNER_EXECUTE
     GROUP_READ GROUP_WRITE GROUP_EXECUTE
@@ -71,7 +81,7 @@ install(
 install(
   FILES
    cmake/clangmetatool-config.cmake
-  DESTINATION ${CLANG_CMAKE_DIR}
+  DESTINATION ${CLANG_CMAKE_RELATIVE_DIR}
 )
 
 enable_testing()
