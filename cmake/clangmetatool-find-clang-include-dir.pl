@@ -5,8 +5,10 @@ use IO::Handle;
 use IPC::Open3;
 use POSIX qw<dup2>;
 use File::Spec::Functions;
+use Cwd qw(realpath);
 
 my $clang_path = shift @ARGV;
+$clang_path = realpath($clang_path);
 
 my ($p_r, $p_w);
 pipe($p_r, $p_w)
