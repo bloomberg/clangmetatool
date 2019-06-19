@@ -1,6 +1,6 @@
 # clang-metatool - A framework for reusing code in clang tools
 
-[![Build Status](https://travis-ci.org/bloomberg/clangmetatool.svg?branch=master)](https://travis-ci.org/bloomberg/clangmetatool)
+[![Build Status](https://travis-ci.com/bloomberg/clangmetatool.svg?branch=master)](https://travis-ci.com/bloomberg/clangmetatool)
 
 ## About clangmetatool
 
