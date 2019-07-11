@@ -84,8 +84,9 @@ install(
   DESTINATION ${CLANG_CMAKE_RELATIVE_DIR}
 )
 
-enable_testing()
+include(CTest)
 
-if (NOT GTEST_IS_INCOMPATIBLE)
-   add_subdirectory(t)
+if (BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(t)
 endif()
