@@ -38,6 +38,12 @@ add_library(
   src/propagation/types/value_context_ordering.cpp
   src/propagation/util/get_stmt_from_cfg_element.cpp
 )
+
+# Use the same flags that LLVM used to compile
+list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
+include(AddLLVM)
+llvm_update_compile_flags(clangmetatool)
+
 target_include_directories(
   clangmetatool
   PUBLIC
