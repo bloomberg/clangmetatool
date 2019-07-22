@@ -54,7 +54,8 @@ WORKDIR clangmetatool
 # Build tool, run tests, and do a test install
 RUN mkdir build && cd build && \
     cmake -DClang_DIR=/usr/share/llvm-8/cmake .. && \
-    make all test && \
+    make all && \
+    ctest --output-on-failure && \
     make install && \
     cd .. && rm -rf build
 

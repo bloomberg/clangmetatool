@@ -44,6 +44,7 @@ foreach(
   026-macro-propagation
   027-c-style-variadic-integer-propagation
   028-diagnostic-during-postprocessing
+  029-tool-application-support
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
