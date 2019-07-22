@@ -1,0 +1,8 @@
+[
+  { "directory": "/src",
+    "command": "clang test1.cpp -resource-dir .",
+    "file": "test1.cpp" },
+  { "directory": "/src",
+    "command": "clang test2.cpp -resource-dir /non-existent/123",
+    "file": "test2.cpp" }
+]
