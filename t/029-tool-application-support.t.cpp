@@ -129,7 +129,13 @@ public:
   MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
     :ci(ci), f(f) {}
   void postProcessing
-  (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {}
+  (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
+    auto &diagnosticsEngine = ci->getDiagnostics();
+    const auto id =
+        diagnosticsEngine.getCustomDiagID(clang::DiagnosticsEngine::Warning,
+                                          "oh noz, a thing happened!");
+    diagnosticsEngine.Report(id);
+  }
 };
 
 TEST(suppress_warnings, test)
@@ -154,12 +160,16 @@ TEST(suppress_warnings, test)
 
   clangmetatool::ToolApplicationSupport::suppressWarnings(tool);
 
-  clang::DiagnosticConsumer dc;
-  tool.setDiagnosticConsumer(&dc);
+  clang::TextDiagnosticBuffer tdb;
+  tool.setDiagnosticConsumer(&tdb);
 
   clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
     raf(tool.getReplacements());
 
   int r = tool.runAndSave(&raf);
-  EXPECT_EQ(dc.getNumWarnings(), 0);
+
+  // Ensure we have the one warning output by the tool,
+  // but not the macro warning from clang
+  EXPECT_EQ(1, tdb.getNumWarnings());
+  EXPECT_EQ("oh noz, a thing happened!", tdb.warn_begin()->second);
 }
