@@ -3,8 +3,14 @@
 #include <gtest/gtest.h>
 
 #include <clangmetatool/tool_application_support.h>
+#include <clangmetatool/meta_tool_factory.h>
+#include <clangmetatool/meta_tool.h>
 
 #include <clang/Tooling/CommonOptionsParser.h>
+#include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/Tooling/Core/Replacement.h>
+#include <clang/Tooling/Refactoring.h>
+#include <clang/Frontend/TextDiagnosticBuffer.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/ErrorHandling.h>
 
@@ -115,3 +121,45 @@ TEST_F(ToolApplicationSupportTest, compilation_database)
                                 "-p", buildDir}));
 }
 
+class MyTool {
+private:
+  clang::CompilerInstance* ci;
+  clang::ast_matchers::MatchFinder *f;
+public:
+  MyTool(clang::CompilerInstance* ci, clang::ast_matchers::MatchFinder *f)
+    :ci(ci), f(f) {}
+  void postProcessing
+  (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {}
+};
+
+TEST(suppress_warnings, test)
+{
+  llvm::cl::OptionCategory MyToolCategory("my-tool options");
+
+  int argc = 4;
+  const char* argv[] = {
+    "foo",
+    CMAKE_SOURCE_DIR "/t/data/029-tool-application-support/warnings.cpp",
+    "--",
+    "-xc++"
+  };
+
+  clang::tooling::CommonOptionsParser
+    optionsParser
+    ( argc, argv,
+      MyToolCategory );
+  clang::tooling::RefactoringTool tool
+    ( optionsParser.getCompilations(),
+      optionsParser.getSourcePathList());
+
+  clangmetatool::ToolApplicationSupport::suppressWarnings(tool);
+
+  clang::DiagnosticConsumer dc;
+  tool.setDiagnosticConsumer(&dc);
+
+  clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
+    raf(tool.getReplacements());
+
+  int r = tool.runAndSave(&raf);
+  EXPECT_EQ(dc.getNumWarnings(), 0);
+}
