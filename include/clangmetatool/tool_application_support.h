@@ -2,6 +2,7 @@
 #define INCLUDED_CLANGMETATOOL_MAIN_SUPPORT_H
 
 #include <clang/Tooling/CompilationDatabase.h>
+#include <clang/Tooling/Tooling.h>
 
 #include <string>
 #include <vector>
@@ -22,6 +23,13 @@ struct ToolApplicationSupport {
   static void
   verifyInstallation(const clang::tooling::CompilationDatabase &compilations,
                      const std::vector<std::string> &sourcePathList);
+
+  /**
+   * For the given tool, append an ArgumentsAdjuster that adds '-w',
+   * This will supress all of clang's warnings, but still allow the tool to
+   * output its own warnings.
+   */
+  static void suppressWarnings(clang::tooling::ClangTool &tool);
 };
 
 } // namespace clangmetatool
