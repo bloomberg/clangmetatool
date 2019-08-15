@@ -17,6 +17,11 @@
 #include <string>
 #include <queue>
 
+llvm::cl::OptionCategory& optionCategory() {
+  static llvm::cl::OptionCategory s_optionCategory("test");
+  return s_optionCategory;
+}
+
 class LLVMFatalError : public std::runtime_error {
   public:
     LLVMFatalError(const std::string& reason)
@@ -47,8 +52,6 @@ struct ToolApplicationSupportTest : public ::testing::Test {
     std::string verifyInstallation(const std::vector<std::string>& arguments)
     {
       try {
-        llvm::cl::OptionCategory category("test");
-
         std::vector<const char*> argumentPtrs;
         for (const auto& item : arguments) {
           argumentPtrs.push_back(item.c_str());
@@ -56,7 +59,8 @@ struct ToolApplicationSupportTest : public ::testing::Test {
 
         int argc = argumentPtrs.size();
         const char** argv = argumentPtrs.data();
-        clang::tooling::CommonOptionsParser parser(argc, argv, category);
+        clang::tooling::CommonOptionsParser parser(argc, argv,
+                                                   optionCategory());
 
         clangmetatool::ToolApplicationSupport::verifyInstallation(
           parser.getCompilations(),
@@ -104,7 +108,7 @@ TEST_F(ToolApplicationSupportTest, toolchain)
 TEST_F(ToolApplicationSupportTest, compilation_database)
 {
   std::string buildDir =
-    CMAKE_SOURCE_DIR "/t/data/029-tool-application-support";
+    CMAKE_SOURCE_DIR "/t/data/029-tool-application-support/build";
 
   EXPECT_EQ("", verifyInstallation({"tool", "/src/test1.cpp",
                                     "-p", buildDir}));
@@ -140,23 +144,26 @@ public:
 
 TEST(suppress_warnings, test)
 {
-  llvm::cl::OptionCategory MyToolCategory("my-tool options");
+  std::string source =
+    CMAKE_SOURCE_DIR "/t/data/029-tool-application-support/warnings.cpp";
 
-  int argc = 4;
   const char* argv[] = {
     "foo",
-    CMAKE_SOURCE_DIR "/t/data/029-tool-application-support/warnings.cpp",
+    source.c_str(),
     "--",
     "-xc++"
   };
+  int argc = sizeof argv / sizeof *argv;
 
-  clang::tooling::CommonOptionsParser
-    optionsParser
-    ( argc, argv,
-      MyToolCategory );
+  clang::tooling::CommonOptionsParser optionsParser
+    ( argc, argv, optionCategory() );
+
+  // We can't rely on 'optionsParser.getSourcePathList' because it is not
+  // reset between invocations, so has all of the bogus paths from the other
+  // tests. Instead we pass only the source relevant to this test.
+
   clang::tooling::RefactoringTool tool
-    ( optionsParser.getCompilations(),
-      optionsParser.getSourcePathList());
+    ( optionsParser.getCompilations(), { source });
 
   clangmetatool::ToolApplicationSupport::suppressWarnings(tool);
 
@@ -166,10 +173,15 @@ TEST(suppress_warnings, test)
   clangmetatool::MetaToolFactory< clangmetatool::MetaTool<MyTool> >
     raf(tool.getReplacements());
 
-  int r = tool.runAndSave(&raf);
+  int r = tool.run(&raf);
 
-  // Ensure we have the one warning output by the tool,
-  // but not the macro warning from clang
-  EXPECT_EQ(1, tdb.getNumWarnings());
+  // Ensure we have the one warning output by the tool, but not the macro
+  // warning from clang.
+
+  ASSERT_EQ(1, tdb.getNumWarnings());
   EXPECT_EQ("oh noz, a thing happened!", tdb.warn_begin()->second);
+
+  // Ensure we have no errors
+
+  EXPECT_EQ(0, tdb.getNumErrors());
 }
