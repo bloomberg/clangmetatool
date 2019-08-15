@@ -102,7 +102,7 @@ void ToolApplicationSupport::suppressWarnings(clang::tooling::ClangTool &tool) {
   auto argAdjuster = [](const clang::tooling::CommandLineArguments &cliArgsIn,
                         llvm::StringRef unused) {
     clang::tooling::CommandLineArguments cliArgsOut = cliArgsIn;
-    cliArgsOut.push_back("-w");
+    cliArgsOut.push_back("-Wno-everything");
     return cliArgsOut;
   };
   tool.appendArgumentsAdjuster(argAdjuster);
