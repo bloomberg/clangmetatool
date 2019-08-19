@@ -35,10 +35,10 @@ private:
       clang::Expr::EvalResult ER;
 
       if (E->isEvaluatable(context) && E->EvaluateAsRValue(ER, context)) {
-        std::string r = ER.Val.getAsString(context, E->getType());
-
         // So long as the string is not null
-        if ("0" != r) {
+        if (!ER.Val.isNullPointer()) {
+          std::string r = ER.Val.getAsString(context, E->getType());
+
           // Clang returns results as &"actual-string"[0]
           result = r.substr(2, r.length() - 6);
 
