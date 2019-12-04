@@ -7,23 +7,23 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
-    libllvm8 \
-    llvm-8 \
-    llvm-8-dev \
-    llvm-8-runtime \
-    clang-8 \
-    clang-tools-8 \
-    libclang-common-8-dev \
-    libclang-8-dev \
-    libclang1-8 \
-    clang-format-8 \
+    libllvm9 \
+    llvm-9 \
+    llvm-9-dev \
+    llvm-9-runtime \
+    clang-9 \
+    clang-tools-9 \
+    libclang-common-9-dev \
+    libclang-9-dev \
+    libclang1-9 \
+    clang-format-9 \
     cmake \
     libfile-spec-native-perl \
     libgtest-dev
 
 # Set up clang compilers
-ENV CC=/usr/lib/llvm-8/bin/clang \
-    CXX=/usr/lib/llvm-8/bin/clang++ \
+ENV CC=/usr/lib/llvm-9/bin/clang \
+    CXX=/usr/lib/llvm-9/bin/clang++ \
     MAKEFLAGS="-j2"
 
 # Fix issues with gtest installation from ubuntu debian
@@ -34,17 +34,17 @@ RUN cd /usr/src/gtest && \
 
 # Fix issues with clang installation from ubuntu debian
 RUN mkdir -p /usr/lib/cmake && \
-    ln -s /usr/share/llvm-8/cmake /usr/lib/cmake/clang && \
-    for hdr in /usr/lib/llvm-8/include/clang/*; do \
+    ln -s /usr/share/llvm-9/cmake /usr/lib/cmake/clang && \
+    for hdr in /usr/lib/llvm-9/include/clang/*; do \
         ln -s $hdr /usr/include/clang/$(basename $hdr); \
     done && \
-    ln -s /usr/lib/llvm-8/include/clang-c /usr/include/clang-c && \
-    ln -s /usr/lib/llvm-8/include/llvm /usr/include/llvm && \
-    ln -s /usr/lib/llvm-8/include/llvm-c /usr/include/llvm-c && \
-    for lib in /usr/lib/llvm-8/lib/*; do \
+    ln -s /usr/lib/llvm-9/include/clang-c /usr/include/clang-c && \
+    ln -s /usr/lib/llvm-9/include/llvm /usr/include/llvm && \
+    ln -s /usr/lib/llvm-9/include/llvm-c /usr/include/llvm-c && \
+    for lib in /usr/lib/llvm-9/lib/*; do \
         ln -s $lib /usr/lib/$(basename $lib); \
     done && \
-    for bin in /usr/bin/*-8; do \
+    for bin in /usr/bin/*-9; do \
         ln -s $bin /usr/bin/$(basename $bin | rev | cut -d '-' -f2- | rev); \
     done
 
@@ -53,19 +53,19 @@ WORKDIR clangmetatool
 
 # Build tool, run tests, and do a test install
 RUN mkdir build && cd build && \
-    cmake -DClang_DIR=/usr/share/llvm-8/cmake .. && \
+    cmake -DClang_DIR=/usr/share/llvm-9/cmake .. && \
     make all && \
     ctest --output-on-failure && \
     make install && \
     cd .. && rm -rf build
 
 # Fix includes for clangmetatool (due to ubuntu debian's clang)
-RUN ln -s /usr/lib/llvm-8/include/clangmetatool /usr/include/clangmetatool
+RUN ln -s /usr/lib/llvm-9/include/clangmetatool /usr/include/clangmetatool
 
 # Build skeleton
 RUN mkdir skeleton/build && cd skeleton/build && \
-    cmake -DClang_DIR=/usr/lib/llvm-8/cmake \
-          -Dclangmetatool_DIR=/usr/lib/llvm-8/lib/cmake/clang .. && \
+    cmake -DClang_DIR=/usr/lib/llvm-9/cmake \
+          -Dclangmetatool_DIR=/usr/lib/llvm-9/lib/cmake/clang .. && \
     make all && \
     make install && \
     cd - && rm -rf skeleton/build

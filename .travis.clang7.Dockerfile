@@ -62,4 +62,4 @@ RUN mkdir skeleton/build && cd skeleton/build && \
     cd - && rm -rf skeleton/build
 
 # Run the tool on itself
-RUN yourtoolname $(find src skeleton -name '*.cpp') -- -std=gnu++14
+RUN example $(find src skeleton -name '*.cpp') -- -std=gnu++14
