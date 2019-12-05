@@ -8,9 +8,9 @@ matrix:
           compiler: gcc
           language: cpp
           sudo: true
-          script: docker build -f .travis.clang7.Dockerfile .
+          script: docker build --build-arg BASE_IMAGE=ubuntu:18.10 --build-arg IMAGE_REPO=cosmic --build-arg TARGET_LLVM_VERSION=8 -f .travis.Dockerfile .
         - os: linux
           compiler: gcc
           language: cpp
           sudo: true
-          script: docker build -f .travis.clang8.Dockerfile .
+          script: docker build --build-arg BASE_IMAGE=ubuntu:19.04 --build-arg IMAGE_REPO=disco --build-arg TARGET_LLVM_VERSION=9 -f .travis.Dockerfile .
