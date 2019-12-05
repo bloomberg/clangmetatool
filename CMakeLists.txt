@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Clang REQUIRED)
+find_package(LLVM REQUIRED)
 
 # Install in the clang install directory. Also, use relative paths when
 # installing the module. This way the installation will be relocatable.
