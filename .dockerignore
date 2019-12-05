@@ -8,3 +8,5 @@ LICENSE
 README.md
 dox-run.sh
 *.swp
+build/
+.git/
