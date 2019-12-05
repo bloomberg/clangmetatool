@@ -44,7 +44,7 @@ RUN wget https://apt.llvm.org/llvm.sh && \
 # Set up build environment
 ENV CC=/usr/bin/gcc-7 \
     CXX=/usr/bin/g++-7 \
-    MAKEFLAGS="-j4"
+    MAKEFLAGS="-j2"
 
 # Install gtest as they recommend to, for 1.8.x
 RUN cd /usr/src/gtest && \
@@ -81,4 +81,4 @@ RUN mkdir skeleton/build && cd skeleton/build && \
     cd - && rm -rf skeleton/build
 
 # Run the tool on itself
-RUN example $(find src skeleton -name '*.cpp') -- -std=gnu++14
+RUN example $(find src skeleton -name '*.cpp') -- $(llvm-config-$TARGET_LLVM_VERSION --cxxflags)
