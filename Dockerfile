@@ -14,8 +14,9 @@ RUN apt-get update && apt-get install -y \
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     # The repository name used here MUST be kept in sync with the base image version
-    add-apt-repository "deb http://apt.llvm.org/$IMAGE_REPO/ llvm-toolchain-$IMAGE_REPO-$TARGET_LLVM_VERSION   main" && \
-    apt-get update
+    add-apt-repository "deb http://apt.llvm.org/$IMAGE_REPO/ llvm-toolchain-$IMAGE_REPO-$TARGET_LLVM_VERSION   main"
+
+RUN apt-get update
 
 RUN apt-get install -y \
         # Build toolchains that we are targeting for compatibility with
@@ -28,8 +29,7 @@ RUN apt-get install -y \
         libfile-spec-native-perl
 
 # Set up LLVM packages with depenedencies
-RUN wget https://apt.llvm.org/llvm.sh && \
-    apt-get install -y \
+RUN apt-get install -y \
         # LLVM
         llvm-"$TARGET_LLVM_VERSION" \
         libllvm"$TARGET_LLVM_VERSION" \
@@ -78,4 +78,4 @@ RUN mkdir skeleton/build && cd skeleton/build && \
     cd - && rm -rf skeleton/build
 
 # Run the tool on itself
-RUN example $(find src skeleton -name '*.cpp') -- -std=gnu++14 $(llvm-config-$TARGET_LLVM_VERSION --includedir)
+RUN example $(find src skeleton -name '*.cpp') -- -std=gnu++14 -isystem $(llvm-config-$TARGET_LLVM_VERSION --includedir)/c++/v1
