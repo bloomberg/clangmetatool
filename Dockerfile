@@ -78,4 +78,4 @@ RUN mkdir skeleton/build && cd skeleton/build && \
     cd - && rm -rf skeleton/build
 
 # Run the tool on itself
-RUN example $(find src skeleton -name '*.cpp') -- -std=gnu++14 -isystem $(llvm-config-$TARGET_LLVM_VERSION --includedir)/c++/v1
+RUN yourtoolname $(find src skeleton -name '*.cpp') -- -std=gnu++14 -isystem $(llvm-config-$TARGET_LLVM_VERSION --includedir)/c++/v1

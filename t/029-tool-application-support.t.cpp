@@ -79,7 +79,7 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirNotFound))
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(GCCToolChain))
 {
   const char *messageRegex = ".*"
-                             "clang could not find a C++ toolchain to use, "
+                             "clang could not find a C\\+\\+ toolchain to use, "
                              "check that the compiler used to configure "
                              "clang is installed";
   ASSERT_DEATH(
@@ -98,7 +98,7 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(CFilesWithResourceDir))
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(CFilesWithGCCToolChain))
 {
   const char *messageRegex = ".*"
-                             "clang could not find a C++ toolchain to use, "
+                             "clang could not find a C\\+\\+ toolchain to use, "
                              "check that the compiler used to configure "
                              "clang is installed";
   ASSERT_DEATH(
