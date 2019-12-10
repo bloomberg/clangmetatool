@@ -44,7 +44,8 @@ RUN wget https://apt.llvm.org/llvm.sh && \
 # Set up build environment
 ENV CC=/usr/bin/gcc-7 \
     CXX=/usr/bin/g++-7 \
-    MAKEFLAGS="-j2"
+    MAKEFLAGS="-j4" \
+    CMAKE_BUILD_PARALLEL_LEVEL=4
 
 # Install gtest as they recommend to, for 1.8.x
 RUN cd /usr/src/gtest && \
@@ -61,13 +62,9 @@ RUN cmake \
         -DLLVM_DIR="$(llvm-config-$TARGET_LLVM_VERSION --cmakedir)" \
         -Bbuild \
         -H. && \
-    cmake --build build/ -j 4 \
-        --target all &&  \
-    cmake --build build/ -j 4 \
-        --target test -- ARGS="--output-on-failure" && \
-    cmake --build build/ \
-        --target install && \
-    rm -rf build
+    cmake --build build/ --target all &&  \
+    cmake --build build/ --target test -- ARGS="--output-on-failure" && \
+    cmake --build build/ --target install
 
 # Fix includes for clangmetatool (due to ubuntu debian's clang)
 RUN ln -s /usr/lib/llvm-8/include/clangmetatool /usr/include/clangmetatool
