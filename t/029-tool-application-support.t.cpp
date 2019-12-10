@@ -30,30 +30,30 @@ llvm::cl::OptionCategory& optionCategory() {
 }
 
 class ToolApplicationSupportTest : public ::testing::Test {
-  protected:
-    const std::string buildDir =
-      CMAKE_SOURCE_DIR "/t/data/029-tool-application-support/build";
+protected:
+  const std::string buildDir =
+    CMAKE_SOURCE_DIR "/t/data/029-tool-application-support/build";
 
-    bool verifyInstallation(const std::vector<std::string>& arguments)
-    {
-      std::vector<const char*> argumentPtrs;
-      for (const auto& item : arguments) {
-        argumentPtrs.push_back(item.c_str());
-      }
-
-      int argc = argumentPtrs.size();
-      const char** argv = argumentPtrs.data();
-      clang::tooling::CommonOptionsParser parser(argc, argv,
-                                                 optionCategory());
-
-      // ToolApplicationSupport::verifyInstallation crashes with exit(1)
-      // if the required headers aren't found
-      clangmetatool::ToolApplicationSupport::verifyInstallation(
-        parser.getCompilations(),
-        parser.getSourcePathList());
-
-      return true;
+  bool verifyInstallation(const std::vector<std::string>& arguments)
+  {
+    std::vector<const char*> argumentPtrs;
+    for (const auto& item : arguments) {
+      argumentPtrs.push_back(item.c_str());
     }
+
+    int argc = argumentPtrs.size();
+    const char** argv = argumentPtrs.data();
+    clang::tooling::CommonOptionsParser parser(argc, argv,
+                                               optionCategory());
+
+    // ToolApplicationSupport::verifyInstallation crashes with exit(1)
+    // if the required headers aren't found
+    clangmetatool::ToolApplicationSupport::verifyInstallation(
+      parser.getCompilations(),
+      parser.getSourcePathList());
+
+    return true;
+  }
 };
 
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirFound))
