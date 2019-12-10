@@ -17,112 +17,127 @@
 #include <string>
 #include <queue>
 
+#if __APPLE__
+#warning "Some tests will be disabled on the macOS platform"
+#define ARCH_DEPENDENT(test_name) DISABLED_##test_name
+#else
+#define ARCH_DEPENDENT(test_name) test_name
+#endif
+
 llvm::cl::OptionCategory& optionCategory() {
   static llvm::cl::OptionCategory s_optionCategory("test");
   return s_optionCategory;
 }
 
-class LLVMFatalError : public std::runtime_error {
-  public:
-    LLVMFatalError(const std::string& reason)
-      : std::runtime_error(reason)
+class ToolApplicationSupportTest : public ::testing::Test {
+  protected:
+    const std::string buildDir =
+      CMAKE_SOURCE_DIR "/t/data/029-tool-application-support/build";
+
+    bool verifyInstallation(const std::vector<std::string>& arguments)
     {
+      std::vector<const char*> argumentPtrs;
+      for (const auto& item : arguments) {
+        argumentPtrs.push_back(item.c_str());
+      }
+
+      int argc = argumentPtrs.size();
+      const char** argv = argumentPtrs.data();
+      clang::tooling::CommonOptionsParser parser(argc, argv,
+                                                 optionCategory());
+
+      // ToolApplicationSupport::verifyInstallation crashes with exit(1)
+      // if the required headers aren't found
+      clangmetatool::ToolApplicationSupport::verifyInstallation(
+        parser.getCompilations(),
+        parser.getSourcePathList());
+
+      return true;
     }
 };
 
-struct ToolApplicationSupportTest : public ::testing::Test {
-  public:
-    static void fatalErrorHandler(void *,
-                                  const std::string& reason,
-                                  bool generateCrashDiagnostic)
-    {
-      throw LLVMFatalError(reason);
-    }
-
-    ToolApplicationSupportTest()
-    {
-      llvm::install_fatal_error_handler(&fatalErrorHandler, 0);
-    }
-
-    ~ToolApplicationSupportTest()
-    {
-      llvm::remove_fatal_error_handler();
-    }
-
-    std::string verifyInstallation(const std::vector<std::string>& arguments)
-    {
-      try {
-        std::vector<const char*> argumentPtrs;
-        for (const auto& item : arguments) {
-          argumentPtrs.push_back(item.c_str());
-        }
-
-        int argc = argumentPtrs.size();
-        const char** argv = argumentPtrs.data();
-        clang::tooling::CommonOptionsParser parser(argc, argv,
-                                                   optionCategory());
-
-        clangmetatool::ToolApplicationSupport::verifyInstallation(
-          parser.getCompilations(),
-          parser.getSourcePathList());
-      }
-      catch(const LLVMFatalError& e) {
-        return e.what();
-      }
-
-      return std::string();
-    }
-};
-
-TEST_F(ToolApplicationSupportTest, resource_dir)
+TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirFound))
 {
-  EXPECT_EQ("", verifyInstallation({"tool", "test.cpp", "--",
-                                    "-resource-dir", CLANG_STD_INCLUDE_DIR}));
-
-  EXPECT_EQ("clang resource files are missing from /non-existent/123, "
-            "check that this application is installed properly",
-            verifyInstallation({"tool", "test.cpp", "--",
-                                "-resource-dir", "/non-existent/123"}));
+  EXPECT_TRUE(verifyInstallation({"tool", "test.cpp", "--",
+                                 "-resource-dir", CLANG_STD_INCLUDE_DIR}))
+    << "verification failed with CLANG_STD_INCLUDE_DIR=" CLANG_STD_INCLUDE_DIR
+    << "\n";
 }
 
-TEST_F(ToolApplicationSupportTest, toolchain)
+TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirNotFound))
 {
-  EXPECT_EQ("clang could not find a C++ toolchain to use, check that the "
-            "compiler used to configure clang is installed",
-            verifyInstallation({"tool", "test.cpp", "--",
-                                "-resource-dir", CLANG_STD_INCLUDE_DIR,
-                                "-gcc-toolchain", "/non-existent/123"}));
-
-  // Check using a c file
-
-  EXPECT_EQ("", verifyInstallation({"tool", "test.c", "--",
-                                    "-resource-dir", CLANG_STD_INCLUDE_DIR}));
-
-  EXPECT_EQ("clang could not find a C++ toolchain to use, check that the "
-            "compiler used to configure clang is installed",
-            verifyInstallation({"tool", "test.c", "--",
-                                "-resource-dir", CLANG_STD_INCLUDE_DIR,
-                                "-gcc-toolchain", "/non-existent/123"}));
+  const char messageRegex[] = ".*"
+                              "clang resource files are missing from "
+                              "/non-existent/123, check that this application "
+                              "is installed properly";
+  ASSERT_DEATH(
+    verifyInstallation({"tool", "test.cpp", "--",
+                        "-resource-dir", "/non-existent/123"}),
+    messageRegex);
 }
 
-TEST_F(ToolApplicationSupportTest, compilation_database)
+TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(GCCToolChain))
 {
-  std::string buildDir =
-    CMAKE_SOURCE_DIR "/t/data/029-tool-application-support/build";
+  const char messageRegex[] = ".*"
+                              "clang could not find a C++ toolchain to use, "
+                              "check that the compiler used to configure "
+                              "clang is installed";
+  ASSERT_DEATH(
+      verifyInstallation({"tool", "test.cpp", "--",
+                          "-resource-dir", CLANG_STD_INCLUDE_DIR,
+                          "-gcc-toolchain", "/non-existent/123"}),
+      messageRegex);
+}
 
-  EXPECT_EQ("", verifyInstallation({"tool", "/src/test1.cpp",
-                                    "-p", buildDir}));
+TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(CFilesWithResourceDir))
+{
+  EXPECT_TRUE(verifyInstallation({"tool", "test.c", "--",
+                                  "-resource-dir", CLANG_STD_INCLUDE_DIR}));
+}
 
-  EXPECT_EQ("clang resource files are missing from /non-existent/123, "
-            "check that this application is installed properly",
-            verifyInstallation({"tool", "/src/test2.cpp",
-                                "-p", buildDir}));
+TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(CFilesWithGCCToolChain))
+{
+  const char messageRegex[] = ".*"
+                              "clang could not find a C++ toolchain to use, "
+                              "check that the compiler used to configure "
+                              "clang is installed";
+  ASSERT_DEATH(
+      verifyInstallation({"tool", "test.c", "--",
+                          "-resource-dir", CLANG_STD_INCLUDE_DIR,
+                          "-gcc-toolchain", "/non-existent/123"}),
+      messageRegex);
+}
 
-  EXPECT_EQ("clang resource files are missing from /non-existent/123, "
-            "check that this application is installed properly",
-            verifyInstallation({"tool", "/src/test1.cpp",
-                                "/src/testa2.cpp",
-                                "-p", buildDir}));
+TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ValidCompDBEntry) )
+{
+  EXPECT_TRUE(verifyInstallation({"tool", "/src/test1.cpp",
+                                  "-p", buildDir}));
+}
+
+TEST_F(ToolApplicationSupportTest,
+       ARCH_DEPENDENT(CompDBEntryWithInvalidResourceDir))
+{
+
+  const char messageRegex[] = ".*"
+                              "clang resource files are missing from "
+                              "/non-existent/123, check that this application "
+                              "is installed properly";
+  ASSERT_DEATH(
+    verifyInstallation({"tool", "/src/test2.cpp", "-p", buildDir}),
+    messageRegex);
+}
+
+TEST_F(ToolApplicationSupportTest,
+       ARCH_DEPENDENT(MixingValidAndInvalidCompdbEntries))
+{
+  const char messageRegex[] = ".*"
+                              "clang resource files are missing from "
+                              "/non-existent/123, check that this application "
+                              "is installed properly";
+  ASSERT_DEATH(
+    verifyInstallation({"tool", "/src/test1.cpp", "/src/test2.cpp",
+                        "-p", buildDir}),
+    messageRegex);
 }
 
 class MyTool {

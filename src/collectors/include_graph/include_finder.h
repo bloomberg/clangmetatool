@@ -37,24 +37,8 @@ public:
                      bool isAngled, clang::CharSourceRange filenameRange,
                      const clang::FileEntry *file, llvm::StringRef searchPath,
                      llvm::StringRef relativePath,
-                     const clang::Module *imported)
-#if LLVM_VERSION_MAJOR == 6
-      override
-#endif
-      ;
-
-  virtual void
-  InclusionDirective(clang::SourceLocation hashLoc,
-                     const clang::Token &includeToken, llvm::StringRef filename,
-                     bool isAngled, clang::CharSourceRange filenameRange,
-                     const clang::FileEntry *file, llvm::StringRef searchPath,
-                     llvm::StringRef relativePath,
                      const clang::Module *imported,
-                     clang::SrcMgr::CharacteristicKind FileType_)
-#if LLVM_VERSION_MAJOR == 7
-      override
-#endif
-      ;
+                     clang::SrcMgr::CharacteristicKind FileType_) override;
 
   virtual void MacroExpands(const clang::Token &macroUsage,
                             const clang::MacroDefinition &macroDef,
