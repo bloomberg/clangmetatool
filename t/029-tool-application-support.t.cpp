@@ -66,10 +66,10 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirFound))
 
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirNotFound))
 {
-  const char messageRegex[] = ".*"
-                              "clang resource files are missing from "
-                              "/non-existent/123, check that this application "
-                              "is installed properly";
+  const char *messageRegex = ".*"
+                             "clang resource files are missing from "
+                             "/non-existent/123, check that this application "
+                             "is installed properly";
   ASSERT_DEATH(
     verifyInstallation({"tool", "test.cpp", "--",
                         "-resource-dir", "/non-existent/123"}),
@@ -78,10 +78,10 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirNotFound))
 
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(GCCToolChain))
 {
-  const char messageRegex[] = ".*"
-                              "clang could not find a C++ toolchain to use, "
-                              "check that the compiler used to configure "
-                              "clang is installed";
+  const char *messageRegex = ".*"
+                             "clang could not find a C++ toolchain to use, "
+                             "check that the compiler used to configure "
+                             "clang is installed";
   ASSERT_DEATH(
       verifyInstallation({"tool", "test.cpp", "--",
                           "-resource-dir", CLANG_STD_INCLUDE_DIR,
@@ -97,10 +97,10 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(CFilesWithResourceDir))
 
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(CFilesWithGCCToolChain))
 {
-  const char messageRegex[] = ".*"
-                              "clang could not find a C++ toolchain to use, "
-                              "check that the compiler used to configure "
-                              "clang is installed";
+  const char *messageRegex = ".*"
+                             "clang could not find a C++ toolchain to use, "
+                             "check that the compiler used to configure "
+                             "clang is installed";
   ASSERT_DEATH(
       verifyInstallation({"tool", "test.c", "--",
                           "-resource-dir", CLANG_STD_INCLUDE_DIR,
@@ -118,10 +118,10 @@ TEST_F(ToolApplicationSupportTest,
        ARCH_DEPENDENT(CompDBEntryWithInvalidResourceDir))
 {
 
-  const char messageRegex[] = ".*"
-                              "clang resource files are missing from "
-                              "/non-existent/123, check that this application "
-                              "is installed properly";
+  const char *messageRegex = ".*"
+                             "clang resource files are missing from "
+                             "/non-existent/123, check that this application "
+                             "is installed properly";
   ASSERT_DEATH(
     verifyInstallation({"tool", "/src/test2.cpp", "-p", buildDir}),
     messageRegex);
@@ -130,10 +130,10 @@ TEST_F(ToolApplicationSupportTest,
 TEST_F(ToolApplicationSupportTest,
        ARCH_DEPENDENT(MixingValidAndInvalidCompdbEntries))
 {
-  const char messageRegex[] = ".*"
-                              "clang resource files are missing from "
-                              "/non-existent/123, check that this application "
-                              "is installed properly";
+  const char *messageRegex = ".*"
+                             "clang resource files are missing from "
+                             "/non-existent/123, check that this application "
+                             "is installed properly";
   ASSERT_DEATH(
     verifyInstallation({"tool", "/src/test1.cpp", "/src/test2.cpp",
                         "-p", buildDir}),
