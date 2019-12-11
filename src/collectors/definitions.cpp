@@ -36,7 +36,7 @@ public:
   }
 };
 
-} // close anonymous namespace
+} // namespace
 
 class DefinitionsImpl {
 private:

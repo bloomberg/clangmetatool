@@ -27,7 +27,7 @@ public:
     data->decls.insert(d);
   }
 };
-}
+} // namespace
 
 class MemberMethodDeclsImpl {
 private:
@@ -54,8 +54,8 @@ MemberMethodDecls::MemberMethodDecls(clang::CompilerInstance *ci,
 MemberMethodDecls::~MemberMethodDecls() { delete impl; }
 
 MemberMethodDeclsData *MemberMethodDecls::getData() { return impl->getData(); }
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

@@ -1,8 +1,8 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CALLS_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CALLS_H
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 #include <clangmetatool/collectors/find_calls_data.h>
 
@@ -46,8 +46,8 @@ public:
    */
   FindCallsData *getData();
 };
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 // ----------------------------------------------------------------------------

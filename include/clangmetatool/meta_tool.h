@@ -27,7 +27,7 @@ struct has_typedef_ArgTypes : std::false_type {};
 template <typename T>
 struct has_typedef_ArgTypes<T, void_t<typename T::ArgTypes>> : std::true_type {
 };
-}
+} // namespace
 /**
  * MetaTool is a template that reduces the amount of boilerplate
  * required to write a clang tool. The WrappedTool is a class that
@@ -107,7 +107,7 @@ public:
     return f.newASTConsumer();
   }
 };
-}
+} // namespace clangmetatool
 
 #endif
 

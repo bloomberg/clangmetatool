@@ -1,10 +1,10 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_MEMBER_METHOD_DECLS
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_MEMBER_METHOD_DECLS
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceLocation.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 #include <clangmetatool/collectors/member_method_decls_data.h>
 
@@ -45,8 +45,8 @@ public:
    */
   MemberMethodDeclsData *getData();
 };
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 

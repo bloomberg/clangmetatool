@@ -1,8 +1,8 @@
 #ifndef INCLUDED_CLANGMETATOOL_META_TOOL_FACTORY_H
 #define INCLUDED_CLANGMETATOOL_META_TOOL_FACTORY_H
 
-#include <string>
 #include <map>
+#include <string>
 
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Core/Replacement.h>
@@ -47,7 +47,7 @@ public:
    */
   virtual clang::FrontendAction *create() { return new T(replacements, args); }
 };
-}
+} // namespace clangmetatool
 
 #endif
 

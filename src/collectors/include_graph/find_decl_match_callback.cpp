@@ -56,9 +56,9 @@ void FindDeclMatchCallback::run(
     add_redeclaration(ci, data, tl);
   }
 }
-}
-}
-}
+} // namespace include_graph
+} // namespace collectors
+} // namespace clangmetatool
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

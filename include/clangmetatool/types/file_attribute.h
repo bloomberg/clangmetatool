@@ -10,7 +10,7 @@ namespace types {
 
 template <typename OTHER> using FileAttribute = std::pair<FileUID, OTHER>;
 }
-}
+} // namespace clangmetatool
 
 #endif
 

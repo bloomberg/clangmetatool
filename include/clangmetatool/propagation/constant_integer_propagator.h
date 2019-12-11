@@ -1,8 +1,8 @@
 #ifndef INCLUDED_CLANGMETATOOL_PROPAGATION_CONSTANT_INTEGER_PROPAGATOR_H
 #define INCLUDED_CLANGMETATOOL_PROPAGATION_CONSTANT_INTEGER_PROPAGATOR_H
 
-#include <iostream>
 #include <cstdint>
+#include <iostream>
 
 #include <clangmetatool/propagation/propagation_result.h>
 
@@ -13,7 +13,7 @@ namespace clang {
 class CompilerInstance;
 class DeclRefExpr;
 class FunctionDecl;
-}
+} // namespace clang
 
 namespace clangmetatool {
 namespace propagation {
@@ -40,8 +40,8 @@ class ConstantIntegerPropagatorImpl;
 class ConstantIntegerPropagator {
 private:
   /**
-    * Pointer to implementation.
-    */
+   * Pointer to implementation.
+   */
   ConstantIntegerPropagatorImpl *impl;
 
 public:
@@ -52,8 +52,8 @@ public:
   ConstantIntegerPropagator(const clang::CompilerInstance *ci);
 
   /**
-    * Explicit destructor.
-    */
+   * Explicit destructor.
+   */
   ~ConstantIntegerPropagator();
 
   /**

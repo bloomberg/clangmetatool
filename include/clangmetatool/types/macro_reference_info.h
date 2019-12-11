@@ -4,9 +4,9 @@
 #include <tuple>
 
 #include <clang/Basic/SourceLocation.h>
-#include <clang/Lex/Token.h>
 #include <clang/Lex/MacroInfo.h>
 #include <clang/Lex/PPCallbacks.h>
+#include <clang/Lex/Token.h>
 
 #include <clangmetatool/types/file_uid.h>
 
@@ -19,8 +19,8 @@ namespace types {
 typedef std::tuple<const clang::Token, const clang::MacroDefinition,
                    const clang::SourceRange, const clang::MacroArgs *>
     MacroReferenceInfo;
-}
-}
+} // namespace types
+} // namespace clangmetatool
 
 #endif
 

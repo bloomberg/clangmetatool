@@ -1,12 +1,15 @@
+// clang-format: off
+// FIXME: These two includes have a dependent include order
 #include "propagation_visitor.h"
 #include "constant_propagator.h"
+// clang-format: on
 
 #include <clangmetatool/propagation/constant_integer_propagator.h>
 
 #include <cstdint>
 
-#include <clang/Analysis/CFG.h>
 #include <clang/AST/Expr.h>
+#include <clang/Analysis/CFG.h>
 #include <llvm/ADT/APSInt.h>
 
 namespace clangmetatool {
@@ -15,22 +18,19 @@ namespace {
 
 // Given a qualified type, determine if it is an int
 inline bool isIntegerType(const clang::QualType &QT) {
-  return !QT.isNull() &&
-         QT.getTypePtr()->isIntegerType();
+  return !QT.isNull() && QT.getTypePtr()->isIntegerType();
 }
 
 // Given a type, determine if its a pointer to non-const int
 inline bool isPtrToMutableIntegerType(const clang::QualType &QT) {
-  return !QT.isNull() &&
-         QT.getTypePtr()->isPointerType() &&
+  return !QT.isNull() && QT.getTypePtr()->isPointerType() &&
          !QT.getTypePtr()->getPointeeType().isConstQualified() &&
          isIntegerType(QT.getTypePtr()->getPointeeType());
 }
 
 // Given a type determine if it is a reference to non-const int
 inline bool isRefToMutableIntegerType(const clang::QualType &QT) {
-  return !QT.isNull() &&
-         QT.getTypePtr()->isReferenceType() &&
+  return !QT.isNull() && QT.getTypePtr()->isReferenceType() &&
          !QT.getNonReferenceType().isConstQualified() &&
          isIntegerType(QT.getNonReferenceType());
 }
@@ -126,7 +126,8 @@ public:
           DR = reinterpret_cast<const clang::DeclRefExpr *>(base);
 
         } else if (clang::Stmt::UnaryOperatorClass == base->getStmtClass()) {
-          auto SE = reinterpret_cast<const clang::UnaryOperator *>(base)->getSubExpr();
+          auto SE = reinterpret_cast<const clang::UnaryOperator *>(base)
+                        ->getSubExpr();
 
           if (clang::Stmt::DeclRefExprClass == SE->getStmtClass()) {
             DR = reinterpret_cast<const clang::DeclRefExpr *>(SE);
@@ -151,7 +152,7 @@ public:
   }
 };
 
-} // namespace anonymous
+} // namespace
 
 class ConstantIntegerPropagatorImpl
     : public ConstantPropagator<IntegerVisitor> {

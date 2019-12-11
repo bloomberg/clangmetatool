@@ -1,6 +1,6 @@
-#include <string>
 #include <clangmetatool/collectors/find_calls.h>
 #include <clangmetatool/collectors/find_calls_data.h>
+#include <string>
 
 namespace clangmetatool {
 namespace collectors {
@@ -36,7 +36,7 @@ public:
   }
 };
 
-} // namespace anonymous
+} // namespace
 
 class FindCallsImpl {
 private:
@@ -73,8 +73,8 @@ FindCalls::FindCalls(clang::CompilerInstance *ci,
 FindCalls::~FindCalls() { delete impl; }
 
 FindCallsData *FindCalls::getData() { return impl->getData(); }
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
 //

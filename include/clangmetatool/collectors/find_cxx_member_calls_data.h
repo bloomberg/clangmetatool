@@ -16,8 +16,8 @@ namespace collectors {
  */
 using FindCXXMemberCallsData = std::multimap<const clang::FunctionDecl *,
                                              const clang::CXXMemberCallExpr *>;
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 

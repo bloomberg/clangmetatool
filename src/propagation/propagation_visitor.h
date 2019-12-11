@@ -1,13 +1,13 @@
 #ifndef INCLUDED_CLANGMETATOOL_PROPAGATION_PROPOGATION_VISITOR_H
 #define INCLUDED_CLANGMETATOOL_PROPAGATION_PROPOGATION_VISITOR_H
 
-#include "types/state.h"
 #include "types/changed_in_loop.h"
+#include "types/state.h"
 #include "types/value_context_map.h"
 #include "util/get_stmt_from_cfg_element.h"
 
-#include <clang/Analysis/CFG.h>
 #include <clang/AST/StmtVisitor.h>
+#include <clang/Analysis/CFG.h>
 #include <clangmetatool/propagation/propagation_result.h>
 
 namespace clangmetatool {

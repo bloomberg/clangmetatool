@@ -3,15 +3,15 @@
 
 #include <map>
 
-#include <clangmetatool/types/file_uid.h>
 #include <clangmetatool/types/file_attribute.h>
+#include <clangmetatool/types/file_uid.h>
 
 namespace clangmetatool {
 namespace types {
 
 template <typename OTHER> using FileAttributeMap = std::map<FileUID, OTHER>;
 }
-}
+} // namespace clangmetatool
 
 #endif
 

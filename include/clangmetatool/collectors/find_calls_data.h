@@ -1,8 +1,8 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CALLS_DATA_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CALLS_DATA_H
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchers.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 namespace clangmetatool {
 namespace collectors {
@@ -23,8 +23,8 @@ struct FindCallsData {
    */
   std::map<const clang::CallExpr *, const clang::DeclRefExpr *> call_ref;
 };
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 

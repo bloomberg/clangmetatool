@@ -10,7 +10,7 @@ namespace types {
 
 typedef std::pair<FileUID, FileUID> FileGraphEdge;
 }
-}
+} // namespace clangmetatool
 
 #endif
 

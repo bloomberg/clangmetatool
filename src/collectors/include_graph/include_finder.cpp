@@ -38,9 +38,9 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/CommandLine.h>
 
-#include <clangmetatool/types/macro_reference_info.h>
-#include <clangmetatool/types/file_uid.h>
 #include <clangmetatool/collectors/include_graph_data.h>
+#include <clangmetatool/types/file_uid.h>
+#include <clangmetatool/types/macro_reference_info.h>
 
 #include "include_graph_util.h"
 
@@ -94,9 +94,9 @@ void IncludeFinder::Ifndef(clang::SourceLocation loc,
                       MacroReferenceInfo(macroUsage, macroDef,
                                          clang::SourceRange(loc, loc), NULL));
 }
-}
-}
-}
+} // namespace include_graph
+} // namespace collectors
+} // namespace clangmetatool
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

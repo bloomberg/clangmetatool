@@ -1,10 +1,10 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_VARIABLES_REFS_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_VARIABLES_REFS_H
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceLocation.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 #include <clangmetatool/collectors/variable_refs_data.h>
 
@@ -45,8 +45,8 @@ public:
    */
   VariableRefsData *getData();
 };
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 

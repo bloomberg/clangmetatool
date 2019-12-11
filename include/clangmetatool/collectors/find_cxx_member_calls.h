@@ -1,8 +1,8 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CXX_MEMBER_CALLS_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_FIND_CXX_MEMBER_CALLS_H
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 #include <clangmetatool/collectors/find_cxx_member_calls_data.h>
 
@@ -49,8 +49,8 @@ public:
    */
   FindCXXMemberCallsData *getData();
 };
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 // ----------------------------------------------------------------------------
