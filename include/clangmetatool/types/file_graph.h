@@ -6,8 +6,8 @@
 #include <set>
 #include <vector>
 
-#include <clangmetatool/types/file_uid.h>
 #include <clangmetatool/types/file_graph_edge.h>
+#include <clangmetatool/types/file_uid.h>
 
 namespace clangmetatool {
 namespace types {
@@ -32,8 +32,8 @@ class FileGraph : public std::set<FileGraphEdge> {
   points_to(const clangmetatool::types::FileGraph &g,
             clangmetatool::types::FileUID fuid);
 };
-}
-}
+} // namespace types
+} // namespace clangmetatool
 
 #endif
 

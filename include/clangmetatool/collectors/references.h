@@ -1,8 +1,8 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_REFERENCES_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_REFERENCES_H
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 #include <clangmetatool/collectors/references_data.h>
 

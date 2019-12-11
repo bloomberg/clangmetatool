@@ -5,7 +5,7 @@ namespace clangmetatool {
 namespace types {
 typedef unsigned int FileUID;
 }
-}
+} // namespace clangmetatool
 
 #endif
 

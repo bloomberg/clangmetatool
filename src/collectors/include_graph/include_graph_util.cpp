@@ -2,14 +2,14 @@
 #include <algorithm>
 #include <array>
 #include <clang/AST/ASTConsumer.h>
-#include <clang/AST/DeclBase.h>
 #include <clang/AST/Decl.h>
+#include <clang/AST/DeclBase.h>
 #include <clang/AST/Expr.h>
-#include <clang/ASTMatchers/ASTMatchers.h>
-#include <clang/ASTMatchers/ASTMatchersInternal.h>
-#include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/AST/Type.h>
 #include <clang/AST/TypeLoc.h>
+#include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/ASTMatchers/ASTMatchers.h>
+#include <clang/ASTMatchers/ASTMatchersInternal.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/Module.h>
 #include <clang/Basic/SourceLocation.h>
@@ -24,6 +24,10 @@
 #include <clang/Lex/Token.h>
 #include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Tooling.h>
+#include <clangmetatool/collectors/include_graph_data.h>
+#include <clangmetatool/types/file_graph_edge.h>
+#include <clangmetatool/types/file_uid.h>
+#include <clangmetatool/types/macro_reference_info.h>
 #include <iosfwd>
 #include <limits.h>
 #include <llvm/ADT/StringRef.h>
@@ -33,14 +37,10 @@
 #include <sstream>
 #include <stddef.h>
 #include <stdlib.h>
-#include <string>
 #include <string.h>
+#include <string>
 #include <unistd.h>
 #include <utility>
-#include <clangmetatool/types/file_graph_edge.h>
-#include <clangmetatool/types/macro_reference_info.h>
-#include <clangmetatool/types/file_uid.h>
-#include <clangmetatool/collectors/include_graph_data.h>
 
 #include "include_graph_util.h"
 #include <tuple>
@@ -241,9 +241,9 @@ void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
   add_usage(ci, data, n->getBeginLoc(), decl->getLocation(), n,
             data->type_references);
 }
-}
-}
-}
+} // namespace include_graph
+} // namespace collectors
+} // namespace clangmetatool
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

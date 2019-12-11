@@ -7,8 +7,8 @@
 #include <map>
 #include <string>
 
-#include <clang/Analysis/CFG.h>
 #include <clang/AST/Expr.h>
+#include <clang/Analysis/CFG.h>
 #include <clang/Frontend/CompilerInstance.h>
 
 namespace clangmetatool {

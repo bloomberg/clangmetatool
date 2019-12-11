@@ -12,7 +12,7 @@ namespace types {
 template <typename OTHER>
 using FileGraphEdgeMultimap = std::multimap<FileGraphEdge, OTHER>;
 }
-}
+} // namespace clangmetatool
 
 #endif
 

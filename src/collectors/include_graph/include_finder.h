@@ -10,8 +10,8 @@
 #include <clang/Lex/Token.h>
 #include <llvm/ADT/StringRef.h>
 
-#include <clangmetatool/types/file_uid.h>
 #include <clangmetatool/collectors/include_graph_data.h>
+#include <clangmetatool/types/file_uid.h>
 
 // Required to know which version of LLVM/Clang we're building against
 #include <llvm/Config/llvm-config.h>
@@ -55,9 +55,9 @@ public:
   virtual void Ifndef(clang::SourceLocation loc, const clang::Token &macroUsage,
                       const clang::MacroDefinition &macroDef) override;
 };
-}
-}
-}
+} // namespace include_graph
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 

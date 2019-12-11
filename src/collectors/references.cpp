@@ -35,7 +35,7 @@ public:
   }
 };
 
-} // close anonymous namespace
+} // namespace
 
 class ReferencesImpl {
 private:

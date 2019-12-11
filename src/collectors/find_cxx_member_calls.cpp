@@ -1,7 +1,7 @@
 #include <clangmetatool/collectors/find_cxx_member_calls.h>
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include <clangmetatool/collectors/find_cxx_member_calls_data.h>
 
@@ -33,7 +33,7 @@ public:
   }
 };
 
-} // namespace anonymous
+} // namespace
 
 class FindCXXMemberCallsImpl {
 private:
@@ -81,8 +81,8 @@ FindCXXMemberCalls::~FindCXXMemberCalls() { delete impl; }
 FindCXXMemberCallsData *FindCXXMemberCalls::getData() {
   return impl->getData();
 }
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
 //

@@ -1,12 +1,15 @@
+// clang-format: off
+// FIXME: These two includes have a dependent include order
 #include "propagation_visitor.h"
 #include "constant_propagator.h"
+// clang-format: on
 
 #include <clangmetatool/propagation/constant_cstring_propagator.h>
 
 #include <string>
 
-#include <clang/Analysis/CFG.h>
 #include <clang/AST/Expr.h>
+#include <clang/Analysis/CFG.h>
 
 namespace clangmetatool {
 namespace propagation {
@@ -16,7 +19,8 @@ namespace {
 bool isCharPtrType(const clang::Expr *E) {
   auto QT = E->getType();
 
-  if (QT.isNull() || !QT.getTypePtr()->isPointerType()) return false;
+  if (QT.isNull() || !QT.getTypePtr()->isPointerType())
+    return false;
 
   auto QT2 = QT.getTypePtr()->getPointeeType();
 
@@ -115,7 +119,7 @@ public:
   }
 };
 
-} // namespace anonymous
+} // namespace
 
 class ConstantCStringPropagatorImpl
     : public ConstantPropagator<CStringVisitor> {

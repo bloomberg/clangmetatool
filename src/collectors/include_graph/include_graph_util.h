@@ -2,14 +2,14 @@
 #define INCLUDED_INCLUDE_GRAPH_UTIL_H
 
 #include <clang/AST/DeclBase.h>
-#include <llvm/ADT/StringRef.h>
-#include <clang/Basic/SourceLocation.h>
-#include <clang/Basic/Module.h>
-#include <clang/Basic/FileManager.h>
 #include <clang/AST/Expr.h>
 #include <clang/AST/TypeLoc.h>
+#include <clang/Basic/FileManager.h>
+#include <clang/Basic/Module.h>
+#include <clang/Basic/SourceLocation.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Lex/Token.h>
+#include <llvm/ADT/StringRef.h>
 
 #include <clangmetatool/collectors/include_graph_data.h>
 #include <clangmetatool/types/file_uid.h>
@@ -42,9 +42,9 @@ void add_decl_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
 
 void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
                         const clang::TypeLoc *n);
-}
-}
-}
+} // namespace include_graph
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 

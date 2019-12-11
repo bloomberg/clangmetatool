@@ -9,8 +9,8 @@
 #include <queue>
 #include <tuple>
 
-#include <clang/Analysis/CFG.h>
 #include <clang/AST/ASTContext.h>
+#include <clang/Analysis/CFG.h>
 
 namespace clangmetatool {
 namespace propagation {
@@ -215,7 +215,8 @@ public:
    */
   bool lookup(ResultType &result, const std::string &variable,
               const clang::SourceLocation &location) const {
-    return valueMap.lookup(result, variable, location, context.getSourceManager());
+    return valueMap.lookup(result, variable, location,
+                           context.getSourceManager());
   }
 
   /**

@@ -11,12 +11,12 @@
 #include <map>
 #include <string>
 
-#include <clangmetatool/types/macro_reference_info.h>
 #include <clangmetatool/types/file_attribute_map.h>
 #include <clangmetatool/types/file_attribute_multimap.h>
-#include <clangmetatool/types/file_graph_edge_multimap.h>
 #include <clangmetatool/types/file_graph.h>
+#include <clangmetatool/types/file_graph_edge_multimap.h>
 #include <clangmetatool/types/file_uid.h>
+#include <clangmetatool/types/macro_reference_info.h>
 #include <iosfwd>
 
 namespace clangmetatool {
@@ -96,8 +96,8 @@ struct IncludeGraphData {
   clangmetatool::types::FileGraphEdgeMultimap<const clang::TypeLoc *>
       type_references;
 };
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 

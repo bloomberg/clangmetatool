@@ -53,7 +53,7 @@ public:
   }
 };
 
-} // namespace anonymous
+} // namespace
 
 /**
  * Implement Tarjan's strongly connected components algorithm to detect strongly

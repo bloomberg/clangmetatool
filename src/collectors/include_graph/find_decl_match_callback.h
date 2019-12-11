@@ -26,9 +26,9 @@ public:
   virtual void
   run(const clang::ast_matchers::MatchFinder::MatchResult &r) override;
 };
-}
-}
-}
+} // namespace include_graph
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 

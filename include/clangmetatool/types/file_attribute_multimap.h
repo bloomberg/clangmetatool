@@ -11,7 +11,7 @@ namespace types {
 template <typename OTHER>
 using FileAttributeMultimap = std::multimap<FileUID, OTHER>;
 }
-}
+} // namespace clangmetatool
 
 #endif
 

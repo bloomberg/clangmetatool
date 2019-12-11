@@ -1,14 +1,14 @@
 #include <algorithm>
 #include <array>
 #include <clang/AST/ASTConsumer.h>
-#include <clang/AST/DeclBase.h>
 #include <clang/AST/Decl.h>
+#include <clang/AST/DeclBase.h>
 #include <clang/AST/Expr.h>
-#include <clang/ASTMatchers/ASTMatchers.h>
-#include <clang/ASTMatchers/ASTMatchersInternal.h>
-#include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/AST/Type.h>
 #include <clang/AST/TypeLoc.h>
+#include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/ASTMatchers/ASTMatchers.h>
+#include <clang/ASTMatchers/ASTMatchersInternal.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/Module.h>
 #include <clang/Basic/SourceLocation.h>
@@ -36,9 +36,9 @@
 #include <unistd.h>
 #include <utility>
 
-#include <clangmetatool/types/file_uid.h>
 #include <clangmetatool/collectors/include_graph.h>
 #include <clangmetatool/collectors/include_graph_data.h>
+#include <clangmetatool/types/file_uid.h>
 
 #include "find_decl_match_callback.h"
 #include "find_decl_ref_match_callback.h"
@@ -93,8 +93,8 @@ IncludeGraph::IncludeGraph(clang::CompilerInstance *ci,
 IncludeGraph::~IncludeGraph() { delete impl; }
 
 IncludeGraphData *IncludeGraph::getData() { return impl->getData(); }
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

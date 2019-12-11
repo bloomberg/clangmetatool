@@ -13,7 +13,7 @@ namespace clang {
 class CompilerInstance;
 class DeclRefExpr;
 class FunctionDecl;
-}
+} // namespace clang
 
 namespace clangmetatool {
 namespace propagation {
@@ -40,8 +40,8 @@ class ConstantCStringPropagatorImpl;
 class ConstantCStringPropagator {
 private:
   /**
-    * Pointer to implementation.
-    */
+   * Pointer to implementation.
+   */
   ConstantCStringPropagatorImpl *impl;
 
 public:
@@ -52,8 +52,8 @@ public:
   ConstantCStringPropagator(const clang::CompilerInstance *ci);
 
   /**
-    * Explicit destructor.
-    */
+   * Explicit destructor.
+   */
   ~ConstantCStringPropagator();
 
   /**

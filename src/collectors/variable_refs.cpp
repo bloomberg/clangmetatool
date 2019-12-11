@@ -90,7 +90,7 @@ public:
         std::pair<const clang::DeclRefExpr *, const clang::Expr *>(d, e));
   }
 };
-}
+} // namespace
 
 class VariableRefsImpl {
 private:
@@ -131,8 +131,8 @@ VariableRefs::VariableRefs(clang::CompilerInstance *ci,
 VariableRefs::~VariableRefs() { delete impl; }
 
 VariableRefsData *VariableRefs::getData() { return impl->getData(); }
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

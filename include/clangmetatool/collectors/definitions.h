@@ -1,8 +1,8 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_DEFINITIONS_H
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 #include <clangmetatool/collectors/definitions_data.h>
 

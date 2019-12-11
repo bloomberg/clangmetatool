@@ -1,10 +1,10 @@
 #ifndef INCLUDED_CLANGMETATOOL_COLLECTORS_INCLUDE_GRAPH_H
 #define INCLUDED_CLANGMETATOOL_COLLECTORS_INCLUDE_GRAPH_H
 
-#include <clang/Frontend/CompilerInstance.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceLocation.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 #include <clangmetatool/collectors/include_graph_data.h>
 #include <clangmetatool/types/file_uid.h>
@@ -47,8 +47,8 @@ public:
    */
   IncludeGraphData *getData();
 };
-}
-}
+} // namespace collectors
+} // namespace clangmetatool
 
 #endif
 
