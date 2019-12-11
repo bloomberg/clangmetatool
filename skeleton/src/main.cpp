@@ -2,16 +2,16 @@
 #include <map>
 #include <tuple>
 
-#include <clang/Frontend/FrontendAction.h>
-#include <clang/Tooling/Core/Replacement.h>
-#include <clang/Tooling/CommonOptionsParser.h>
-#include <clang/Tooling/Tooling.h>
-#include <clang/Tooling/Refactoring.h>
-#include <llvm/Support/CommandLine.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/Frontend/FrontendAction.h>
+#include <clang/Tooling/CommonOptionsParser.h>
+#include <clang/Tooling/Core/Replacement.h>
+#include <clang/Tooling/Refactoring.h>
+#include <clang/Tooling/Tooling.h>
+#include <llvm/Support/CommandLine.h>
 
-#include <clangmetatool/meta_tool_factory.h>
 #include <clangmetatool/meta_tool.h>
+#include <clangmetatool/meta_tool_factory.h>
 
 class MyTool {
 public:
