@@ -3,9 +3,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  
+
 int ye_olde_feature_toggle_is_enabled(int feature_id);
-  
+
 #ifdef __cplusplus
 }
 #endif
