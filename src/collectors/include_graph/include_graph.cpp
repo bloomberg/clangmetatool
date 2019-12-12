@@ -24,15 +24,15 @@
 #include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Tooling.h>
 #include <iosfwd>
-#include <limits.h>
+#include <climits>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/CommandLine.h>
 #include <memory>
 #include <ostream>
 #include <sstream>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstddef>
+#include <cstdlib>
+#include <cstring>
 #include <unistd.h>
 #include <utility>
 
