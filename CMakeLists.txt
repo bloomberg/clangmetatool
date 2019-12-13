@@ -22,6 +22,8 @@ add_library(
 
   src/tool_application_support.cpp
 
+  src/include_graph_dependencies.cpp
+
   src/collectors/definitions.cpp
   src/collectors/find_calls.cpp
   src/collectors/find_cxx_member_calls.cpp

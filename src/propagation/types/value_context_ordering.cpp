@@ -17,7 +17,6 @@ void ValueContextOrdering::print(std::ostream &stream, Value value) {
   }
 }
 
-
 std::ostream &operator<<(std::ostream &stream,
                          ValueContextOrdering::Value value) {
   ValueContextOrdering::print(stream, value);
@@ -26,4 +25,3 @@ std::ostream &operator<<(std::ostream &stream,
 } // namespace types
 } // namespace propagation
 } // namespace clangmetatool
-

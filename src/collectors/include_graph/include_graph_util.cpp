@@ -28,16 +28,16 @@
 #include <clangmetatool/types/file_graph_edge.h>
 #include <clangmetatool/types/file_uid.h>
 #include <clangmetatool/types/macro_reference_info.h>
-#include <iosfwd>
 #include <climits>
-#include <llvm/ADT/StringRef.h>
-#include <llvm/Support/CommandLine.h>
-#include <map>
-#include <ostream>
-#include <sstream>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
+#include <iosfwd>
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/CommandLine.h>
+#include <map>
+#include <sstream>
+#include <ostream>
 #include <string>
 #include <unistd.h>
 #include <utility>
@@ -127,6 +127,7 @@ void add_include_statement(clang::CompilerInstance *ci, IncludeGraphData *data,
         FileGraphEdgeMultimap<clang::SourceRange>::value_type(
             FileGraphEdge(tuid.first, fuid),
             clang::SourceRange(hashLoc, filenameRange.getEnd())));
+    data->usage_reference_count[{tuid.first, fuid}] = 0;
   }
 }
 
@@ -161,8 +162,12 @@ static void add_usage(clang::CompilerInstance *ci, IncludeGraphData *data,
   if (!std::get<0>(resolved))
     return;
 
-  m.insert({std::get<1>(resolved), e});
-  data->use_graph.insert(std::get<1>(resolved));
+  auto edge = std::get<1>(resolved);
+  m.insert({edge, e});
+  data->use_graph.insert(edge);
+
+  // Update the usage counts for the edge
+  data->usage_reference_count[edge]++;
 }
 
 void add_macro_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
