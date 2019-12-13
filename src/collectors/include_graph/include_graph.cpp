@@ -23,16 +23,16 @@
 #include <clang/Lex/Token.h>
 #include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Tooling.h>
-#include <iosfwd>
 #include <climits>
+#include <cstddef>
+#include <cstdlib>
+#include <cstring>
+#include <iosfwd>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/CommandLine.h>
 #include <memory>
 #include <ostream>
 #include <sstream>
-#include <cstddef>
-#include <cstdlib>
-#include <cstring>
 #include <unistd.h>
 #include <utility>
 

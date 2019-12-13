@@ -95,6 +95,17 @@ struct IncludeGraphData {
    */
   clangmetatool::types::FileGraphEdgeMultimap<const clang::TypeLoc *>
       type_references;
+
+  /**
+   * Track the number of references made by a file uid A,
+   * to a name in another file uid B
+   * A name could be:
+   *  - A macro
+   *  - A variable declration
+   *  - A type declaration
+   *  - A redeclaration of a named declaration
+   */
+  std::map<clangmetatool::types::FileGraphEdge, size_t> usage_reference_count;
 };
 } // namespace collectors
 } // namespace clangmetatool

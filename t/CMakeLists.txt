@@ -47,6 +47,7 @@ foreach(
   028-diagnostic-during-postprocessing
   029-tool-application-support
   030-cstring-propagation-bug
+  031-validate-include-graph
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
