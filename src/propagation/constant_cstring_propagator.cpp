@@ -1,8 +1,5 @@
-// clang-format: off
-// FIXME: These two includes have a dependent include order
-#include "propagation_visitor.h"
 #include "constant_propagator.h"
-// clang-format: on
+#include "propagation_visitor.h"
 
 #include <clangmetatool/propagation/constant_cstring_propagator.h>
 
