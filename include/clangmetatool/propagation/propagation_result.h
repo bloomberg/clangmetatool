@@ -72,17 +72,16 @@ public:
   }
 };
 
-} // namespace propagation
-} // namespace clangmetatool
-
 template <typename T>
-std::ostream &
-operator<<(std::ostream &stream,
-           const clangmetatool::propagation::PropagationResult<T> &result) {
+std::ostream &operator<<(std::ostream &stream,
+                         const PropagationResult<T> &result) {
   result.print(stream);
 
   return stream;
 }
+
+} // namespace propagation
+} // namespace clangmetatool
 
 #endif
 
