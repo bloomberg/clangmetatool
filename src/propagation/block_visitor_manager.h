@@ -3,6 +3,7 @@
 
 #include "strongly_connected_blocks.h"
 #include "types/changed_in_loop.h"
+#include "types/value_context_ordering.h"
 
 #include <iostream>
 #include <map>
@@ -213,6 +214,7 @@ public:
    * Given a usage location, lookup the value of a variable.
    * Return false if there is no known value.
    */
+
   bool lookup(ResultType &result, const std::string &variable,
               const clang::SourceLocation &location) const {
     return valueMap.lookup(result, variable, location,
@@ -232,9 +234,10 @@ public:
       for (const auto &ctx : it.second) {
         auto posStr = std::get<0>(ctx).printToString(SM);
 
+        const types::ValueContextOrdering::Value &valueState{std::get<1>(ctx)};
+
         stream << "    - " << posStr.substr(posStr.find(':', 0) + 1) << " '"
-               << std::get<2>(ctx) << "' (" << std::get<1>(ctx) << ')'
-               << std::endl;
+               << std::get<2>(ctx) << "' (" << valueState << ')' << std::endl;
       }
     }
   }

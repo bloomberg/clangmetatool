@@ -19,13 +19,12 @@ public:
   static void print(std::ostream &stream, Value value);
 };
 
+std::ostream &operator<<(std::ostream &stream,
+                         ValueContextOrdering::Value value);
+
 } // namespace types
 } // namespace propagation
 } // namespace clangmetatool
-
-std::ostream &operator<<(
-    std::ostream &stream,
-    clangmetatool::propagation::types::ValueContextOrdering::Value value);
 
 #endif
 
