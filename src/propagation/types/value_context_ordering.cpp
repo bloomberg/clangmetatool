@@ -17,14 +17,13 @@ void ValueContextOrdering::print(std::ostream &stream, Value value) {
   }
 }
 
+
+std::ostream &operator<<(std::ostream &stream,
+                         ValueContextOrdering::Value value) {
+  ValueContextOrdering::print(stream, value);
+  return stream;
+}
 } // namespace types
 } // namespace propagation
 } // namespace clangmetatool
 
-std::ostream &operator<<(
-    std::ostream &stream,
-    clangmetatool::propagation::types::ValueContextOrdering::Value value) {
-  clangmetatool::propagation::types::ValueContextOrdering::print(stream, value);
-
-  return stream;
-}
