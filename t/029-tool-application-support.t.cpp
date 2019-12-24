@@ -56,7 +56,7 @@ protected:
       parser.getSourcePathList(),
       // The parameter doesn't HAVE to be main's address. Any function
       // in the same binary will also suffice.
-      argumentPtrs[0], (void *)&main);
+      argumentPtrs[0]);
 
     return true;
   }

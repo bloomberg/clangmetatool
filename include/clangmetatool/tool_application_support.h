@@ -30,7 +30,7 @@ struct ToolApplicationSupport {
   static void
   verifyInstallation(const clang::tooling::CompilationDatabase &compilations,
                      const std::vector<std::string> &sourcePathList,
-                     const std::string &invokedArgv0, void *mainAddr = nullptr);
+                     const std::string &invokedArgv0);
   /**
    * For the given tool, append an ArgumentsAdjuster that adds '-w',
    * This will supress all of clang's warnings, but still allow the tool to
