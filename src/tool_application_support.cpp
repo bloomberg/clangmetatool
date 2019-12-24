@@ -27,11 +27,11 @@ namespace clangmetatool {
 
 namespace {
 
-std::string getExecutablePath(const std::string &argv0, void *mainAddr) {
+std::string getExecutablePath(const std::string &argv0) {
   // Use the address of 'main' to locate the executable name, it is possible
   // that this may return an empty address
   std::string exePath =
-      llvm::sys::fs::getMainExecutable(argv0.c_str(), mainAddr);
+      llvm::sys::fs::getMainExecutable(argv0.c_str(), nullptr);
   if (!exePath.empty()) {
     return exePath;
   }
@@ -47,13 +47,13 @@ std::string getExecutablePath(const std::string &argv0, void *mainAddr) {
 void ToolApplicationSupport::verifyInstallation(
     const clang::tooling::CompilationDatabase &compilations,
     const std::vector<std::string> &sourcePathList,
-    const std::string &invokedArgv0, void *mainAddr) {
+    const std::string &invokedArgv0) {
   clang::DiagnosticsEngine diagnostics(new clang::DiagnosticIDs,
                                        new clang::DiagnosticOptions,
                                        new clang::IgnoringDiagConsumer);
 
   // Find the true path to the executable
-  std::string exePath = getExecutablePath(invokedArgv0, mainAddr);
+  std::string exePath = getExecutablePath(invokedArgv0);
 
   // Check each compile command, each may have different settings for toolchain
   // and resource directory.
