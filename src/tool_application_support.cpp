@@ -10,6 +10,7 @@
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Host.h>
 #include <llvm/Support/Path.h>
+#include <llvm/Support/Process.h>
 
 #include <llvm/Config/llvm-config.h>
 #if LLVM_VERSION_MAJOR >= 8
@@ -24,12 +25,35 @@
 
 namespace clangmetatool {
 
+namespace {
+
+std::string getExecutablePath(const std::string &argv0, void *mainAddr) {
+  // Use the address of 'main' to locate the executable name, it is possible
+  // that this may return an empty address
+  std::string exePath =
+      llvm::sys::fs::getMainExecutable(argv0.c_str(), mainAddr);
+  if (!exePath.empty()) {
+    return exePath;
+  }
+
+  // Fall back to locating it on $PATH
+  const std::string &exeFileName = llvm::sys::path::filename(argv0);
+  llvm::Optional<std::string> maybeExePath =
+      llvm::sys::Process::FindInEnvPath("PATH", exeFileName);
+  return maybeExePath.getValueOr(std::string());
+}
+} // namespace
+
 void ToolApplicationSupport::verifyInstallation(
     const clang::tooling::CompilationDatabase &compilations,
-    const std::vector<std::string> &sourcePathList) {
+    const std::vector<std::string> &sourcePathList,
+    const std::string &invokedArgv0, void *mainAddr) {
   clang::DiagnosticsEngine diagnostics(new clang::DiagnosticIDs,
                                        new clang::DiagnosticOptions,
                                        new clang::IgnoringDiagConsumer);
+
+  // Find the true path to the executable
+  std::string exePath = getExecutablePath(invokedArgv0, mainAddr);
 
   // Check each compile command, each may have different settings for toolchain
   // and resource directory.
@@ -37,10 +61,10 @@ void ToolApplicationSupport::verifyInstallation(
   for (const auto &source : sourcePathList) {
     for (const auto &command : compilations.getCompileCommands(source)) {
       std::vector<std::string> args = command.CommandLine;
+      const std::string &arg0 = exePath.empty() ? args[0] : exePath;
 
       // Create a driver and toolchain to verify
-
-      clang::driver::Driver driver(args[0], llvm::sys::getDefaultTargetTriple(),
+      clang::driver::Driver driver(arg0, llvm::sys::getDefaultTargetTriple(),
                                    diagnostics);
 
       std::vector<const char *> argsArray;
