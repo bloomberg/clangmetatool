@@ -1,5 +1,6 @@
 find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)
+find_package(LLVM REQUIRED)
 
 execute_process(
   COMMAND
@@ -8,6 +9,14 @@ execute_process(
   OUTPUT_VARIABLE CLANG_STD_INCLUDE_DIR
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+
+# Infer if we are working with a 32/64 bit llvm installation, this is needed
+# by some tests to locate the resource / std include directory automatically
+set (CURRENT_LLVM_BUILD_BITNESS_STRING "64")
+if (LLVM_BUILD_32_BITS)
+    set (CURRENT_LLVM_BUILD_BITNESS_STRING "32")
+endif()
+
 
 configure_file(
   include/clangmetatool-testconfig.h.in

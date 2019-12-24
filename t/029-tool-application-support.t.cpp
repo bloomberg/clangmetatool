@@ -13,6 +13,7 @@
 #include <clang/Frontend/TextDiagnosticBuffer.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <llvm/Config/llvm-config.h>
 
 #include <string>
 #include <queue>
@@ -23,6 +24,8 @@
 #else
 #define ARCH_DEPENDENT(test_name) test_name
 #endif
+
+int main(int, char **);
 
 llvm::cl::OptionCategory& optionCategory() {
   static llvm::cl::OptionCategory s_optionCategory("test");
@@ -50,11 +53,30 @@ protected:
     // if the required headers aren't found
     clangmetatool::ToolApplicationSupport::verifyInstallation(
       parser.getCompilations(),
-      parser.getSourcePathList());
+      parser.getSourcePathList(),
+      // The parameter doesn't HAVE to be main's address. Any function
+      // in the same binary will also suffice.
+      argumentPtrs[0], (void *)&main);
 
     return true;
   }
 };
+
+
+// This fails because there is no local clang installation relative to the
+// 'tool'. Use the death test to assert that the correct path is searched
+// before failing.
+TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirUnspecified))
+{
+  const char *messageRegex = ".*"
+                             " clang resource files are missing from "
+                             CMAKE_BINARY_DIR
+                             "/lib" CURRENT_BUILD_BITNESS_STRING
+                             "/clang/" LLVM_VERSION_STRING
+                             ", check that this application is "
+                             "installed properly";
+  ASSERT_DEATH(verifyInstallation({"tool", "test.cpp"}), messageRegex);
+}
 
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirFound))
 {
@@ -199,4 +221,11 @@ TEST(suppress_warnings, test)
   // Ensure we have no errors
 
   EXPECT_EQ(0, tdb.getNumErrors());
+}
+
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  return RUN_ALL_TESTS();
 }

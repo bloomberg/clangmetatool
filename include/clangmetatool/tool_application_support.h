@@ -19,11 +19,18 @@ struct ToolApplicationSupport {
    * clang is installed, and that this clang-based application has been
    * installed along with the required resource files. If the installation is
    * broken, report a fatal error and exit.
+   *
+   * \param compilations Compilation Database to use for this run
+   * \param sourcePathList List of files to process during this run
+   * \param invokedArgv0 Path to the invoked clangmetatool based executable
+   *                     This must be as it appears in 'argv[0]'
+   * \param mainAddr The address of the 'main' function from the calling
+   *                 executable
    */
   static void
   verifyInstallation(const clang::tooling::CompilationDatabase &compilations,
-                     const std::vector<std::string> &sourcePathList);
-
+                     const std::vector<std::string> &sourcePathList,
+                     const std::string &invokedArgv0, void *mainAddr = nullptr);
   /**
    * For the given tool, append an ArgumentsAdjuster that adds '-w',
    * This will supress all of clang's warnings, but still allow the tool to
