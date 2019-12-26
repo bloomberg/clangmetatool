@@ -61,10 +61,10 @@ RUN cmake \
         -DClang_DIR="$(llvm-config-$TARGET_LLVM_VERSION --cmakedir)"/../clang \
         -DLLVM_DIR="$(llvm-config-$TARGET_LLVM_VERSION --cmakedir)" \
         -Bbuild \
-        -H. && \
-    cmake --build build/ --target all &&  \
-    cmake --build build/ --target test -- ARGS="--output-on-failure" && \
-    cmake --build build/ --target install
+        -H.
+RUN cmake --build build/ --target all
+RUN cmake --build build/ --target test -- ARGS="--output-on-failure"
+RUN cmake --build build/ --target install
 
 # Fix includes for clangmetatool (due to ubuntu debian's clang)
 RUN ln -s /usr/lib/llvm-8/include/clangmetatool /usr/include/clangmetatool
