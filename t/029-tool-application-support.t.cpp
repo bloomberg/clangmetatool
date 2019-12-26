@@ -19,7 +19,7 @@
 #include <queue>
 
 #if __APPLE__
-#warning "Some tests will be disabled on the macOS platform"
+#warning Some tests will be disabled on the macOS platform
 #define ARCH_DEPENDENT(test_name) DISABLED_##test_name
 #else
 #define ARCH_DEPENDENT(test_name) test_name
@@ -63,19 +63,9 @@ protected:
 };
 
 
-// This fails because there is no local clang installation relative to the
-// 'tool'. Use the death test to assert that the correct path is searched
-// before failing.
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirUnspecified))
 {
-  const char *messageRegex = ".*"
-                             " clang resource files are missing from "
-                             CMAKE_BINARY_DIR
-                             "/lib" CURRENT_BUILD_BITNESS_STRING
-                             "/clang/" LLVM_VERSION_STRING
-                             ", check that this application is "
-                             "installed properly";
-  ASSERT_DEATH(verifyInstallation({"tool", "test.cpp"}), messageRegex);
+  EXPECT_TRUE(verifyInstallation({"tool", "test.cpp", "--", "-x", "c++"}));
 }
 
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirFound))

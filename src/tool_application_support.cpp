@@ -27,20 +27,35 @@ namespace clangmetatool {
 
 namespace {
 
+#ifndef CLANG_INSTALL_LOCATION
+#define CLANG_INSTALL_LOCATION ""
+#endif
+
 std::string getExecutablePath(const std::string &argv0) {
   // Use the address of 'main' to locate the executable name, it is possible
   // that this may return an empty address
   std::string exePath =
       llvm::sys::fs::getMainExecutable(argv0.c_str(), nullptr);
   if (!exePath.empty()) {
-    return exePath;
+    clang::DiagnosticsEngine diagnostics(new clang::DiagnosticIDs,
+                                 new clang::DiagnosticOptions,
+                                 new clang::IgnoringDiagConsumer);
+    clang::driver::Driver driver(
+        exePath, llvm::sys::getDefaultTargetTriple(),
+        diagnostics);
+    if (llvm::sys::fs::exists(driver.ResourceDir)) {
+      return exePath;
+    }
   }
 
   // Fall back to locating it on $PATH
   const std::string &exeFileName = llvm::sys::path::filename(argv0);
   llvm::Optional<std::string> maybeExePath =
       llvm::sys::Process::FindInEnvPath("PATH", exeFileName);
-  return maybeExePath.getValueOr(std::string());
+
+  // If we didn't find this executable on $PATH, fall back clang's
+  // location as seen at configure-time
+  return maybeExePath.getValueOr(CLANG_INSTALL_LOCATION);
 }
 } // namespace
 
