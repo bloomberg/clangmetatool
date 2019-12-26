@@ -24,8 +24,6 @@ struct ToolApplicationSupport {
    * \param sourcePathList List of files to process during this run
    * \param invokedArgv0 Path to the invoked clangmetatool based executable
    *                     This must be as it appears in 'argv[0]'
-   * \param mainAddr The address of the 'main' function from the calling
-   *                 executable
    */
   static void
   verifyInstallation(const clang::tooling::CompilationDatabase &compilations,
