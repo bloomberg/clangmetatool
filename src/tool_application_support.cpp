@@ -67,7 +67,8 @@ void ToolApplicationSupport::verifyInstallation(
                                        new clang::DiagnosticOptions,
                                        new clang::IgnoringDiagConsumer);
 
-  // Find the true path to the executable
+  // Find the path to the clangmetatool based executable, or clang if the tool
+  // couldn't be found anywhere
   std::string exePath = getExecutablePath(invokedArgv0);
 
   // Check each compile command, each may have different settings for toolchain

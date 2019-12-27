@@ -13,7 +13,6 @@
 #include <clang/Frontend/TextDiagnosticBuffer.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/ErrorHandling.h>
-#include <llvm/Config/llvm-config.h>
 
 #include <string>
 #include <queue>
@@ -24,8 +23,6 @@
 #else
 #define ARCH_DEPENDENT(test_name) test_name
 #endif
-
-int main(int, char **);
 
 llvm::cl::OptionCategory& optionCategory() {
   static llvm::cl::OptionCategory s_optionCategory("test");
@@ -211,11 +208,4 @@ TEST(suppress_warnings, test)
   // Ensure we have no errors
 
   EXPECT_EQ(0, tdb.getNumErrors());
-}
-
-
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-  return RUN_ALL_TESTS();
 }
