@@ -52,7 +52,11 @@ std::string getExecutablePath(const std::string &argv0) {
   llvm::Optional<std::string> maybeExePath =
       llvm::sys::Process::FindInEnvPath("PATH", argv0);
 
-  // If we didn't find this executable on $PATH, fall back clang's
+#ifndef CLANG_INSTALL_LOCATION
+#warning 'CLANG_INSTALL_LOCATION' is unset. Specify using -DCLANG_INSTALL_LOCATION=/abspath/to/clang for better results
+#define CLANG_INSTALL_LOCATION ""
+#endif
+  // If we didn't find this executable on $PATH, fall back to clang's install
   // location as seen at configure-time
   return maybeExePath.getValueOr(CLANG_INSTALL_LOCATION);
 }
