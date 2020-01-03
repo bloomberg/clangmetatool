@@ -27,10 +27,6 @@ namespace clangmetatool {
 
 namespace {
 
-#ifndef CLANG_INSTALL_LOCATION
-#define CLANG_INSTALL_LOCATION ""
-#endif
-
 std::string getExecutablePath(const std::string &argv0) {
   // Use the address of 'main' to locate the executable name, it is possible
   // that this may return an empty address
@@ -38,20 +34,23 @@ std::string getExecutablePath(const std::string &argv0) {
       llvm::sys::fs::getMainExecutable(argv0.c_str(), nullptr);
   if (!exePath.empty()) {
     clang::DiagnosticsEngine diagnostics(new clang::DiagnosticIDs,
-                                 new clang::DiagnosticOptions,
-                                 new clang::IgnoringDiagConsumer);
-    clang::driver::Driver driver(
-        exePath, llvm::sys::getDefaultTargetTriple(),
-        diagnostics);
+                                         new clang::DiagnosticOptions,
+                                         new clang::IgnoringDiagConsumer);
+    clang::driver::Driver driver(exePath, llvm::sys::getDefaultTargetTriple(),
+                                 diagnostics);
     if (llvm::sys::fs::exists(driver.ResourceDir)) {
       return exePath;
     }
   }
 
-  // Fall back to locating it on $PATH
-  const std::string &exeFileName = llvm::sys::path::filename(argv0);
+  // If 'argv0' is an absolute path, use it as is as a fallback
+  if (llvm::sys::path::is_absolute(argv0)) {
+    return argv0;
+  }
+
+  // Fall back to locating 'argv0' on $PATH
   llvm::Optional<std::string> maybeExePath =
-      llvm::sys::Process::FindInEnvPath("PATH", exeFileName);
+      llvm::sys::Process::FindInEnvPath("PATH", argv0);
 
   // If we didn't find this executable on $PATH, fall back clang's
   // location as seen at configure-time

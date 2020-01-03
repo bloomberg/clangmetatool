@@ -22,13 +22,13 @@ struct ToolApplicationSupport {
    *
    * \param compilations Compilation Database to use for this run
    * \param sourcePathList List of files to process during this run
-   * \param invokedArgv0 Path to the invoked clangmetatool based executable
-   *                     This must be as it appears in 'argv[0]'
+   * \param invokedArgv0 Optional path to the invoked clangmetatool based
+   *                     executable. This must be as it appears in 'argv[0]'
    */
   static void
   verifyInstallation(const clang::tooling::CompilationDatabase &compilations,
                      const std::vector<std::string> &sourcePathList,
-                     const std::string &invokedArgv0);
+                     const std::string &invokedArgv0 = "");
   /**
    * For the given tool, append an ArgumentsAdjuster that adds '-w',
    * This will supress all of clang's warnings, but still allow the tool to
