@@ -4,6 +4,11 @@
 #include <clangmetatool/collectors/include_graph_data.h>
 
 namespace clangmetatool {
+
+/**
+ * Collect stateless functions to query and and modify the state of
+ * dependencies of a given `clangmetatool::IncludeGraphData` structure.
+ */
 struct IncludeGraphDependencies {
   /**
    * Decrement the reference count tracked for this edge, notifying the caller
