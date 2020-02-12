@@ -27,6 +27,7 @@ add_library(
   src/collectors/definitions.cpp
   src/collectors/find_calls.cpp
   src/collectors/find_cxx_member_calls.cpp
+  src/collectors/find_functions.cpp
   src/collectors/include_graph/find_decl_match_callback.cpp
   src/collectors/include_graph/find_decl_ref_match_callback.cpp
   src/collectors/include_graph/find_type_match_callback.cpp
