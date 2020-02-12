@@ -8,11 +8,6 @@ matrix:
           compiler: gcc
           language: cpp
           sudo: true
-          script: docker build --build-arg BASE_IMAGE=ubuntu:18.04 --build-arg IMAGE_REPO=bionic --build-arg TARGET_LLVM_VERSION=7 .
-        - os: linux
-          compiler: gcc
-          language: cpp
-          sudo: true
           script: docker build --build-arg BASE_IMAGE=ubuntu:18.10 --build-arg IMAGE_REPO=cosmic --build-arg TARGET_LLVM_VERSION=8 .
         - os: linux
           compiler: gcc
