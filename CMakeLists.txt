@@ -20,9 +20,9 @@ file(RELATIVE_PATH CLANG_CMAKE_RELATIVE_DIR ${CMAKE_INSTALL_PREFIX}
 add_library(
   clangmetatool
 
-  src/tool_application_support.cpp
-
   src/include_graph_dependencies.cpp
+  src/source_util.cpp
+  src/tool_application_support.cpp
 
   src/collectors/definitions.cpp
   src/collectors/find_calls.cpp

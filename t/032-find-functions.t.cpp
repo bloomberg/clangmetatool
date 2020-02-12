@@ -87,7 +87,6 @@ TEST(FindFunctions, functions) {
   EXPECT_TRUE(fns->end() != fns->find("yolo_ono"));
 }
 
-
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
 //
