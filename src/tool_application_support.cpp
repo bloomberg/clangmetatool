@@ -27,38 +27,50 @@ namespace clangmetatool {
 
 namespace {
 
-std::string getExecutablePath(const std::string &argv0) {
+std::string getRealpath(const std::string &path) {
+  llvm::SmallString<128> realpath;
+  auto err = llvm::sys::fs::real_path(path, realpath, true);
+  if (err) {
+    return "";
+  }
+  return realpath.str().str();
+}
+
+std::string getExecutablePathFromArgv(const std::string &argv0) {
   // Use the address of 'main' to locate the executable name, it is possible
   // that this may return an empty address
   std::string exePath =
       llvm::sys::fs::getMainExecutable(argv0.c_str(), nullptr);
-  if (!exePath.empty()) {
-    clang::DiagnosticsEngine diagnostics(new clang::DiagnosticIDs,
-                                         new clang::DiagnosticOptions,
-                                         new clang::IgnoringDiagConsumer);
-    clang::driver::Driver driver(exePath, llvm::sys::getDefaultTargetTriple(),
-                                 diagnostics);
-    if (llvm::sys::fs::exists(driver.ResourceDir)) {
-      return exePath;
+  if (exePath.empty()) {
+    // Fall back to locating 'argv0' on $PATH if the parent path is not provided
+    exePath = argv0;
+    if (!llvm::sys::path::has_parent_path(exePath)) {
+      llvm::Optional<std::string> maybeExePath =
+        llvm::sys::Process::FindInEnvPath("PATH", argv0);
+      exePath = maybeExePath.getValueOr("");
     }
   }
+  return !exePath.empty() ? getRealpath(exePath) : "";
+}
 
-  // If 'argv0' is an absolute path, use it as is as a fallback
-  if (llvm::sys::path::is_absolute(argv0)) {
-    return argv0;
-  }
+std::string getExecutablePath(const std::string &argv0) {
+  std::string exePath = getExecutablePathFromArgv(argv0);
 
-  // Fall back to locating 'argv0' on $PATH
-  llvm::Optional<std::string> maybeExePath =
-      llvm::sys::Process::FindInEnvPath("PATH", argv0);
-
+  clang::DiagnosticsEngine diagnostics(new clang::DiagnosticIDs,
+                                       new clang::DiagnosticOptions,
+                                       new clang::IgnoringDiagConsumer);
+  clang::driver::Driver driver(exePath, llvm::sys::getDefaultTargetTriple(),
+                               diagnostics);
+  if (!llvm::sys::fs::exists(driver.ResourceDir)) {
+    // If we didn't find this executable on $PATH, fall back to clang's install
+    // location as seen at configure-time
 #ifndef CLANG_INSTALL_LOCATION
 #warning 'CLANG_INSTALL_LOCATION' is unset. Specify using -DCLANG_INSTALL_LOCATION=/abspath/to/clang for better results
 #define CLANG_INSTALL_LOCATION ""
 #endif
-  // If we didn't find this executable on $PATH, fall back to clang's install
-  // location as seen at configure-time
-  return maybeExePath.getValueOr(CLANG_INSTALL_LOCATION);
+    exePath = getRealpath(CLANG_INSTALL_LOCATION);
+  }
+  return exePath;
 }
 } // namespace
 
