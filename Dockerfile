@@ -1,9 +1,9 @@
-ARG BASE_IMAGE=ubuntu:18.10
+ARG BASE_IMAGE=ubuntu:18.04
 
 FROM $BASE_IMAGE
 
 ARG TARGET_LLVM_VERSION=8
-ARG IMAGE_REPO=cosmic
+ARG IMAGE_REPO=bionic
 
 # Depenedencies to fetch, build llvm and clang
 RUN apt-get update && apt-get install -y \
