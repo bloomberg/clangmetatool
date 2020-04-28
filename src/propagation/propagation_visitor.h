@@ -84,15 +84,21 @@ public:
                               StateType &&state, const clang::CFGBlock *block)
       : buildingLoopChanges(false), map(map), state(state), loop(0),
         context(AC) {
-    // Find the first statement in the block
+    // Find the first statement in the block, note that the statements are not
+    // necessarily in order as stored in the block.
     const clang::Stmt *startStmt = nullptr;
+    const clang::SourceManager& SM = AC.getSourceManager();
     for (auto elem : *block) {
-      if (util::getStmtFromCFGElement(startStmt, elem)) {
-        break;
+      const clang::Stmt *elemStmt = nullptr;
+      if (util::getStmtFromCFGElement(elemStmt, elem)
+          && (!startStmt
+              || SM.isBeforeInTranslationUnit(elemStmt->getBeginLoc(),
+                                              startStmt->getBeginLoc()))) {
+        startStmt = elemStmt;
       }
     }
 
-    // If there are acutally statements in the block
+    // If there are actually statements in the block
     if (nullptr != startStmt) {
       for (const auto &it : state) {
         // Add all the variable values in the starting state to the top of

@@ -14,3 +14,8 @@ matrix:
           language: cpp
           sudo: true
           script: docker build --build-arg TARGET_LLVM_VERSION=9 .
+        - os: linux
+          compiler: gcc
+          language: cpp
+          sudo: true
+          script: docker build --build-arg TARGET_LLVM_VERSION=10 .

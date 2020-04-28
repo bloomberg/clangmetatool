@@ -2,6 +2,7 @@
 #define INCLUDED_CLANGMETATOOL_META_TOOL_FACTORY_H
 
 #include <map>
+#include <memory>
 #include <string>
 
 #include <clang/Frontend/FrontendAction.h>
@@ -45,7 +46,13 @@ public:
    * This will create the object of your tool giving the
    * replacemnets map as an argument.
    */
+#if LLVM_VERSION_MAJOR >= 10
+  virtual std::unique_ptr<clang::FrontendAction> create() {
+    return std::make_unique<T>(replacements, args);
+  }
+#else
   virtual clang::FrontendAction *create() { return new T(replacements, args); }
+#endif
 };
 } // namespace clangmetatool
 
