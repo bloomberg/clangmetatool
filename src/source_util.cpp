@@ -10,11 +10,13 @@
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/Token.h>
 
+#include <iterator>
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/StringRef.h>
 
 #include <algorithm>
 #include <cassert>
+#include <llvm/Support/raw_ostream.h>
 
 namespace clangmetatool {
 
@@ -109,6 +111,15 @@ skipToBalancedRParenTok(llvm::ArrayRef<clang::Token>::const_iterator begin,
   // Default to returning the end iterator in case we never hit 0 balance in
   // the preceeding loop
   return end;
+}
+
+void printMacroTokens(clang::SourceLocation &loc,
+                      const clang::SourceManager &SM, clang::Preprocessor &PP) {
+  const auto *macro = getMacroInfo(loc, SM, PP);
+  const auto &tokens = getMacroTokens(loc, SM, PP);
+  llvm::errs() << "\n MACRO-DEF: \n";
+  PP.DumpMacro(*macro);
+  llvm::errs() << "\n-----------------------------\n";
 }
 
 } // namespace
@@ -220,6 +231,7 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
     // Only process macros where the statement is in the body, not ones where
     // it is an argument.
 
+    printMacroTokens(begin, sourceManager, preprocessor);
     if (sourceManager.isMacroBodyExpansion(begin)) {
       // Check that there are only spaces or '(' between the beginning of the
       // macro and part corresponding to the beginning of the statement.
@@ -257,6 +269,7 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
 
     const clang::MacroInfo *currentMacro =
         getMacroInfo(end, sourceManager, preprocessor);
+    printMacroTokens(end, sourceManager, preprocessor);
 
     if (sourceManager.isMacroBodyExpansion(end)) {
 
@@ -264,6 +277,25 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
       // for its definition, included unexpanded identifiers
       llvm::ArrayRef<clang::Token> currentMacroDefTokens =
           currentMacro->tokens();
+
+      // We don't play well with variadic token pasting inside of macros
+      // currently return true
+      if (currentMacro->isVariadic()) {
+        auto hashhashIt = std::find_if(currentMacroDefTokens.begin(),
+                                       currentMacroDefTokens.end(),
+                                       [](const clang::Token &tok) {
+                                         return tok.is(clang::tok::hashhash);
+                                       });
+        // If there is token pasting, ensure that its not followed by variadic
+        // args
+        if (hashhashIt != currentMacroDefTokens.end()) {
+          auto nextToken = *std::next(hashhashIt);
+          if (nextToken.is(clang::tok::identifier)) {
+            return nextToken.getIdentifierInfo()->getName() == "__VA_ARGS__";
+          }
+        }
+      }
+
       if (!currentMacroDefTokens.empty()) {
         clang::SourceLocation macroEnd =
             currentMacroDefTokens.back().getEndLoc();
