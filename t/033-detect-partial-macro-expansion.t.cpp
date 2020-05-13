@@ -1,5 +1,7 @@
 #include "clangmetatool-testconfig.h"
 
+#include <llvm/Support/raw_ostream.h>
+
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/Frontend/CompilerInstance.h>
@@ -12,8 +14,8 @@
 #include <clangmetatool/meta_tool_factory.h>
 #include <clangmetatool/source_util.h>
 
+#include <exception>
 #include <functional>
-#include <llvm/Support/raw_ostream.h>
 #include <memory>
 #include <vector>
 
@@ -24,11 +26,12 @@ using namespace clang::ast_matchers;
 
 // Custom matcher for the type of variable we're looking for:
 // i.e. one that has global storage
-auto globalArrayRefWithName = [](const std::string &name) -> StatementMatcher {
+auto globalArrayRefWithName = [](const auto &name, const auto &parentName) {
   return arraySubscriptExpr(
              hasBase(ignoringParenImpCasts(
                  declRefExpr(to(varDecl(hasGlobalStorage(), hasName(name))))
-                     .bind("base"))))
+                     .bind("base"))),
+             hasAncestor(functionDecl(hasName(parentName))))
       .bind("context");
 };
 
@@ -36,48 +39,49 @@ auto globalArrayRefWithName = [](const std::string &name) -> StatementMatcher {
 
 class CollectDeclRef : public MatchFinder::MatchCallback {
 public:
-  std::set<const clang::DeclRefExpr *> d_refs;
+  std::set<const clang::Expr *> d_refs;
   CollectDeclRef() : d_refs() {}
 
   virtual void run(const MatchFinder::MatchResult &result) override {
-    if (const auto *ref =
-            result.Nodes.getNodeAs<clang::DeclRefExpr>("context")) {
-      d_refs.emplace(ref);
+    if (const auto *ref = result.Nodes.getNodeAs<clang::Expr>("context")) {
+      d_refs.insert(ref);
     }
   }
 };
 
 class TestTool {
 public:
-  typedef bool ArgTypes;
+  typedef std::string ArgTypes;
 
 private:
   clang::CompilerInstance *d_ci;
   StatementMatcher d_globalVariableRef;
-  std::unique_ptr<CollectDeclRef> d_callback;
-  ArgTypes d_isPartialMacroFlag;
+  CollectDeclRef d_callback;
+  ArgTypes d_parentFuncDeclName;
 
 public:
-  TestTool(clang::CompilerInstance *ci, MatchFinder *f,
-           ArgTypes isPartialMacroFlag)
-      : d_ci(ci), d_globalVariableRef(globalArrayRefWithName("_GLOBALARRAY")),
-        d_callback(new CollectDeclRef()),
-        d_isPartialMacroFlag(isPartialMacroFlag) {
-    f->addMatcher(d_globalVariableRef, d_callback.get());
+  TestTool(clang::CompilerInstance *ci, MatchFinder *f, ArgTypes parentName)
+      : d_ci(ci),
+        d_globalVariableRef(globalArrayRefWithName("_GLOBALARRAY", parentName)),
+        d_callback(), d_parentFuncDeclName(parentName) {
+    f->addMatcher(d_globalVariableRef, &d_callback);
   }
 
   void postProcessing(
       std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
     // These were all the refs to the variable we declared
-    for (auto expr : d_callback->d_refs) {
-      if (d_isPartialMacroFlag) {
+    for (auto expr : d_callback.d_refs) {
+      if (d_parentFuncDeclName == "positive") {
         ASSERT_TRUE(clangmetatool::SourceUtil::isPartialMacro(
             expr->getSourceRange(), d_ci->getSourceManager(),
             d_ci->getPreprocessor()));
-      } else {
+      } else if (d_parentFuncDeclName == "negative") {
         ASSERT_FALSE(clangmetatool::SourceUtil::isPartialMacro(
             expr->getSourceRange(), d_ci->getSourceManager(),
             d_ci->getPreprocessor()));
+      } else {
+        llvm::errs() << "Invalid branch\n";
+        std::terminate();
       }
     }
   }
@@ -89,15 +93,15 @@ TEST(partialMacroExpansion_Detect, positive) {
   const char *argv[] = {
       "foo",
       CMAKE_SOURCE_DIR
-      "/t/data/033-detect-partial-macro-expansion/not-partial-macro-usages.cpp",
-      "--", "-xc"};
+      "/t/data/033-detect-partial-macro-expansion/partial-macro-usages.cpp",
+      "--", "-xc++"};
 
   clang::tooling::CommonOptionsParser optionsParser(argc, argv, category);
   clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
                                        optionsParser.getSourcePathList());
-  bool expectedResult = true;
+  std::string positive("positive");
   clangmetatool::MetaToolFactory<clangmetatool::MetaTool<TestTool>> raf(
-      tool.getReplacements(), expectedResult);
+      tool.getReplacements(), positive);
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);
 }
@@ -109,14 +113,33 @@ TEST(partialMacroExpansion_Detect, negative) {
       "foo",
       CMAKE_SOURCE_DIR
       "/t/data/033-detect-partial-macro-expansion/partial-macro-usages.cpp",
-      "--", "-xc"};
+      "--", "-xc++"};
 
   clang::tooling::CommonOptionsParser optionsParser(argc, argv, category);
   clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
                                        optionsParser.getSourcePathList());
-  bool expectedResult = false;
+  std::string negative("negative");
   clangmetatool::MetaToolFactory<clangmetatool::MetaTool<TestTool>> raf(
-      tool.getReplacements(), expectedResult);
+      tool.getReplacements(), negative);
+  int r = tool.runAndSave(&raf);
+  ASSERT_EQ(0, r);
+}
+
+TEST(partialMacroExpansion_Detect, DISABLED_FalseNegatives) {
+  llvm::cl::OptionCategory category("my-tool options");
+  int argc = 4;
+  const char *argv[] = {
+      "foo",
+      CMAKE_SOURCE_DIR
+      "/t/data/033-detect-partial-macro-expansion/partial-macro-usages.cpp",
+      "--", "-xc++"};
+
+  clang::tooling::CommonOptionsParser optionsParser(argc, argv, category);
+  clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
+                                       optionsParser.getSourcePathList());
+  std::string negative("falseNegative");
+  clangmetatool::MetaToolFactory<clangmetatool::MetaTool<TestTool>> raf(
+      tool.getReplacements(), negative);
   int r = tool.runAndSave(&raf);
   ASSERT_EQ(0, r);
 }

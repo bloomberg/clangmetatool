@@ -10,6 +10,7 @@
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/Token.h>
 
+#include <exception>
 #include <iterator>
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/StringRef.h>
@@ -113,13 +114,20 @@ skipToBalancedRParenTok(llvm::ArrayRef<clang::Token>::const_iterator begin,
   return end;
 }
 
-void printMacroTokens(clang::SourceLocation &loc,
-                      const clang::SourceManager &SM, clang::Preprocessor &PP) {
-  const auto *macro = getMacroInfo(loc, SM, PP);
-  const auto &tokens = getMacroTokens(loc, SM, PP);
-  llvm::errs() << "\n MACRO-DEF: \n";
-  PP.DumpMacro(*macro);
-  llvm::errs() << "\n-----------------------------\n";
+bool macroDefinitionUsesGccVarargExtension(
+    const llvm::ArrayRef<clang::Token> &toks) {
+  auto currTokIt = toks.begin();
+  while (currTokIt != toks.end()) {
+    if (currTokIt->is(clang::tok::hashhash)) {
+      auto nextTokIt = std::next(currTokIt);
+      if (nextTokIt != toks.end() && nextTokIt->is(clang::tok::identifier) &&
+          nextTokIt->getIdentifierInfo()->getName() == "__VA_ARGS__") {
+        return true;
+      }
+    }
+    ++currTokIt;
+  }
+  return false;
 }
 
 } // namespace
@@ -227,11 +235,25 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
 
   clang::SourceLocation begin = sourceRange.getBegin();
 
+  auto usesGccVarargExtensionAtLoc = [&sourceManager,
+                                      &preprocessor](const auto &loc) {
+    if (auto *macroInfo = getMacroInfo(loc, sourceManager, preprocessor)) {
+      return macroInfo->isVariadic() && macroInfo->hasCommaPasting();
+    }
+    return false;
+  };
+
   while (begin.isMacroID()) {
+    // If a macro in the heierarchy uses the GCC '##' extension (see [1])
+    // we can't easily trace up the context stack how the statement is formed
+    // from component macros. Cop out, return true
+    // [1]: https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+    if (usesGccVarargExtensionAtLoc(begin)) {
+      return true;
+    }
     // Only process macros where the statement is in the body, not ones where
     // it is an argument.
 
-    printMacroTokens(begin, sourceManager, preprocessor);
     if (sourceManager.isMacroBodyExpansion(begin)) {
       // Check that there are only spaces or '(' between the beginning of the
       // macro and part corresponding to the beginning of the statement.
@@ -240,6 +262,9 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
           getMacroTokens(begin, sourceManager, preprocessor);
       if (!tokens.empty()) {
         clang::SourceLocation macroStart = tokens.front().getLocation();
+        // FIXME
+        // There is potentially a bug here, this is unable to deal with macros
+        // that expand to more than one access expression
         clang::SourceLocation statementStart =
             sourceManager.getSpellingLoc(begin);
 
@@ -262,6 +287,13 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
   const clang::MacroInfo *prevMacro = nullptr;
 
   while (end.isMacroID()) {
+    // If a macro in the heierarchy uses the GCC '##' extension (see [1])
+    // we can't easily trace up the context stack how the statement is formed
+    // from component macros. Cop out, return true
+    // [1]: https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+    if (usesGccVarargExtensionAtLoc(end)) {
+      return true;
+    }
     // Only process macros where the statement is in the body, not ones where
     // it is an argument.
 
@@ -269,7 +301,6 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
 
     const clang::MacroInfo *currentMacro =
         getMacroInfo(end, sourceManager, preprocessor);
-    printMacroTokens(end, sourceManager, preprocessor);
 
     if (sourceManager.isMacroBodyExpansion(end)) {
 
@@ -277,25 +308,6 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
       // for its definition, included unexpanded identifiers
       llvm::ArrayRef<clang::Token> currentMacroDefTokens =
           currentMacro->tokens();
-
-      // We don't play well with variadic token pasting inside of macros
-      // currently return true
-      if (currentMacro->isVariadic()) {
-        auto hashhashIt = std::find_if(currentMacroDefTokens.begin(),
-                                       currentMacroDefTokens.end(),
-                                       [](const clang::Token &tok) {
-                                         return tok.is(clang::tok::hashhash);
-                                       });
-        // If there is token pasting, ensure that its not followed by variadic
-        // args
-        if (hashhashIt != currentMacroDefTokens.end()) {
-          auto nextToken = *std::next(hashhashIt);
-          if (nextToken.is(clang::tok::identifier)) {
-            return nextToken.getIdentifierInfo()->getName() == "__VA_ARGS__";
-          }
-        }
-      }
-
       if (!currentMacroDefTokens.empty()) {
         clang::SourceLocation macroEnd =
             currentMacroDefTokens.back().getEndLoc();
