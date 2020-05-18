@@ -216,7 +216,22 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
 
   clang::SourceLocation begin = sourceRange.getBegin();
 
+  auto usesGccVarargExtensionAtLoc = [&sourceManager,
+                                      &preprocessor](const auto &loc) {
+    if (auto *macroInfo = getMacroInfo(loc, sourceManager, preprocessor)) {
+      return macroInfo->isVariadic() && macroInfo->hasCommaPasting();
+    }
+    return false;
+  };
+
   while (begin.isMacroID()) {
+    // If a macro in the heierarchy uses the GCC '##' extension (see [1])
+    // we can't easily trace up the context stack how the statement is formed
+    // from component macros. Cop out, return true
+    // [1]: https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+    if (usesGccVarargExtensionAtLoc(begin)) {
+      return true;
+    }
     // Only process macros where the statement is in the body, not ones where
     // it is an argument.
 
@@ -228,6 +243,9 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
           getMacroTokens(begin, sourceManager, preprocessor);
       if (!tokens.empty()) {
         clang::SourceLocation macroStart = tokens.front().getLocation();
+        // FIXME
+        // There is potentially a bug here, this is unable to deal with macros
+        // that expand to more than one access expression
         clang::SourceLocation statementStart =
             sourceManager.getSpellingLoc(begin);
 
@@ -250,6 +268,13 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
   const clang::MacroInfo *prevMacro = nullptr;
 
   while (end.isMacroID()) {
+    // If a macro in the heierarchy uses the GCC '##' extension (see [1])
+    // we can't easily trace up the context stack how the statement is formed
+    // from component macros. Cop out, return true
+    // [1]: https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+    if (usesGccVarargExtensionAtLoc(end)) {
+      return true;
+    }
     // Only process macros where the statement is in the body, not ones where
     // it is an argument.
 
