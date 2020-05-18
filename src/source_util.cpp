@@ -114,22 +114,6 @@ skipToBalancedRParenTok(llvm::ArrayRef<clang::Token>::const_iterator begin,
   return end;
 }
 
-bool macroDefinitionUsesGccVarargExtension(
-    const llvm::ArrayRef<clang::Token> &toks) {
-  auto currTokIt = toks.begin();
-  while (currTokIt != toks.end()) {
-    if (currTokIt->is(clang::tok::hashhash)) {
-      auto nextTokIt = std::next(currTokIt);
-      if (nextTokIt != toks.end() && nextTokIt->is(clang::tok::identifier) &&
-          nextTokIt->getIdentifierInfo()->getName() == "__VA_ARGS__") {
-        return true;
-      }
-    }
-    ++currTokIt;
-  }
-  return false;
-}
-
 } // namespace
 
 clang::CharSourceRange
