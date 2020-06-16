@@ -50,6 +50,7 @@ foreach(
   031-validate-include-graph
   032-find-functions
   033-detect-partial-macro-expansion
+  034-macro-name-for-statement
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
