@@ -2,11 +2,11 @@ find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)
 find_package(LLVM REQUIRED)
 
+list(GET CLANG_INCLUDE_DIRS 0 CLANG_PREFIX_DIR)
+get_filename_component(CLANG_PREFIX_DIR "${CLANG_PREFIX_DIR}" DIRECTORY)
 execute_process(
-  COMMAND
-    "${PROJECT_SOURCE_DIR}/cmake/clangmetatool-get-clang-std-include.sh"
-    "${CLANG_INCLUDE_DIRS}"
-  OUTPUT_VARIABLE CLANG_STD_INCLUDE_DIR
+  COMMAND "${CLANG_PREFIX_DIR}/bin/clang" -print-resource-dir
+  OUTPUT_VARIABLE CLANG_RESOURCE_DIR
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
