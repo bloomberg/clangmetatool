@@ -89,6 +89,35 @@ bool IncludeGraphDependencies::decrementUsageRefCount(
   return false;
 }
 
+
+std::set<clangmetatool::types::FileUID>
+IncludeGraphDependencies::collectAllIncludes(
+    const clangmetatool::collectors::IncludeGraphData* data,
+    const types::FileUID &headerFUID)
+{
+  types::FileGraph::const_iterator rangeBegin, rangeEnd;
+  std::tie(rangeBegin, rangeEnd) = edge_range_with_source(data, headerFUID);
+
+  std::set<clangmetatool::types::FileUID> visitedNodes;
+  std::queue<clangmetatool::types::FileUID> toVisit;
+  toVisit.push(headerFUID);
+  while (!toVisit.empty()) {
+    auto currentFUID = toVisit.front();
+    toVisit.pop();
+
+    if (!visitedNodes.insert(currentFUID).second) {
+      continue;
+    }
+    types::FileGraph::const_iterator rangeBegin, rangeEnd;
+    std::tie(rangeBegin, rangeEnd) = edge_range_with_source(data, currentFUID);
+    for (auto it = rangeBegin; it != rangeEnd; ++it) {
+      toVisit.push(it->second);
+    }
+  }
+  return visitedNodes;
+}
+
+
 std::set<types::FileUID> IncludeGraphDependencies::liveDependencies(
     const collectors::IncludeGraphData *data,
     const clangmetatool::types::FileUID &headerFUID) {

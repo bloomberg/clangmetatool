@@ -164,6 +164,35 @@ public:
     EXPECT_TRUE(
         clangmetatool::IncludeGraphDependencies::liveDependencies(data, mfid)
         .empty());
+
+    EXPECT_EQ(
+        std::set<clangmetatool::types::FileUID>({
+          fname2uid["foo.cpp"],
+          fname2uid["a.h"],
+          fname2uid["b.h"],
+          fname2uid["c.h"],
+          fname2uid["d.h"],
+          fname2uid["e.h"],
+          fname2uid["f.h"],
+          fname2uid["diam.h"],
+          fname2uid["level.h"],
+          fname2uid["mid.h"],
+          fname2uid["def1.h"],
+          fname2uid["def2.h"],
+          fname2uid["def3.h"],
+          fname2uid["def4.h"],
+          fname2uid["def5.h"],
+          fname2uid["def6.h"]
+        }),
+        clangmetatool::IncludeGraphDependencies::collectAllIncludes(data, fname2uid["foo.cpp"])
+    );
+    EXPECT_EQ(
+        std::set<clangmetatool::types::FileUID>({
+          fname2uid["f.h"],
+          fname2uid["def6.h"]
+        }),
+        clangmetatool::IncludeGraphDependencies::collectAllIncludes(data, fname2uid["f.h"])
+    );
   }
 };
 
