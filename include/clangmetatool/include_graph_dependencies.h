@@ -22,6 +22,16 @@ struct IncludeGraphDependencies {
   decrementUsageRefCount(clangmetatool::collectors::IncludeGraphData *data,
                          const clangmetatool::types::FileGraphEdge &edge);
 
+
+  /**
+   * Collect all direct and transitive includes of a file without checking
+   * whether or not the initial file actually depends on them.
+   */
+  static std::set<clangmetatool::types::FileUID>
+  collectAllIncludes(const clangmetatool::collectors::IncludeGraphData* data,
+                     const clangmetatool::types::FileUID &fileFUID);
+
+
   /**
    * Get the 'live' dependencies of a header within the given include graph.
    * This is a subset of the set of transitive dependencies.
