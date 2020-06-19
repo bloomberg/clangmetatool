@@ -41,25 +41,28 @@ public:
   MyTool(clang::CompilerInstance* ci, MatchFinder *f)
     : ci(ci), mf(f) {
     using namespace std::placeholders;
-    StatementMatcher matcher = declRefExpr().bind("ref");
+    StatementMatcher matcher =
+        declRefExpr(hasDeclaration(namedDecl(hasName("var")))).bind("ref");
     mf.addMatcher(matcher, std::bind(&MyTool::handleDeclRefExpr, this, _1));
   }
 
   void postProcessing
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
-    EXPECT_EQ(data.size(), 3);
-
     std::vector<std::string> expected = {
       "",
       "VAR",
+      "",
       "VAR",
+      "",
+      "VAR"
     };
 
+    ASSERT_EQ(data.size(), expected.size());
     for (int i = 0; i < data.size(); ++i) {
       EXPECT_EQ(clangmetatool::SourceUtil::getMacroNameForStatement(
                     *data[i],
                     ci->getSourceManager()),
-                expected[i]);
+                expected[i]) << "i: " << i;
     }
   }
 };

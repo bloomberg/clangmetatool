@@ -4,10 +4,16 @@ int var;
 
 #define FUNC(x) (x + 1)
 
+extern void vararg_func(int x, ...);
+#define VARARG_FUNC(...) vararg_func(0, ##__VA_ARGS__)
+
 int main(){
   var;
   VAR;
+  FUNC(var);
   FUNC(VAR);
+  VARARG_FUNC(var);
+  VARARG_FUNC(VAR);
 }
 
 // ----------------------------------------------------------------------------

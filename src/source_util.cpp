@@ -166,13 +166,17 @@ std::string SourceUtil::getMacroNameForStatement(
     const clang::Stmt &statement, const clang::SourceManager &sourceManager) {
   clang::SourceLocation loc = statement.getBeginLoc();
 
-  if (loc.isMacroID()) {
-    return clang::Lexer::getImmediateMacroName(
-               statement.getBeginLoc(), sourceManager, clang::LangOptions())
+  while (loc.isMacroID()) {
+    if (sourceManager.isMacroBodyExpansion(loc)) {
+      return clang::Lexer::getImmediateMacroName(
+               loc, sourceManager, clang::LangOptions())
         .str();
-  } else {
-    return std::string();
+    }
+
+    loc = sourceManager.getImmediateMacroCallerLoc(loc);
   }
+
+  return std::string();
 }
 
 SourceUtil::Region
