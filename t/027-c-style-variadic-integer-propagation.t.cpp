@@ -134,10 +134,13 @@ TEST(propagation_ConstantIntegerPropagation, functionArgs) {
   const char* argv[] = {
     "foo",
     CMAKE_SOURCE_DIR "/t/data/027-c-style-variadic-integer-propagation/main.cpp",
-    "--extra-arg-before=-I" CLANG_STD_INCLUDE_DIR,
+
+    // Set resource dir so stdarg.h can be found
+    "-extra-arg=-resource-dir=" CLANG_RESOURCE_DIR,
+
     "--",
     // Test C++ for confirming that this works on a superset
-    "-xc++"
+    "-xc++",
   };
   clang::tooling::CommonOptionsParser optionsParser
     (argc, argv, MyToolCategory);

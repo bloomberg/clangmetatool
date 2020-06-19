@@ -68,8 +68,8 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirUnspecified))
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(ResourceDirFound))
 {
   EXPECT_TRUE(verifyInstallation({"tool", "test.cpp", "--",
-                                 "-resource-dir", CLANG_STD_INCLUDE_DIR}))
-    << "verification failed with CLANG_STD_INCLUDE_DIR=" CLANG_STD_INCLUDE_DIR
+                                 "-resource-dir", CLANG_RESOURCE_DIR}))
+    << "verification failed with CLANG_RESOURCE_DIR=" CLANG_RESOURCE_DIR
     << "\n";
 }
 
@@ -93,7 +93,7 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(GCCToolChain))
                              "clang is installed";
   ASSERT_DEATH(
       verifyInstallation({"tool", "test.cpp", "--",
-                          "-resource-dir", CLANG_STD_INCLUDE_DIR,
+                          "-resource-dir", CLANG_RESOURCE_DIR,
                           "-gcc-toolchain", "/non-existent/123"}),
       messageRegex);
 }
@@ -101,7 +101,7 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(GCCToolChain))
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(CFilesWithResourceDir))
 {
   EXPECT_TRUE(verifyInstallation({"tool", "test.c", "--",
-                                  "-resource-dir", CLANG_STD_INCLUDE_DIR}));
+                                  "-resource-dir", CLANG_RESOURCE_DIR}));
 }
 
 TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(CFilesWithGCCToolChain))
@@ -112,7 +112,7 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(CFilesWithGCCToolChain))
                              "clang is installed";
   ASSERT_DEATH(
       verifyInstallation({"tool", "test.c", "--",
-                          "-resource-dir", CLANG_STD_INCLUDE_DIR,
+                          "-resource-dir", CLANG_RESOURCE_DIR,
                           "-gcc-toolchain", "/non-existent/123"}),
       messageRegex);
 }
