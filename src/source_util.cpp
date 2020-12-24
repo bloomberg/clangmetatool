@@ -74,57 +74,21 @@ bool sourceRangeContainsOnly(clang::SourceLocation beginLocation,
   return true;
 }
 
-// Find the first r-paren token that balances the l-paren at the beginning of
-// the list. If no such token exists, return a past the end iterator
-llvm::ArrayRef<clang::Token>::const_iterator
-skipToBalancedRParenTok(llvm::ArrayRef<clang::Token>::const_iterator begin,
-                        llvm::ArrayRef<clang::Token>::const_iterator end,
-                        const clang::SourceManager &SM) {
-  if (begin == end) {
-    return end;
-  }
-
-  assert(begin->is(clang::tok::l_paren) &&
-         "First iterator must point to an lparen token! ");
-
-  int leftBalance = 0;
-  clang::LangOptions langOpts;
-
-  // If there is an l_paren token after 'start':
-  // find the r_paren that balances it within that
-  // subexpression.
-  for (auto it = begin; it != end; ++it) {
-    if (it->is(clang::tok::l_paren)) {
-      ++leftBalance;
-    } else if (it->is(clang::tok::r_paren)) {
-      --leftBalance;
-    }
-
-    // If balanced, return the iterator pointing to the r-paren
-    if (leftBalance == 0) {
-      return it;
-    }
-  }
-
-  // Default to returning the end iterator in case we never hit 0 balance in
-  // the preceeding loop
-  return end;
-}
-
 } // namespace
 
 clang::CharSourceRange
 SourceUtil::expandRange(const clang::SourceRange &range,
                         const clang::SourceManager &sourceManager) {
   // Get the start location, resolving from macro definition to macro call
-  // location. Special handling is needed for a statement in a macro body, we
-  // want to resolve to the entire macro call.
+  // location. The loop is adapted from 'clang::SourceManager::getFileLoc'.
 
   clang::SourceLocation begin = range.getBegin();
-  if (sourceManager.isMacroBodyExpansion(begin)) {
-    begin = sourceManager.getExpansionRange(begin).getBegin();
-  } else {
-    begin = sourceManager.getFileLoc(begin);
+  while (!begin.isFileID()) {
+    if (sourceManager.isMacroArgExpansion(begin)) {
+      begin = sourceManager.getImmediateSpellingLoc(begin);
+    } else {
+      begin = sourceManager.getImmediateExpansionRange(begin).getBegin();
+    }
   }
 
   // Get the end location, resolving from macro definition to macro call
@@ -132,10 +96,12 @@ SourceUtil::expandRange(const clang::SourceRange &range,
   // last token in it, so we must use the lexer to traverse the token too.
 
   clang::SourceLocation end = range.getEnd();
-  if (sourceManager.isMacroBodyExpansion(end)) {
-    end = sourceManager.getExpansionRange(end).getEnd();
-  } else {
-    end = sourceManager.getFileLoc(end);
+  while (!end.isFileID()) {
+    if (sourceManager.isMacroArgExpansion(end)) {
+      end = sourceManager.getImmediateSpellingLoc(end);
+    } else {
+      end = sourceManager.getImmediateExpansionRange(end).getEnd();
+    }
   }
   end = clang::Lexer::getLocForEndOfToken(end, 0, sourceManager,
                                           clang::LangOptions());
@@ -168,9 +134,9 @@ std::string SourceUtil::getMacroNameForStatement(
 
   while (loc.isMacroID()) {
     if (sourceManager.isMacroBodyExpansion(loc)) {
-      return clang::Lexer::getImmediateMacroName(
-               loc, sourceManager, clang::LangOptions())
-        .str();
+      return clang::Lexer::getImmediateMacroName(loc, sourceManager,
+                                                 clang::LangOptions())
+          .str();
     }
 
     loc = sourceManager.getImmediateMacroCallerLoc(loc);
@@ -249,6 +215,7 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
           getMacroTokens(begin, sourceManager, preprocessor);
       if (!tokens.empty()) {
         clang::SourceLocation macroStart = tokens.front().getLocation();
+
         // FIXME
         // There is potentially a bug here, this is unable to deal with macros
         // that expand to more than one access expression
@@ -262,9 +229,14 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
       }
     }
 
-    // Move up one level closer to the expansion point
+    // Move up one level closer to the expansion point. This code is adapted
+    // from 'clang::SourceManager::getImmediateMacroCallerLoc'.
 
-    begin = sourceManager.getImmediateMacroCallerLoc(begin);
+    if (sourceManager.isMacroArgExpansion(begin)) {
+      begin = sourceManager.getImmediateSpellingLoc(begin);
+    } else {
+      begin = sourceManager.getImmediateExpansionRange(begin).getBegin();
+    }
   }
 
   // Trace through levels of macros that are expanded by the end of the
@@ -284,52 +256,18 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
     // Only process macros where the statement is in the body, not ones where
     // it is an argument.
 
-    // Get information about the caller macro that was last expanded
-
-    const clang::MacroInfo *currentMacro =
-        getMacroInfo(end, sourceManager, preprocessor);
-
     if (sourceManager.isMacroBodyExpansion(end)) {
+      // Check that there are only spaces or '(' between the beginning of the
+      // macro and part corresponding to the beginning of the statement.
 
-      // Tokens for the current macro's spelling, this only contains the tokens
-      // for its definition, included unexpanded identifiers
-      llvm::ArrayRef<clang::Token> currentMacroDefTokens =
-          currentMacro->tokens();
-      if (!currentMacroDefTokens.empty()) {
-        clang::SourceLocation macroEnd =
-            currentMacroDefTokens.back().getEndLoc();
+      llvm::ArrayRef<clang::Token> tokens =
+          getMacroTokens(end, sourceManager, preprocessor);
+      if (!tokens.empty()) {
+        clang::SourceLocation macroEnd = tokens.back().getEndLoc();
         clang::SourceLocation statementEnd = sourceManager.getSpellingLoc(end);
 
         statementEnd = clang::Lexer::getLocForEndOfToken(
             statementEnd, 0, sourceManager, clang::LangOptions());
-
-        // If we are expanding a function like macro, move statementEnd to
-        // match the clang::tok::TokenKind::r_paren corresponding to the
-        // opening clang::tok::TokenKind::l_paren
-
-        if (prevMacro && prevMacro->isFunctionLike()) {
-          // Find the first, if any l_paren token
-          auto *lparenIt = std::find_if(
-              currentMacroDefTokens.begin(), currentMacroDefTokens.end(),
-              [&sourceManager, &statementEnd](auto token) {
-                return sourceManager.isBeforeInTranslationUnit(
-                           statementEnd,
-                           clang::Lexer::getLocForEndOfToken(
-                               token.getEndLoc(), 0, sourceManager,
-                               clang::LangOptions())) &&
-                       token.is(clang::tok::l_paren);
-              });
-
-          auto *rparenIt = skipToBalancedRParenTok(
-              lparenIt, currentMacroDefTokens.end(), sourceManager);
-          if (rparenIt != lparenIt) {
-            statementEnd = clang::Lexer::getLocForEndOfToken(
-                rparenIt->getEndLoc(), 0, sourceManager, clang::LangOptions());
-          }
-        }
-
-        // Check that there are only spaces or ')' between the part
-        // corresponding to the end of the statement and the end of the macro.
 
         if (!sourceRangeContainsOnly(statementEnd, macroEnd, " \t)",
                                      sourceManager)) {
@@ -338,10 +276,14 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
       }
     }
 
-    // Move up one level closer to the expansion point
+    // Move up one level closer to the expansion point. This code is adapted
+    // from 'clang::SourceManager::getImmediateMacroCallerLoc'.
 
-    end = sourceManager.getImmediateMacroCallerLoc(end);
-    prevMacro = currentMacro;
+    if (sourceManager.isMacroArgExpansion(end)) {
+      end = sourceManager.getImmediateSpellingLoc(end);
+    } else {
+      end = sourceManager.getImmediateExpansionRange(end).getEnd();
+    }
   }
 
   return false;
