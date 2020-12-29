@@ -51,6 +51,7 @@ foreach(
   032-find-functions
   033-detect-partial-macro-expansion
   034-macro-name-for-statement
+  035-range-for-statement
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
