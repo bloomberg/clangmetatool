@@ -125,7 +125,7 @@ SourceUtil::getSourceForStatement(const clang::Stmt &statement,
   // If used incorrectly, or on an 'implicit' element getSourceText will return
   // an empty string. This was probably unintentional. Fail fast
   assert(!text.empty() && "Lexer::getSourceText returned an empty string!");
-  return text;
+  return std::string(text);
 }
 
 std::string SourceUtil::getMacroNameForStatement(
