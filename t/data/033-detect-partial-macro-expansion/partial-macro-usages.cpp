@@ -43,7 +43,8 @@ int positive()
     + AFTER_EXPR(4)
     + OUTER_MACRO(6)
     + VARARG_TO_VARARG_PASTED(0, 1, M_ARRAY[1])
-    + VARARG_TO_NONVARARG_PASTED(M_ARRAY[1]);
+    + VARARG_TO_NONVARARG_PASTED(M_ARRAY[1])
+    + MACRO_AS_ARG(M_ARRAY);
 }
 
 int negative() {
@@ -59,8 +60,4 @@ int negative() {
     + VARARG_TO_VARARG_DIRECT(0, M_ARRAY[1])
     + VARARG_TO_NONVARARG_DIRECT(M_ARRAY[1]);
 
-}
-
-int falseNegative() {
-  return MACRO_AS_ARG(M_ARRAY);
 }
