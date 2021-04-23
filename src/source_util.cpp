@@ -187,6 +187,13 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
   // the statement.
 
   clang::SourceLocation begin = sourceRange.getBegin();
+  clang::SourceLocation end = sourceRange.getEnd();
+
+  if (sourceManager.isMacroArgExpansion(begin) !=
+      sourceManager.isMacroArgExpansion(end)) {
+    // This catches macros which might receive other macros as arguments
+    return true; // partial macro
+  }
 
   auto usesGccVarargExtensionAtLoc = [&sourceManager,
                                       &preprocessor](const auto &loc) {
@@ -242,7 +249,6 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
   // Trace through levels of macros that are expanded by the end of the
   // statement.
 
-  clang::SourceLocation end = sourceRange.getEnd();
   const clang::MacroInfo *prevMacro = nullptr;
 
   while (end.isMacroID()) {
