@@ -4,10 +4,16 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <system_error>
 
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Core/Replacement.h>
+#include <clang/Tooling/ReplacementsYaml.h>
 #include <clang/Tooling/Tooling.h>
+
+namespace llvm {
+  class raw_ostream;
+}
 
 namespace clangmetatool {
 /**
@@ -53,6 +59,38 @@ public:
 #else
   virtual clang::FrontendAction *create() { return new T(replacements, args); }
 #endif
+
+  /**
+   * Run the tool passed in and export any replacements to a YAML file
+   */
+  int runAndExportFixes(clang::tooling::ClangTool &tool,
+                        llvm::raw_ostream &os) {
+    int r = tool.run(this);
+    if (r) {
+      return r;
+    }
+    clang::tooling::TranslationUnitReplacements TUR;
+    TUR.MainSourceFile = "";
+    for (auto p : replacements) {
+      for (const auto &r : p.second) {
+        clang::tooling::Replacement replacement = r;
+        TUR.Replacements.insert(TUR.Replacements.end(), replacement);
+      }
+    }
+    llvm::yaml::Output yaml_out(os);
+    yaml_out << TUR;
+    return r;
+  }
+
+  int runAndExportFixes(clang::tooling::ClangTool &tool,
+                        const std::string &fileName) {
+    std::error_code ec;
+    llvm::raw_fd_ostream ofs(fileName, ec);
+    if (ec) {
+      return ec.value();
+    }
+    return runAndExportFixes(tool, ofs);
+  }
 };
 } // namespace clangmetatool
 
