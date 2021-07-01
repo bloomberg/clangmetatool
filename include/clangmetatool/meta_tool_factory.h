@@ -11,10 +11,6 @@
 #include <clang/Tooling/ReplacementsYaml.h>
 #include <clang/Tooling/Tooling.h>
 
-namespace llvm {
-  class raw_ostream;
-}
-
 namespace clangmetatool {
 /**
  * MetaToolFactory wraps around FrontendAction class that takes a
