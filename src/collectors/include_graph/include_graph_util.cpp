@@ -113,7 +113,7 @@ void add_include_statement(clang::CompilerInstance *ci, IncludeGraphData *data,
 
     if (includeToken.getIdentifierInfo()->getPPKeywordID() ==
         clang::tok::pp_include_next) {
-      data->include_next[fuid] = tuid.second;
+      data->include_next[fuid] = tuid.first;
     }
 
     std::pair<FileAttributeMap<clang::SourceLocation>::iterator, bool>

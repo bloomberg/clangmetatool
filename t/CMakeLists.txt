@@ -53,6 +53,7 @@ foreach(
   034-macro-name-for-statement
   035-range-for-statement
   036-export-fixes-output
+  037-includegraph-dependency-check
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
