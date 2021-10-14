@@ -3,8 +3,8 @@
 
 class TestClass
 {
-    TestClass() {}
-    virtual ~TestClass() {}
+  TestClass() {}
+  virtual ~TestClass() {}
 };
 
 #endif
