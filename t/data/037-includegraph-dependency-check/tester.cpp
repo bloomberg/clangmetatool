@@ -1,5 +1,5 @@
 #include "test_class.h"
-#include <string>
+#include "test_class_2.h"
 
 int main()
 {
