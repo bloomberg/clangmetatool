@@ -227,11 +227,7 @@ bool check_for_first_end(clang::CompilerInstance *ci,
   if (tuid.second) {
     unsigned int offset = ci->getSourceManager().getFileOffset(n->getEndLoc());
     auto end_location = std::make_pair(tuid.first, offset);
-
-    if (data->record_type_end_locations.count(end_location) == 0) {
-      data->record_type_end_locations.insert(end_location);
-      return true;
-    }
+    return data->record_type_end_locations.insert(end_location).second;
   }
 
   return false;
