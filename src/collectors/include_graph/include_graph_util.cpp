@@ -240,15 +240,8 @@ void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
   const clang::Decl *decl = NULL;
   if (!decl)
     decl = extract_decl_for_type<clang::TypedefType>(t);
-
-  if (!decl) {
+  if (!decl)
     decl = extract_decl_for_type<clang::RecordType>(t);
-
-    if (decl && !check_for_first_end(ci, data, n)) {
-      return;
-    }
-  }
-
   if (!decl)
     decl = extract_decl_for_type<clang::InjectedClassNameType>(t);
   if (!decl)
@@ -261,8 +254,10 @@ void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
     decl = extract_decl_for_type<clang::TemplateTypeParmType>(t);
   if (!decl)
     decl = extract_decl_for_type<clang::UnresolvedUsingType>(t);
-  if (!decl)
-    return;
+
+  if (!decl || !check_for_first_end(ci, data, n)) {
+      return;
+  }
 
   add_usage(ci, data, n->getBeginLoc(), decl->getLocation(), n,
             data->type_references);
