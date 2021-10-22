@@ -28,7 +28,7 @@ public:
     // file ID 0 to 1, aka foo.cpp to b.h
     auto edge = std::make_pair(0, 1);
     ASSERT_EQ(data->usage_reference_count.count(edge), 1);
-    ASSERT_EQ(data->usage_reference_count[edge], 1);
+    ASSERT_EQ(data->usage_reference_count[edge], 3);
 
     // file ID from 0 to 2, aka foo.cpp to a.h
     edge = std::make_pair(0, 2);
