@@ -219,6 +219,20 @@ static clang::Decl *extract_decl_for_type(const clang::Type *t) {
   }
 }
 
+bool check_for_first_end(clang::CompilerInstance *ci,
+                         IncludeGraphData *data,
+                         const clang::TypeLoc *n) {
+  std::pair<FileUID, bool> tuid = get_fileuid(ci, data, n->getEndLoc());
+
+  if (tuid.second) {
+    unsigned int offset = ci->getSourceManager().getFileOffset(n->getEndLoc());
+    auto end_location = std::make_pair(tuid.first, offset);
+    return data->record_type_end_locations.insert(end_location).second;
+  }
+
+  return false;
+}
+
 void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
                         const clang::TypeLoc *n) {
 
@@ -240,8 +254,10 @@ void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
     decl = extract_decl_for_type<clang::TemplateTypeParmType>(t);
   if (!decl)
     decl = extract_decl_for_type<clang::UnresolvedUsingType>(t);
-  if (!decl)
-    return;
+
+  if (!decl || !check_for_first_end(ci, data, n)) {
+      return;
+  }
 
   add_usage(ci, data, n->getBeginLoc(), decl->getLocation(), n,
             data->type_references);

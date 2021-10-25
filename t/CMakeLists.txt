@@ -54,6 +54,9 @@ foreach(
   035-range-for-statement
   036-export-fixes-output
   037-includegraph-dependency-check
+  038-includegraph-nested-name
+  039-includegraph-nested-name-parameter
+  040-includegraph-nested-using
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)

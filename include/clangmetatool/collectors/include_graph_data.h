@@ -106,6 +106,11 @@ struct IncludeGraphData {
    *  - A redeclaration of a named declaration
    */
   std::map<clangmetatool::types::FileGraphEdge, size_t> usage_reference_count;
+
+  /**
+   * end locations for record types to detect duplicate decls
+   */
+  std::set<std::pair<clangmetatool::types::FileUID, unsigned int>> record_type_end_locations;
 };
 } // namespace collectors
 } // namespace clangmetatool
