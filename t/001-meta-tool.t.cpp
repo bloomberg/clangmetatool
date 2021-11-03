@@ -39,10 +39,11 @@ TEST(use_meta_tool, factory) {
   int argc = 4;
   const char* argv[] = { "foo", "/dev/null", "--", "-xc++"  };
 
-  clang::tooling::CommonOptionsParser
-    optionsParser
-    ( argc, argv,
-      MyToolCategory );
+  auto result = clang::tooling::CommonOptionsParser::create(
+    argc, argv, MyToolCategory, llvm::cl::OneOrMore);
+  ASSERT_TRUE(!!result);
+  clang::tooling::CommonOptionsParser& optionsParser = result.get();
+
   clang::tooling::RefactoringTool tool
     ( optionsParser.getCompilations(),
       optionsParser.getSourcePathList());

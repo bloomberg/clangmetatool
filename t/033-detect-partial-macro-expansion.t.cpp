@@ -96,7 +96,10 @@ TEST(partialMacroExpansion_Detect, positive) {
       "/t/data/033-detect-partial-macro-expansion/partial-macro-usages.cpp",
       "--", "-xc++"};
 
-  clang::tooling::CommonOptionsParser optionsParser(argc, argv, category);
+  auto result = clang::tooling::CommonOptionsParser::create(
+    argc, argv, category, llvm::cl::OneOrMore);
+  ASSERT_TRUE(!!result);
+  clang::tooling::CommonOptionsParser& optionsParser = result.get();
   clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
                                        optionsParser.getSourcePathList());
   std::string positive("positive");
@@ -115,7 +118,10 @@ TEST(partialMacroExpansion_Detect, negative) {
       "/t/data/033-detect-partial-macro-expansion/partial-macro-usages.cpp",
       "--", "-xc++"};
 
-  clang::tooling::CommonOptionsParser optionsParser(argc, argv, category);
+  auto result = clang::tooling::CommonOptionsParser::create(
+    argc, argv, category, llvm::cl::OneOrMore);
+  ASSERT_TRUE(!!result);
+  clang::tooling::CommonOptionsParser& optionsParser = result.get();
   clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
                                        optionsParser.getSourcePathList());
   std::string negative("negative");
@@ -134,7 +140,10 @@ TEST(partialMacroExpansion_Detect, DISABLED_FalseNegatives) {
       "/t/data/033-detect-partial-macro-expansion/partial-macro-usages.cpp",
       "--", "-xc++"};
 
-  clang::tooling::CommonOptionsParser optionsParser(argc, argv, category);
+  auto result = clang::tooling::CommonOptionsParser::create(
+    argc, argv, category, llvm::cl::OneOrMore);
+  ASSERT_TRUE(!!result);
+  clang::tooling::CommonOptionsParser& optionsParser = result.get();
   clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
                                        optionsParser.getSourcePathList());
   std::string negative("falseNegative");
