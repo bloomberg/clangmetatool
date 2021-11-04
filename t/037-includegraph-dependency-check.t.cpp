@@ -47,10 +47,11 @@ TEST(use_meta_tool, factory) {
   };
   int argc = sizeof(argv) / sizeof(argv[0]);
 
-  clang::tooling::CommonOptionsParser
-    optionsParser
-    ( argc, argv,
-      MyToolCategory );
+  auto result = clang::tooling::CommonOptionsParser::create(
+    argc, argv, MyToolCategory, llvm::cl::OneOrMore);
+  ASSERT_TRUE(!!result);
+  clang::tooling::CommonOptionsParser& optionsParser = result.get();
+
   clang::tooling::RefactoringTool tool
     ( optionsParser.getCompilations(),
       optionsParser.getSourcePathList());

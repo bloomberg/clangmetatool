@@ -43,8 +43,11 @@ protected:
 
     int argc = argumentPtrs.size();
     const char** argv = argumentPtrs.data();
-    clang::tooling::CommonOptionsParser parser(argc, argv,
-                                               optionCategory());
+
+    auto result = clang::tooling::CommonOptionsParser::create(
+      argc, argv, optionCategory(), llvm::cl::OneOrMore);
+    EXPECT_TRUE(!!result);
+    clang::tooling::CommonOptionsParser& parser = result.get();
 
     // ToolApplicationSupport::verifyInstallation crashes with exit(1)
     // if the required headers aren't found
@@ -179,8 +182,10 @@ TEST(suppress_warnings, test)
   };
   int argc = sizeof argv / sizeof *argv;
 
-  clang::tooling::CommonOptionsParser optionsParser
-    ( argc, argv, optionCategory() );
+  auto result = clang::tooling::CommonOptionsParser::create(
+    argc, argv, optionCategory(), llvm::cl::OneOrMore);
+  ASSERT_TRUE(!!result);
+  clang::tooling::CommonOptionsParser& optionsParser = result.get();
 
   // We can't rely on 'optionsParser.getSourcePathList' because it is not
   // reset between invocations, so has all of the bogus paths from the other

@@ -38,10 +38,15 @@ int main(int argc, const char *argv[]) {
   llvm::cl::extrahelp CommonHelp(
       clang::tooling::CommonOptionsParser::HelpMessage);
 
-  clang::tooling::CommonOptionsParser optionsParser(argc, argv, MyToolCategory);
+  auto parseResult = clang::tooling::CommonOptionsParser::create(
+      argc, argv, MyToolCategory, llvm::cl::OneOrMore);
+  if (!parseResult) {
+    llvm::errs() << parseResult.takeError();
+    return 1;
+  }
 
-  clang::tooling::RefactoringTool tool(optionsParser.getCompilations(),
-                                       optionsParser.getSourcePathList());
+  clang::tooling::RefactoringTool tool(parseResult->getCompilations(),
+                                       parseResult->getSourcePathList());
 
   MyTool::ArgTypes toolArgs;
   clangmetatool::MetaToolFactory<clangmetatool::MetaTool<MyTool>> raf(
