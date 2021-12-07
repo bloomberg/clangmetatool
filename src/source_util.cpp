@@ -46,15 +46,6 @@ const clang::MacroInfo *getMacroInfo(clang::SourceLocation location,
   return history->findDirectiveAtLoc(location, sourceManager).getMacroInfo();
 }
 
-llvm::ArrayRef<clang::Token>
-getMacroTokens(clang::SourceLocation location,
-               const clang::SourceManager &sourceManager,
-               clang::Preprocessor &preprocessor) {
-  // Get macro identifier for the given location
-  auto *macroInfo = getMacroInfo(location, sourceManager, preprocessor);
-  return macroInfo ? macroInfo->tokens() : llvm::ArrayRef<clang::Token>();
-}
-
 bool sourceRangeContainsOnly(clang::SourceLocation beginLocation,
                              clang::SourceLocation endLocation,
                              const std::string &allowed,
@@ -74,15 +65,165 @@ bool sourceRangeContainsOnly(clang::SourceLocation beginLocation,
   return true;
 }
 
+/**
+ * Record for a single macro expansion step, including the location of that
+ * expansion and the macro information at that point, if any.
+ */
+struct ExpansionFrame {
+  const clang::MacroInfo *macroInfo;
+  clang::SourceLocation location;
+};
+
+/**
+ * Return a sequence of macro expansion records for the given location at the
+ * front of a range, from least expanded (the macro definition) to most
+ * expanded (the macro use). Stop if any partial macro expansions are
+ * encountered.
+ */
+std::vector<ExpansionFrame>
+expandBeginLocation(clang::SourceLocation begin,
+                    const clang::SourceManager &sourceManager,
+                    clang::Preprocessor &preprocessor) {
+  std::vector<ExpansionFrame> stack;
+
+  while (begin.isMacroID()) {
+    // Get the macro information at this location
+
+    auto macroInfo = getMacroInfo(begin, sourceManager, preprocessor);
+
+    // If a macro in the hierarchy uses the GCC '##' extension (see [1])
+    // we can't easily trace up the context stack how the statement is formed
+    // from component macros. Cop out and return.
+    // [1]: https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+
+    if (macroInfo->isVariadic() && macroInfo->hasCommaPasting()) {
+      return stack;
+    }
+
+    // Add the current location to the stack
+
+    stack.push_back(ExpansionFrame{macroInfo, begin});
+
+    if (sourceManager.isMacroBodyExpansion(begin)) {
+      // Handle the case where the location is in a macro body
+
+      // Check that there are only spaces or '(' between the beginning of the
+      // macro and part corresponding to the beginning of the statement.
+
+      llvm::ArrayRef<clang::Token> tokens = macroInfo->tokens();
+      if (!tokens.empty()) {
+        clang::SourceLocation macroStart = tokens.front().getLocation();
+
+        // FIXME
+        // There is potentially a bug here, this is unable to deal with macros
+        // that expand to more than one access expression
+        clang::SourceLocation statementStart =
+            sourceManager.getSpellingLoc(begin);
+
+        if (!sourceRangeContainsOnly(macroStart, statementStart, " \t(",
+                                     sourceManager)) {
+          return stack;
+        }
+      }
+
+      // Move up one level closer to the expansion point.
+
+      begin = sourceManager.getImmediateExpansionRange(begin).getBegin();
+    } else {
+      // Handle the case where the location is in an argument to a function-like
+      // macro.
+
+      // Start resolving the macro argument instead of the macro itself.
+
+      begin = sourceManager.getImmediateSpellingLoc(begin);
+    }
+  }
+
+  // Insert the fully expanded location into the stack, there is no macro
+  // information at this point.
+
+  stack.push_back(ExpansionFrame{0, begin});
+  return stack;
+}
+
+/**
+ * Return a sequence of macro expansion records for the given location at the
+ * end of a range, from least expanded (the macro definition) to most
+ * expanded (the macro use). Stop if any partial macro expansions are
+ * encountered.
+ */
+std::vector<ExpansionFrame>
+expandEndLocation(clang::SourceLocation end,
+                  const clang::SourceManager &sourceManager,
+                  clang::Preprocessor &preprocessor) {
+  std::vector<ExpansionFrame> stack;
+
+  while (end.isMacroID()) {
+    // Get the macro information at this location
+
+    auto macroInfo = getMacroInfo(end, sourceManager, preprocessor);
+
+    // If a macro in the hierarchy uses the GCC '##' extension (see [1])
+    // we can't easily trace up the context stack how the statement is formed
+    // from component macros. Cop out and return.
+    // [1]: https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+
+    if (macroInfo->isVariadic() && macroInfo->hasCommaPasting()) {
+      return stack;
+    }
+
+    // Add the current location to the stack
+
+    stack.push_back(ExpansionFrame{macroInfo, end});
+
+    if (sourceManager.isMacroBodyExpansion(end)) {
+      // Handle the case where the location is in a macro body
+
+      // Check that there are only spaces or ')' between the end of the
+      // macro and part corresponding to the end of the statement.
+
+      llvm::ArrayRef<clang::Token> tokens = macroInfo->tokens();
+      if (!tokens.empty()) {
+        clang::SourceLocation macroEnd = tokens.back().getEndLoc();
+        clang::SourceLocation statementEnd = sourceManager.getSpellingLoc(end);
+
+        statementEnd = clang::Lexer::getLocForEndOfToken(
+            statementEnd, 0, sourceManager, clang::LangOptions());
+
+        if (!sourceRangeContainsOnly(statementEnd, macroEnd, " \t)",
+                                     sourceManager)) {
+          return stack;
+        }
+      }
+
+      // Move up one level closer to the expansion point.
+
+      end = sourceManager.getImmediateExpansionRange(end).getEnd();
+    } else {
+      // Handle the case where the location is in an argument to a function-like
+      // macro.
+
+      // Start resolving the macro argument instead of the macro itself.
+
+      end = sourceManager.getImmediateSpellingLoc(end);
+    }
+  }
+
+  // Insert the fully expanded location into the stack, there is no macro
+  // information at this point.
+
+  stack.push_back(ExpansionFrame{0, end});
+  return stack;
+}
+
 } // namespace
 
 clang::CharSourceRange
 SourceUtil::expandRange(const clang::SourceRange &range,
                         const clang::SourceManager &sourceManager) {
-  // Get the start location, resolving from macro definition to macro call
-  // location. The loop is adapted from 'clang::SourceManager::getFileLoc'.
 
   clang::SourceLocation begin = range.getBegin();
+
   while (!begin.isFileID()) {
     if (sourceManager.isMacroArgExpansion(begin)) {
       begin = sourceManager.getImmediateSpellingLoc(begin);
@@ -107,6 +248,73 @@ SourceUtil::expandRange(const clang::SourceRange &range,
                                           clang::LangOptions());
 
   return clang::CharSourceRange::getCharRange(begin, end);
+}
+
+clang::CharSourceRange
+SourceUtil::expandRangeIfValid(const clang::SourceRange &range,
+                               const clang::SourceManager &sourceManager,
+                               clang::Preprocessor &preprocessor) {
+  clang::SourceLocation begin = range.getBegin();
+  clang::SourceLocation end = range.getEnd();
+
+  // Get the full set of expansion records for the front and end of the range.
+  // If there are none in either case then there is something in the code that
+  // we cannot handle.
+
+  auto beginStack = expandBeginLocation(begin, sourceManager, preprocessor);
+  if (beginStack.empty()) {
+    return {};
+  }
+
+  auto endStack = expandEndLocation(end, sourceManager, preprocessor);
+  if (endStack.empty()) {
+    return {};
+  }
+
+  // Search through each record in the expansion of the front of the range,
+  // starting from the last, or most expanded, record.
+
+  for (auto beginFrameIt = beginStack.rbegin();
+       beginFrameIt != beginStack.rend(); ++beginFrameIt) {
+    // For each, search for a corresponding expansion record for the end of the
+    // range, matching by macro information.
+
+    auto endFrameIt =
+        std::find_if(endStack.rbegin(), endStack.rend(),
+                     [&beginFrameIt, &sourceManager](const auto &frame) {
+                       return frame.macroInfo == beginFrameIt->macroInfo;
+                     });
+
+    // If no match is found, keep iterating
+
+    if (endFrameIt == endStack.rend()) {
+      continue;
+    }
+
+    // Traverse the rest of the stack and ensure that any macro argument
+    // expansions match up.
+
+    for (auto beginTempIt = beginFrameIt, endTempIt = endFrameIt;
+         beginTempIt != beginStack.rend() && endTempIt != endStack.rend();
+         ++beginTempIt, ++endTempIt) {
+      if (sourceManager.isMacroArgExpansion(beginTempIt->location) !=
+          sourceManager.isMacroArgExpansion(endTempIt->location)) {
+        return {};
+      }
+    }
+
+    // Form and return a range with the front and back locations
+
+    begin = sourceManager.getImmediateSpellingLoc(beginFrameIt->location);
+    end = sourceManager.getImmediateSpellingLoc(endFrameIt->location);
+    end = clang::Lexer::getLocForEndOfToken(end, 0, sourceManager,
+                                            clang::LangOptions());
+    return clang::CharSourceRange::getCharRange(begin, end);
+  }
+
+  // No matching front and end records were found, return an invalid range.
+
+  return {};
 }
 
 clang::CharSourceRange
@@ -192,104 +400,21 @@ bool SourceUtil::isPartialMacro(const clang::SourceRange &sourceRange,
   if (sourceManager.isMacroArgExpansion(begin) !=
       sourceManager.isMacroArgExpansion(end)) {
     // This catches macros which might receive other macros as arguments
-    return true; // partial macro
+
+    return true;
   }
 
-  auto usesGccVarargExtensionAtLoc = [&sourceManager,
-                                      &preprocessor](const auto &loc) {
-    if (auto *macroInfo = getMacroInfo(loc, sourceManager, preprocessor)) {
-      return macroInfo->isVariadic() && macroInfo->hasCommaPasting();
-    }
-    return false;
-  };
+  // Ensure that all macros are fully expanded. That is, the expansion function
+  // should return a stack with a non-macro at the end.
 
-  while (begin.isMacroID()) {
-    // If a macro in the heierarchy uses the GCC '##' extension (see [1])
-    // we can't easily trace up the context stack how the statement is formed
-    // from component macros. Cop out, return true
-    // [1]: https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
-    if (usesGccVarargExtensionAtLoc(begin)) {
-      return true;
-    }
-    // Only process macros where the statement is in the body, not ones where
-    // it is an argument.
-
-    if (sourceManager.isMacroBodyExpansion(begin)) {
-      // Check that there are only spaces or '(' between the beginning of the
-      // macro and part corresponding to the beginning of the statement.
-
-      llvm::ArrayRef<clang::Token> tokens =
-          getMacroTokens(begin, sourceManager, preprocessor);
-      if (!tokens.empty()) {
-        clang::SourceLocation macroStart = tokens.front().getLocation();
-
-        // FIXME
-        // There is potentially a bug here, this is unable to deal with macros
-        // that expand to more than one access expression
-        clang::SourceLocation statementStart =
-            sourceManager.getSpellingLoc(begin);
-
-        if (!sourceRangeContainsOnly(macroStart, statementStart, " \t(",
-                                     sourceManager)) {
-          return true;
-        }
-      }
-    }
-
-    // Move up one level closer to the expansion point. This code is adapted
-    // from 'clang::SourceManager::getImmediateMacroCallerLoc'.
-
-    if (sourceManager.isMacroArgExpansion(begin)) {
-      begin = sourceManager.getImmediateSpellingLoc(begin);
-    } else {
-      begin = sourceManager.getImmediateExpansionRange(begin).getBegin();
-    }
+  auto stack = expandBeginLocation(begin, sourceManager, preprocessor);
+  if (stack.empty() || stack.back().macroInfo) {
+    return true;
   }
 
-  // Trace through levels of macros that are expanded by the end of the
-  // statement.
-
-  const clang::MacroInfo *prevMacro = nullptr;
-
-  while (end.isMacroID()) {
-    // If a macro in the heierarchy uses the GCC '##' extension (see [1])
-    // we can't easily trace up the context stack how the statement is formed
-    // from component macros. Cop out, return true
-    // [1]: https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
-    if (usesGccVarargExtensionAtLoc(end)) {
-      return true;
-    }
-    // Only process macros where the statement is in the body, not ones where
-    // it is an argument.
-
-    if (sourceManager.isMacroBodyExpansion(end)) {
-      // Check that there are only spaces or '(' between the beginning of the
-      // macro and part corresponding to the beginning of the statement.
-
-      llvm::ArrayRef<clang::Token> tokens =
-          getMacroTokens(end, sourceManager, preprocessor);
-      if (!tokens.empty()) {
-        clang::SourceLocation macroEnd = tokens.back().getEndLoc();
-        clang::SourceLocation statementEnd = sourceManager.getSpellingLoc(end);
-
-        statementEnd = clang::Lexer::getLocForEndOfToken(
-            statementEnd, 0, sourceManager, clang::LangOptions());
-
-        if (!sourceRangeContainsOnly(statementEnd, macroEnd, " \t)",
-                                     sourceManager)) {
-          return true;
-        }
-      }
-    }
-
-    // Move up one level closer to the expansion point. This code is adapted
-    // from 'clang::SourceManager::getImmediateMacroCallerLoc'.
-
-    if (sourceManager.isMacroArgExpansion(end)) {
-      end = sourceManager.getImmediateSpellingLoc(end);
-    } else {
-      end = sourceManager.getImmediateExpansionRange(end).getEnd();
-    }
+  stack = expandEndLocation(end, sourceManager, preprocessor);
+  if (stack.empty() || stack.back().macroInfo) {
+    return true;
   }
 
   return false;
