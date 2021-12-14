@@ -26,11 +26,23 @@ struct SourceUtil {
   };
 
   /**
-   * Expand the given range by resolving macros and iterating past tokens.
+   * Expand the given range as much as possible by resolving macros and
+   * iterating past tokens.
    */
   static clang::CharSourceRange
   expandRange(const clang::SourceRange &range,
               const clang::SourceManager &sourceManager);
+
+  /**
+   * Expand the given range as much as possible by resolving macros and
+   * iterating past tokens. This function will return an invalid range if no
+   * contiguous expansion can be found for the range, e.g. the begin and end of
+   * each expansion are in different macros.
+   */
+  static clang::CharSourceRange
+  expandRangeIfValid(const clang::SourceRange &range,
+                     const clang::SourceManager &sourceManager,
+                     clang::Preprocessor &preprocessor);
 
   /**
    * Return a range for the given statement, using the given source manager to
