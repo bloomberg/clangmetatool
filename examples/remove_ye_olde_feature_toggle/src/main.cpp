@@ -84,7 +84,7 @@ public:
     clangmetatool::collectors::FindCallsData *fcdata = fc.getData();
     for (auto call_ctx : fcdata->call_context) {
       const clang::CallExpr *call = call_ctx.second;
-      if (!sm.isWrittenInMainFile(call->getBeginLoc()))
+      if (!sm.isInMainFile(call->getBeginLoc()))
         continue;
       if (sm.isMacroBodyExpansion(call->getBeginLoc()))
         continue;
