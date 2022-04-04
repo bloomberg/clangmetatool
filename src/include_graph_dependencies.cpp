@@ -5,6 +5,10 @@
 namespace clangmetatool {
 
 namespace {
+  
+// Backup copy of usage_reference_count, only used for internal implementation
+std::map<clangmetatool::types::FileGraphEdge, size_t> usage_reference_count_bk;
+
 
 // Returns a range of edges whose source vertex matches the given file uid
 inline std::pair<types::FileGraph::const_iterator,
@@ -76,7 +80,7 @@ bool requires(const collectors::IncludeGraphData *data,
 
   return keepEdge;
 }
-} // namespace
+} // anonymous namespace
 
 bool IncludeGraphDependencies::decrementUsageRefCount(
     collectors::IncludeGraphData *data,
@@ -138,4 +142,13 @@ std::set<types::FileUID> IncludeGraphDependencies::liveDependencies(
 
   return dependencies;
 }
+
+void IncludeGraphDependencies::backup(collectors::IncludeGraphData* data){
+  usage_reference_count_bk = data->usage_reference_count;
+}
+
+void IncludeGraphDependencies::restore(collectors::IncludeGraphData* data){
+  data->usage_reference_count = usage_reference_count_bk;
+}
+
 } // namespace clangmetatool

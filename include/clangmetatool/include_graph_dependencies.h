@@ -46,6 +46,15 @@ struct IncludeGraphDependencies {
   static std::set<clangmetatool::types::FileUID>
   liveDependencies(const clangmetatool::collectors::IncludeGraphData *data,
                    const clangmetatool::types::FileUID &headerFUID);
+
+  /**
+   * Backup state of IncludeGraphData
+   */
+  static void backup(collectors::IncludeGraphData*);
+  /**
+   * Restore state of IncludeGraphData
+   */
+  static void restore(collectors::IncludeGraphData*);
 }; // struct IncludeGraphDependencies
 } // namespace clangmetatool
 
