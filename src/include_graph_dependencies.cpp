@@ -138,4 +138,72 @@ std::set<types::FileUID> IncludeGraphDependencies::liveDependencies(
 
   return dependencies;
 }
+
+/*
+ * Traverse the include graph from `fromNode` to all accessible node using BFS
+ * for `forNode` and update given RequiresMap.
+ *
+ * For any node that `usage_reference_count[{fromNode, toNode}] > 0`, add a record
+ * `{toNode: [fromNode]}` to requiresMap, means that `forNode` needs to access
+ * resource defined in `toNode` through `fromNode`
+ *
+ * Include graph should looks like:
+ * forNode -> fromNode ... -> toNode
+ */
+void traverseFor(const types::FileUID &fromNode, const types::FileUID &forNode,
+                 const clangmetatool::collectors::IncludeGraphData *data,
+                 std::set<types::FileUID> &knownNodes,
+                 IncludeGraphDependencies::RequiresMap& requiresMap){
+  std::queue<types::FileUID> filesToProcess;
+
+  filesToProcess.push(fromNode);
+
+  while (!filesToProcess.empty()) {
+    auto currentFUID = filesToProcess.front();
+    filesToProcess.pop();
+
+    types::FileGraphEdge currentEdge{forNode, currentFUID};
+    auto refCountIt = data->usage_reference_count.find(currentEdge);
+    // the include graph looks like
+    // forNode -> fromNode -> ... -> currentFUID 
+    if (refCountIt != data->usage_reference_count.end() &&
+        refCountIt->second > 0) {
+      requiresMap[currentFUID].emplace(fromNode);
+    }
+
+    // Find the set of files included by the current file uid
+    // and set those up for traversal if we haven't seen them already
+    types::FileGraph::const_iterator rangeBegin, rangeEnd;
+    std::tie(rangeBegin, rangeEnd) = edge_range_with_source(data, currentFUID);
+
+    for (auto edgeIt = rangeBegin; edgeIt != rangeEnd; ++edgeIt) {
+      types::FileUID nextNode;
+      std::tie(std::ignore, nextNode) = *edgeIt;
+      if (knownNodes.find(nextNode) == knownNodes.end()) {
+        filesToProcess.push(nextNode);
+        knownNodes.insert(nextNode);
+      }
+    }
+  }
+
+}
+
+IncludeGraphDependencies::RequiresMap
+IncludeGraphDependencies::liveWeakDependencies(
+    const clangmetatool::collectors::IncludeGraphData *data,
+    const clangmetatool::types::FileUID &headerFUID){
+  IncludeGraphDependencies::RequiresMap requiresMap;
+
+  types::FileGraph::const_iterator rangeBegin, rangeEnd;
+  std::tie(rangeBegin, rangeEnd) = edge_range_with_source(data, headerFUID);
+
+  for (auto it = rangeBegin; it != rangeEnd; ++it) {
+    assert(it->first == headerFUID);
+    std::set<types::FileUID> knownNodes;
+    traverseFor(it->second, headerFUID, data, knownNodes, requiresMap); 
+  }
+
+  return requiresMap;
+}
+
 } // namespace clangmetatool

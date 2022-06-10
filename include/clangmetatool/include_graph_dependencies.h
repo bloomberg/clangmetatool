@@ -5,6 +5,7 @@
 
 namespace clangmetatool {
 
+
 /**
  * Collect stateless functions to query and and modify the state of
  * dependencies of a given `clangmetatool::IncludeGraphData` structure.
@@ -46,6 +47,36 @@ struct IncludeGraphDependencies {
   static std::set<clangmetatool::types::FileUID>
   liveDependencies(const clangmetatool::collectors::IncludeGraphData *data,
                    const clangmetatool::types::FileUID &headerFUID);
+
+  /*
+   * A data structure for include graph weak dependencies analysis
+   *
+   * Key: all requires headers
+   * Value: a set of direct included headers that could access the key header
+   *
+   * Example:
+   * { "def1.h": {"a.h", "b.h"},
+   *   "def2.h": {"a.h", "c.h"} }
+   *
+   * So that given the example data above it means current analyzing file:
+   * - requires definitions from "def1.h", "def2.h" directly
+   * - includes "a.h", "b.h", "c.h"
+   * - can access "def1.h" by "a.h" and "b.h"
+   * - can access "def2.h" by "a.h" and "c.h"
+   */
+  typedef std::map<clangmetatool::types::FileUID,
+                   std::set<clangmetatool::types::FileUID>> RequiresMap;
+
+  /**
+   * Get the 'live' weak dependencies of a header within the given include graph.
+   * This will return data structure(called RequiresMap) shows weak dependencies of headers
+   *
+   * (See docstring of RequiresMap typedef above for more details of the data structure)
+   */
+  static RequiresMap
+  liveWeakDependencies(const clangmetatool::collectors::IncludeGraphData *data,
+                       const clangmetatool::types::FileUID &headerFUID);
+
 }; // struct IncludeGraphDependencies
 } // namespace clangmetatool
 
