@@ -319,7 +319,7 @@ public:
     // * access def7.h through g.h and def7.h
 
     EXPECT_EQ(
-        clangmetatool::IncludeGraphDependencies::RequiresMap(
+        clangmetatool::IncludeGraphDependencies::DirectDependenciesMap(
             {std::make_pair(
                  fname2uid["def1.h"],
                  std::set<clangmetatool::types::FileUID>{fname2uid["b.h"]}),
@@ -349,7 +349,7 @@ public:
 
     // def1.h no longer needed
     EXPECT_EQ(
-        clangmetatool::IncludeGraphDependencies::RequiresMap(
+        clangmetatool::IncludeGraphDependencies::DirectDependenciesMap(
             {std::make_pair(
                  fname2uid["def2.h"],
                  std::set<clangmetatool::types::FileUID>{fname2uid["c.h"]}),
@@ -375,7 +375,7 @@ public:
         data, {mfid, fname2uid["def2.h"]});
 
     // def2.h no longer needed
-    EXPECT_EQ(clangmetatool::IncludeGraphDependencies::RequiresMap(
+    EXPECT_EQ(clangmetatool::IncludeGraphDependencies::DirectDependenciesMap(
                   {std::make_pair(fname2uid["def3.h"],
                                   std::set<clangmetatool::types::FileUID>{
                                       fname2uid["d.h"]}),
@@ -398,7 +398,7 @@ public:
         data, {mfid, fname2uid["def3.h"]});
 
     // def3.h no longer needed
-    EXPECT_EQ(clangmetatool::IncludeGraphDependencies::RequiresMap(
+    EXPECT_EQ(clangmetatool::IncludeGraphDependencies::DirectDependenciesMap(
                   {std::make_pair(fname2uid["def4.h"],
                                   std::set<clangmetatool::types::FileUID>{
                                       fname2uid["d.h"]}),
@@ -418,7 +418,7 @@ public:
         data, {mfid, fname2uid["def4.h"]});
 
     // def4.h no longer needed
-    EXPECT_EQ(clangmetatool::IncludeGraphDependencies::RequiresMap(
+    EXPECT_EQ(clangmetatool::IncludeGraphDependencies::DirectDependenciesMap(
                   {std::make_pair(fname2uid["def5.h"],
                                   std::set<clangmetatool::types::FileUID>{
                                       fname2uid["e.h"], fname2uid["diam.h"]}),
@@ -435,7 +435,7 @@ public:
         data, {mfid, fname2uid["def5.h"]});
 
     // def5.h no longer needed
-    EXPECT_EQ(clangmetatool::IncludeGraphDependencies::RequiresMap(
+    EXPECT_EQ(clangmetatool::IncludeGraphDependencies::DirectDependenciesMap(
                   {std::make_pair(fname2uid["def6.h"],
                                   std::set<clangmetatool::types::FileUID>{
                                       fname2uid["f.h"], fname2uid["level.h"]}),
@@ -449,7 +449,7 @@ public:
         data, {mfid, fname2uid["def6.h"]});
 
     // def6.h no longer needed
-    EXPECT_EQ(clangmetatool::IncludeGraphDependencies::RequiresMap(
+    EXPECT_EQ(clangmetatool::IncludeGraphDependencies::DirectDependenciesMap(
                   {std::make_pair(fname2uid["def7.h"],
                                   std::set<clangmetatool::types::FileUID>{
                                       fname2uid["g.h"], fname2uid["def7.h"]})}),
