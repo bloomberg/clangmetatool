@@ -93,14 +93,14 @@ bool IncludeGraphDependencies::decrementUsageRefCount(
 std::set<clangmetatool::types::FileUID>
 IncludeGraphDependencies::collectAllIncludes(
     const clangmetatool::collectors::IncludeGraphData* data,
-    const types::FileUID &fileFUID)
+    const types::FileUID &fileUID)
 {
   types::FileGraph::const_iterator rangeBegin, rangeEnd;
-  std::tie(rangeBegin, rangeEnd) = edgeRangeStartsWith(data, fileFUID);
+  std::tie(rangeBegin, rangeEnd) = edgeRangeStartsWith(data, fileUID);
 
   std::set<clangmetatool::types::FileUID> visitedNodes;
   std::queue<clangmetatool::types::FileUID> toVisit;
-  toVisit.push(fileFUID);
+  toVisit.push(fileUID);
   while (!toVisit.empty()) {
     auto currentFUID = toVisit.front();
     toVisit.pop();
@@ -120,18 +120,18 @@ IncludeGraphDependencies::collectAllIncludes(
 
 std::set<types::FileUID> IncludeGraphDependencies::liveDependencies(
     const collectors::IncludeGraphData *data,
-    const clangmetatool::types::FileUID &fileFUID) {
+    const clangmetatool::types::FileUID &fileUID) {
   std::set<types::FileUID> dependencies;
   std::set<types::FileGraphEdge> visitedEdges;
   std::set<types::FileUID> visitedNodes;
 
   types::FileGraph::const_iterator rangeBegin, rangeEnd;
-  std::tie(rangeBegin, rangeEnd) = edgeRangeStartsWith(data, fileFUID);
+  std::tie(rangeBegin, rangeEnd) = edgeRangeStartsWith(data, fileUID);
 
   for (auto it = rangeBegin; it != rangeEnd; ++it) {
-    assert(it->first == fileFUID);
+    assert(it->first == fileUID);
     auto &dependency = it->second;
-    if (isRequired(data, fileFUID, dependency, visitedEdges, visitedNodes)) {
+    if (isRequired(data, fileUID, dependency, visitedEdges, visitedNodes)) {
       dependencies.insert(dependency);
     }
   }
@@ -191,16 +191,16 @@ void traverseFor(const types::FileUID &forNode, const types::FileUID &rootNode,
 IncludeGraphDependencies::DirectDependenciesMap
 IncludeGraphDependencies::liveWeakDependencies(
     const clangmetatool::collectors::IncludeGraphData *data,
-    const clangmetatool::types::FileUID &fileFUID){
+    const clangmetatool::types::FileUID &fileUID){
   IncludeGraphDependencies::DirectDependenciesMap depsMap;
 
   types::FileGraph::const_iterator rangeBegin, rangeEnd;
-  std::tie(rangeBegin, rangeEnd) = edgeRangeStartsWith(data, fileFUID);
+  std::tie(rangeBegin, rangeEnd) = edgeRangeStartsWith(data, fileUID);
 
   for (auto it = rangeBegin; it != rangeEnd; ++it) {
-    assert(it->first == fileFUID);
+    assert(it->first == fileUID);
     std::set<types::FileUID> knownNodes;
-    traverseFor(fileFUID, it->second, data, knownNodes, depsMap); 
+    traverseFor(fileUID, it->second, data, knownNodes, depsMap); 
   }
 
   return depsMap;
