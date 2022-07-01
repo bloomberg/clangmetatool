@@ -5,6 +5,7 @@
 
 namespace clangmetatool {
 
+
 /**
  * Collect stateless functions to query and and modify the state of
  * dependencies of a given `clangmetatool::IncludeGraphData` structure.
@@ -29,7 +30,7 @@ struct IncludeGraphDependencies {
    */
   static std::set<clangmetatool::types::FileUID>
   collectAllIncludes(const clangmetatool::collectors::IncludeGraphData* data,
-                     const clangmetatool::types::FileUID &fileFUID);
+                     const clangmetatool::types::FileUID &fileUID);
 
 
   /**
@@ -45,7 +46,42 @@ struct IncludeGraphDependencies {
    */
   static std::set<clangmetatool::types::FileUID>
   liveDependencies(const clangmetatool::collectors::IncludeGraphData *data,
-                   const clangmetatool::types::FileUID &headerFUID);
+                   const clangmetatool::types::FileUID &fileUID);
+
+  /*
+   * A data structure for include graph weak dependencies analysis
+   * for a specific source file
+   *
+   * Key: all headers the file indirectly depends on
+   * Value: a set of direct included headers that could allow the file to
+   * access the key header
+   *
+   * Example:
+   * \code{.unparsed}
+   * { "def1.h": {"a.h", "b.h"},
+   *   "def2.h": {"a.h", "c.h"} }
+   * \endcode
+   *
+   * So that given the example data above it means current analyzing file:
+   * - depends on definitions from \c "def1.h", \c "def2.h"
+   * - includes \c "a.h", \c "b.h", \c "c.h"
+   * - can access \c "def1.h" by \c "a.h" and \c "b.h"
+   * - can access \c "def2.h" by \c "a.h" and \c "c.h"
+   */
+  typedef std::map<clangmetatool::types::FileUID,
+                   std::set<clangmetatool::types::FileUID>> DirectDependenciesMap;
+
+  /**
+   * Get the live weak dependencies of a header within the given include graph.
+   *
+   * Unlike \c "liveDependencies" which returns the first header that leads to a header
+   * with a needed declaration, the output of this function includes all direct includes
+   * that have a path to a header with a needed declaration.
+   */
+  static DirectDependenciesMap
+  liveWeakDependencies(const clangmetatool::collectors::IncludeGraphData *data,
+                       const clangmetatool::types::FileUID &fileUID);
+
 }; // struct IncludeGraphDependencies
 } // namespace clangmetatool
 
