@@ -51,7 +51,7 @@ ENV CC=/usr/bin/gcc-"$GCC_VERSION" \
 # Install gtest as they recommend to, for 1.8.x
 RUN cd /usr/src/gtest && \
     cmake . && \
-    make ; \
+    make && \
     find . -name "libg*" -exec mv {} /usr/lib \;
 
 COPY . clangmetatool/
