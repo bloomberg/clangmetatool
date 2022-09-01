@@ -34,3 +34,9 @@ matrix:
           language: cpp
           sudo: true
           script: docker build --build-arg TARGET_LLVM_VERSION=13 .
+        - os: linux
+          dist: jammy
+          compiler: gcc
+          language: cpp
+          sudo: true
+          script: docker build --build-arg TARGET_LLVM_VERSION=14 --build-arg BASE_IMAGE=ubuntu:22.04 --build-arg GCC_VERSION=9 --build-arg IMAGE_REPO=jammy .
