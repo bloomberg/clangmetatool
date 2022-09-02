@@ -97,7 +97,7 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(GCCToolChain))
   ASSERT_DEATH(
       verifyInstallation({"tool", "test.cpp", "--",
                           "-resource-dir", CLANG_RESOURCE_DIR,
-                          "-gcc-toolchain", "/non-existent/123"}),
+                          "--gcc-toolchain=/non-existent/123"}),
       messageRegex);
 }
 
@@ -116,7 +116,7 @@ TEST_F(ToolApplicationSupportTest, ARCH_DEPENDENT(CFilesWithGCCToolChain))
   ASSERT_DEATH(
       verifyInstallation({"tool", "test.c", "--",
                           "-resource-dir", CLANG_RESOURCE_DIR,
-                          "-gcc-toolchain", "/non-existent/123"}),
+                          "--gcc-toolchain=/non-existent/123"}),
       messageRegex);
 }
 

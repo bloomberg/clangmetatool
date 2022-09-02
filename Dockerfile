@@ -4,6 +4,7 @@ FROM $BASE_IMAGE
 
 ARG TARGET_LLVM_VERSION=8
 ARG IMAGE_REPO=bionic
+ARG GCC_VERSION=7
 
 # Depenedencies to fetch, build llvm and clang
 RUN apt-get update && apt-get install -y \
@@ -20,8 +21,8 @@ RUN apt-get update
 
 RUN apt-get install -y \
         # Build toolchains that we are targeting for compatibility with
-        gcc-7 \
-        g++-7 \
+        gcc-"$GCC_VERSION" \
+        g++-"$GCC_VERSION" \
         cmake \
         # clangmetatool uses gtest
         libgtest-dev \
@@ -42,8 +43,8 @@ RUN apt-get install -y \
         libc++-"$TARGET_LLVM_VERSION"-dev
 
 # Set up build environment
-ENV CC=/usr/bin/gcc-7 \
-    CXX=/usr/bin/g++-7 \
+ENV CC=/usr/bin/gcc-"$GCC_VERSION" \
+    CXX=/usr/bin/g++-"$GCC_VERSION" \
     MAKEFLAGS="-j4" \
     CMAKE_BUILD_PARALLEL_LEVEL=4
 
@@ -51,7 +52,7 @@ ENV CC=/usr/bin/gcc-7 \
 RUN cd /usr/src/gtest && \
     cmake . && \
     make && \
-    mv libg* /usr/lib
+    find . -name "libg*" -exec mv {} /usr/lib \;
 
 COPY . clangmetatool/
 WORKDIR clangmetatool
