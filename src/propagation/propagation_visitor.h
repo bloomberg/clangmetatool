@@ -87,13 +87,13 @@ public:
     // Find the first statement in the block, note that the statements are not
     // necessarily in order as stored in the block.
     const clang::Stmt *startStmt = nullptr;
-    const clang::SourceManager& SM = AC.getSourceManager();
+    const clang::SourceManager &SM = AC.getSourceManager();
     for (auto elem : *block) {
       const clang::Stmt *elemStmt = nullptr;
-      if (util::getStmtFromCFGElement(elemStmt, elem)
-          && (!startStmt
-              || SM.isBeforeInTranslationUnit(elemStmt->getBeginLoc(),
-                                              startStmt->getBeginLoc()))) {
+      if (util::getStmtFromCFGElement(elemStmt, elem) &&
+          (!startStmt ||
+           SM.isBeforeInTranslationUnit(elemStmt->getBeginLoc(),
+                                        startStmt->getBeginLoc()))) {
         startStmt = elemStmt;
       }
     }
