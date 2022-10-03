@@ -89,12 +89,10 @@ bool IncludeGraphDependencies::decrementUsageRefCount(
   return false;
 }
 
-
 std::set<clangmetatool::types::FileUID>
 IncludeGraphDependencies::collectAllIncludes(
-    const clangmetatool::collectors::IncludeGraphData* data,
-    const types::FileUID &fileUID)
-{
+    const clangmetatool::collectors::IncludeGraphData *data,
+    const types::FileUID &fileUID) {
   types::FileGraph::const_iterator rangeBegin, rangeEnd;
   std::tie(rangeBegin, rangeEnd) = edgeRangeStartsWith(data, fileUID);
 
@@ -116,7 +114,6 @@ IncludeGraphDependencies::collectAllIncludes(
   }
   return visitedNodes;
 }
-
 
 std::set<types::FileUID> IncludeGraphDependencies::liveDependencies(
     const collectors::IncludeGraphData *data,
@@ -143,7 +140,8 @@ std::set<types::FileUID> IncludeGraphDependencies::liveDependencies(
  * Traverse the include graph for `forNode` start from `rootNode` to all
  * accessible node using BFS and update given DirectDependenciesMap.
  *
- * For any node that `usage_reference_count[{rootNode, toNode}] > 0`, add a record
+ * For any node that `usage_reference_count[{rootNode, toNode}] > 0`, add a
+ * record
  * `{toNode: [rootNode]}` to depsMap, means that `forNode` needs to access
  * resource defined in `toNode` through `rootNode`
  *
@@ -153,7 +151,7 @@ std::set<types::FileUID> IncludeGraphDependencies::liveDependencies(
 void traverseFor(const types::FileUID &forNode, const types::FileUID &rootNode,
                  const clangmetatool::collectors::IncludeGraphData *data,
                  std::set<types::FileUID> &knownNodes,
-                 IncludeGraphDependencies::DirectDependenciesMap& depsMap){
+                 IncludeGraphDependencies::DirectDependenciesMap &depsMap) {
   std::queue<types::FileUID> filesToProcess;
 
   filesToProcess.push(rootNode);
@@ -165,7 +163,7 @@ void traverseFor(const types::FileUID &forNode, const types::FileUID &rootNode,
     types::FileGraphEdge currentEdge{forNode, toNode};
     auto refCountIt = data->usage_reference_count.find(currentEdge);
     // the include graph looks like
-    // forNode -> rootNode -> ... -> toNode 
+    // forNode -> rootNode -> ... -> toNode
     if (refCountIt != data->usage_reference_count.end() &&
         refCountIt->second > 0) {
       depsMap[toNode].emplace(rootNode);
@@ -185,13 +183,12 @@ void traverseFor(const types::FileUID &forNode, const types::FileUID &rootNode,
       }
     }
   }
-
 }
 
 IncludeGraphDependencies::DirectDependenciesMap
 IncludeGraphDependencies::liveWeakDependencies(
     const clangmetatool::collectors::IncludeGraphData *data,
-    const clangmetatool::types::FileUID &fileUID){
+    const clangmetatool::types::FileUID &fileUID) {
   IncludeGraphDependencies::DirectDependenciesMap depsMap;
 
   types::FileGraph::const_iterator rangeBegin, rangeEnd;
@@ -200,7 +197,7 @@ IncludeGraphDependencies::liveWeakDependencies(
   for (auto it = rangeBegin; it != rangeEnd; ++it) {
     assert(it->first == fileUID);
     std::set<types::FileUID> knownNodes;
-    traverseFor(fileUID, it->second, data, knownNodes, depsMap); 
+    traverseFor(fileUID, it->second, data, knownNodes, depsMap);
   }
 
   return depsMap;

@@ -36,8 +36,8 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/CommandLine.h>
 #include <map>
-#include <sstream>
 #include <ostream>
+#include <sstream>
 #include <string>
 #include <unistd.h>
 #include <utility>
@@ -219,8 +219,7 @@ static clang::Decl *extract_decl_for_type(const clang::Type *t) {
   }
 }
 
-bool check_for_first_end(clang::CompilerInstance *ci,
-                         IncludeGraphData *data,
+bool check_for_first_end(clang::CompilerInstance *ci, IncludeGraphData *data,
                          const clang::TypeLoc *n) {
   std::pair<FileUID, bool> tuid = get_fileuid(ci, data, n->getEndLoc());
 
@@ -256,7 +255,7 @@ void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
     decl = extract_decl_for_type<clang::UnresolvedUsingType>(t);
 
   if (!decl || !check_for_first_end(ci, data, n)) {
-      return;
+    return;
   }
 
   add_usage(ci, data, n->getBeginLoc(), decl->getLocation(), n,
