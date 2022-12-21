@@ -49,8 +49,8 @@ void FindTypeMatchCallback::run(
     const clang::ast_matchers::MatchFinder::MatchResult &r) {
 
   if (const clang::TypeLoc *tl = r.Nodes.getNodeAs<clang::TypeLoc>("type")) {
-
-    add_type_reference(ci, data, tl);
+    const clang::Decl* decl = r.Nodes.getNodeAs<clang::Decl>("decl");
+    add_type_reference(ci, data, tl, decl);
   }
 }
 } // namespace include_graph

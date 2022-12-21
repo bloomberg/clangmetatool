@@ -233,10 +233,9 @@ bool check_for_first_end(clang::CompilerInstance *ci, IncludeGraphData *data,
 }
 
 void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
-                        const clang::TypeLoc *n) {
+                        const clang::TypeLoc *n, const clang::Decl* decl) {
 
   const clang::Type *t = n->getTypePtr();
-  const clang::Decl *decl = NULL;
   if (!decl)
     decl = extract_decl_for_type<clang::TypedefType>(t);
   if (!decl)
