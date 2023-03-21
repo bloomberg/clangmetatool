@@ -205,8 +205,9 @@ void add_decl_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
   if (!d)
     return;
   clang::SourceLocation locDef = d->getLocation();
+  clang::SourceLocation expansionLoc = ci->getSourceManager().getExpansionLoc(locUse);
 
-  add_usage(ci, data, locUse, locDef, e, data->decl_references);
+  add_usage(ci, data, expansionLoc, locDef, e, data->decl_references);
 }
 
 template <typename T>

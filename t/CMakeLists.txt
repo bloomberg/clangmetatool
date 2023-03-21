@@ -59,6 +59,7 @@ foreach(
   040-includegraph-nested-using
   041-expand-range-if-valid
   042-generic-using-include-graph
+  043-variable-access-through-expansion
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
