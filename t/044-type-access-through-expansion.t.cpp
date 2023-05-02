@@ -25,33 +25,16 @@ public:
   (std::map<std::string, clang::tooling::Replacements> &replacementsMap) {
     clangmetatool::collectors::IncludeGraphData *data = graph.getData();
 
-    // file ID 0 to 1, aka foo.cpp to paste.h
+    // file ID 0 to 1, aka foo.cpp to foo.h
     auto edge = std::make_pair(0, 1);
     ASSERT_EQ(data->usage_reference_count.count(edge), 1);
-    ASSERT_EQ(data->usage_reference_count[edge], 2); // reference PASTE 2x
+    ASSERT_EQ(data->usage_reference_count[edge], 1);
 
-    // file ID from 0 to 2, aka foo.cpp to global.h
+    // file ID from 0 to 2, aka foo.cpp to macro.h
     edge = std::make_pair(0, 2);
     ASSERT_EQ(data->usage_reference_count.count(edge), 1);
-    // GLOBAL1 .. GLOBAL4 are referenced
-    ASSERT_EQ(data->usage_reference_count[edge], 4);
-
-    // file ID from 2 to 1, aka paste.h to global.h
-    edge = std::make_pair(1, 2);
-    ASSERT_EQ(data->usage_reference_count.count(edge), 1);
-    ASSERT_EQ(data->usage_reference_count[edge], 0);
-
-    // file ID from 0 to 3, aka foo.cpp to macro.h
-    edge = std::make_pair(0, 3);
-    ASSERT_EQ(data->usage_reference_count[edge], 2); // USE 2 macros from here
-
-    // file ID from 3 to 2, aka macro.h to global.h
-    edge = std::make_pair(3, 2);
-    // Even though macro.h has a "spelling" of GLOBAL3 in macro.h it does
-    //   not include global.h and does not directly reference GLOBAL3
-    //   only callers of the macro actually reference global.h
-    ASSERT_EQ(data->usage_reference_count.count(edge), 1);
-    ASSERT_EQ(data->usage_reference_count[edge], 0);
+    // We reference the macros in macro.h 3 times.
+    ASSERT_EQ(data->usage_reference_count[edge], 3);
    }
 };
 
@@ -60,7 +43,7 @@ TEST(use_meta_tool, factory) {
 
   const char* argv[] = {
     "foo",
-    CMAKE_SOURCE_DIR "/t/data/043-variable-access-through-expansion/foo.cpp",
+    CMAKE_SOURCE_DIR "/t/data/044-type-access-through-expansion/foo.cpp",
     "--",
     "-xc++"
   };

@@ -258,8 +258,8 @@ void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
     return;
   }
 
-  add_usage(ci, data, n->getBeginLoc(), decl->getLocation(), n,
-            data->type_references);
+  add_usage(ci, data, ci->getSourceManager().getExpansionLoc(n->getBeginLoc()),
+            decl->getLocation(), n, data->type_references);
 }
 } // namespace include_graph
 } // namespace collectors
