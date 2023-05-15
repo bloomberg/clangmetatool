@@ -196,6 +196,17 @@ void add_redeclaration(clang::CompilerInstance *ci, IncludeGraphData *data,
             data->redeclarations);
 }
 
+// Gets a sensible clang::SourceLocation even in the presence of a macro.
+clang::SourceLocation get_canonical_location(clang::SourceManager &sm,
+                                             clang::SourceLocation loc) {
+  clang::SourceLocation spellingLoc = sm.getSpellingLoc(loc);
+  // this usually happens when there is token pasting
+  if (sm.isWrittenInScratchSpace(spellingLoc)) {
+    loc = sm.getExpansionRange(loc).getBegin();
+  }
+  return loc;
+}
+
 void add_decl_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
                         const clang::DeclRefExpr *e) {
 
@@ -205,9 +216,10 @@ void add_decl_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
   if (!d)
     return;
   clang::SourceLocation locDef = d->getLocation();
-  clang::SourceLocation expansionLoc = ci->getSourceManager().getExpansionLoc(locUse);
+  clang::SourceLocation locUseCanonical =
+      get_canonical_location(ci->getSourceManager(), locUse);
 
-  add_usage(ci, data, expansionLoc, locDef, e, data->decl_references);
+  add_usage(ci, data, locUseCanonical, locDef, e, data->decl_references);
 }
 
 template <typename T>
@@ -234,7 +246,7 @@ bool check_for_first_end(clang::CompilerInstance *ci, IncludeGraphData *data,
 }
 
 void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
-                        const clang::TypeLoc *n, const clang::Decl* decl) {
+                        const clang::TypeLoc *n, const clang::Decl *decl) {
 
   const clang::Type *t = n->getTypePtr();
   if (!decl)
@@ -258,8 +270,9 @@ void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
     return;
   }
 
-  add_usage(ci, data, ci->getSourceManager().getExpansionLoc(n->getBeginLoc()),
-            decl->getLocation(), n, data->type_references);
+  clang::SourceLocation locUse =
+      get_canonical_location(ci->getSourceManager(), n->getBeginLoc());
+  add_usage(ci, data, locUse, decl->getLocation(), n, data->type_references);
 }
 } // namespace include_graph
 } // namespace collectors
