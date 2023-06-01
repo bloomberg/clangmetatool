@@ -170,6 +170,17 @@ static void add_usage(clang::CompilerInstance *ci, IncludeGraphData *data,
   data->usage_reference_count[edge]++;
 }
 
+// Gets a sensible clang::SourceLocation even in the presence of a macro.
+clang::SourceLocation get_canonical_location(clang::SourceManager &sm,
+                                             clang::SourceLocation loc) {
+  clang::SourceLocation spellingLoc = sm.getSpellingLoc(loc);
+  // this usually happens when there is token pasting
+  if (sm.isWrittenInScratchSpace(spellingLoc)) {
+    loc = sm.getExpansionRange(loc).getBegin();
+  }
+  return loc;
+}
+
 void add_macro_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
                          clangmetatool::types::MacroReferenceInfo m) {
   if (!std::get<1>(m))
@@ -179,7 +190,8 @@ void add_macro_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
   if (!info)
     return;
 
-  clang::SourceLocation usageLoc = std::get<0>(m).getLocation();
+  clang::SourceLocation usageLoc = get_canonical_location(
+      ci->getSourceManager(), std::get<0>(m).getLocation());
   clang::SourceLocation defLoc = info->getDefinitionLoc();
 
   add_usage(ci, data, usageLoc, defLoc, m, data->macro_references);
@@ -194,17 +206,6 @@ void add_redeclaration(clang::CompilerInstance *ci, IncludeGraphData *data,
 
   add_usage(ci, data, n->getLocation(), decl->getLocation(), n,
             data->redeclarations);
-}
-
-// Gets a sensible clang::SourceLocation even in the presence of a macro.
-clang::SourceLocation get_canonical_location(clang::SourceManager &sm,
-                                             clang::SourceLocation loc) {
-  clang::SourceLocation spellingLoc = sm.getSpellingLoc(loc);
-  // this usually happens when there is token pasting
-  if (sm.isWrittenInScratchSpace(spellingLoc)) {
-    loc = sm.getExpansionRange(loc).getBegin();
-  }
-  return loc;
 }
 
 void add_decl_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
