@@ -35,6 +35,8 @@
 #include <clang/Lex/Token.h>
 #include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Tooling.h>
+
+#include <llvm/ADT/Optional.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/CommandLine.h>
 
@@ -53,14 +55,23 @@ using clangmetatool::types::MacroReferenceInfo;
 void IncludeFinder::InclusionDirective(
     clang::SourceLocation hashLoc, const clang::Token &includeToken,
     llvm::StringRef filename, bool isAngled,
+#if LLVM_VERSION_MAJOR >= 15
+    clang::CharSourceRange filenameRange, llvm::Optional<clang::FileEntryRef> file,
+#else
     clang::CharSourceRange filenameRange, const clang::FileEntry *file,
+#endif
     llvm::StringRef searchPath, llvm::StringRef relativePath,
     const clang::Module *imported,
     clang::SrcMgr::CharacteristicKind FileType_) {
   // The filetype characteristic is unused for now, hence marked with
   // a trailing '_'. We are recording all filetypes
   add_include_statement(ci, data, hashLoc, includeToken, filename, isAngled,
+#if LLVM_VERSION_MAJOR >= 15
+                        filenameRange, file.has_value() ? &file.value().getFileEntry() : nullptr,
+                        searchPath, relativePath,
+#else
                         filenameRange, file, searchPath, relativePath,
+#endif
                         imported);
 }
 

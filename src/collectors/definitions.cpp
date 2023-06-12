@@ -26,7 +26,11 @@ public:
     clang::SourceManager *sm = r.SourceManager;
     const clang::FileID fid = sm->getFileID(e->getLocation());
     const clang::FileEntry *entry = sm->getFileEntryForID(fid);
+#if LLVM_VERSION_MAJOR >= 15
+    if (!entry) {
+#else
     if (!(entry && entry->isValid())) {
+#endif
       return;
     }
     const types::FileUID fuid = entry->getUID();
