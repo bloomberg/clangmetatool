@@ -63,16 +63,21 @@ void IncludeFinder::InclusionDirective(
     llvm::StringRef searchPath, llvm::StringRef relativePath,
     const clang::Module *imported,
     clang::SrcMgr::CharacteristicKind FileType_) {
+
   // The filetype characteristic is unused for now, hence marked with
   // a trailing '_'. We are recording all filetypes
-  add_include_statement(ci, data, hashLoc, includeToken, filename, isAngled,
 #if LLVM_VERSION_MAJOR >= 15
-                        filenameRange, file.has_value() ? &file.value().getFileEntry() : nullptr,
-                        searchPath, relativePath,
+  if(file.has_value()) {
+    add_include_statement(ci, data, hashLoc, includeToken, filename, isAngled,
+                          filenameRange, &file.value().getFileEntry(),
+                          searchPath, relativePath,
+                          imported);
+  }
 #else
+  add_include_statement(ci, data, hashLoc, includeToken, filename, isAngled,
                         filenameRange, file, searchPath, relativePath,
-#endif
                         imported);
+#endif
 }
 
 void IncludeFinder::MacroExpands(const clang::Token &macroUsage,
