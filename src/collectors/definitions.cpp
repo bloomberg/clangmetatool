@@ -25,11 +25,19 @@ public:
 
     clang::SourceManager *sm = r.SourceManager;
     const clang::FileID fid = sm->getFileID(e->getLocation());
+#if LLVM_VERSION_MAJOR >= 15
+    const llvm::Optional<clang::FileEntryRef> entry = sm->getFileEntryRefForID(fid);
+    if (!entry.has_value()) {
+      return;
+    }
+    const types::FileUID fuid = entry.value().getUID();
+#else
     const clang::FileEntry *entry = sm->getFileEntryForID(fid);
     if (!(entry && entry->isValid())) {
       return;
     }
     const types::FileUID fuid = entry->getUID();
+#endif
 
     data->defs.insert(
         std::pair<types::FileUID, const clang::NamedDecl *>(fuid, e));

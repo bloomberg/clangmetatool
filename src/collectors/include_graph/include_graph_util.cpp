@@ -58,7 +58,11 @@ static std::pair<FileUID, bool> get_fileuid(clang::CompilerInstance *ci,
 
   clang::SourceManager &sm = ci->getSourceManager();
   const clang::FileEntry *entry = sm.getFileEntryForID(fid);
+#if LLVM_VERSION_MAJOR >= 15
+  if (!entry)
+#else
   if (!(entry && entry->isValid()))
+#endif
     return std::pair<FileUID, bool>(0, false);
 
   FileUID fuid = entry->getUID();
@@ -101,7 +105,11 @@ void add_include_statement(clang::CompilerInstance *ci, IncludeGraphData *data,
                            const clang::Module *imported) {
 
   std::string include = (std::string)relativePath;
+#if LLVM_VERSION_MAJOR >= 15
+  if (file) {
+#else
   if (file && file->isValid()) {
+#endif
     FileUID fuid = file->getUID();
 
     data->fuid2entry.emplace(fuid, file);

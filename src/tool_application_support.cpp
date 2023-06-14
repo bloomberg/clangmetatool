@@ -47,7 +47,11 @@ std::string getExecutablePathFromArgv(const std::string &argv0) {
     if (!llvm::sys::path::has_parent_path(exePath)) {
       llvm::Optional<std::string> maybeExePath =
           llvm::sys::Process::FindInEnvPath("PATH", argv0);
+#if LLVM_VERSION_MAJOR >= 15
+      exePath = maybeExePath.value_or("");
+#else
       exePath = maybeExePath.getValueOr("");
+#endif
     }
   }
   return !exePath.empty() ? getRealpath(exePath) : "";
