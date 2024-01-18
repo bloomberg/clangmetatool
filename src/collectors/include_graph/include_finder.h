@@ -35,7 +35,9 @@ public:
   InclusionDirective(clang::SourceLocation hashLoc,
                      const clang::Token &includeToken, llvm::StringRef filename,
                      bool isAngled, clang::CharSourceRange filenameRange,
-#if LLVM_VERSION_MAJOR >= 15
+#if LLVM_VERSION_MAJOR >= 17
+                     clang::OptionalFileEntryRef File, llvm::StringRef SearchPath,
+#elif LLVM_VERSION_MAJOR >= 15
                      llvm::Optional<clang::FileEntryRef> File, llvm::StringRef SearchPath,
 #else
                      const clang::FileEntry *file, llvm::StringRef searchPath,
