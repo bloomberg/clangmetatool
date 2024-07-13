@@ -8,7 +8,13 @@
 #include <llvm/Option/Option.h>
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/FileSystem.h>
+
+#if LLVM_VERSION_MAJOR >= 18
+#include <llvm/TargetParser/Host.h>
+#else
 #include <llvm/Support/Host.h>
+#endif
+
 #include <llvm/Support/Path.h>
 #include <llvm/Support/Process.h>
 

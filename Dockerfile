@@ -38,9 +38,10 @@ RUN apt-get install -y \
         # Clang & friends
         clang-"$TARGET_LLVM_VERSION" \
         libclang-common-"$TARGET_LLVM_VERSION"-dev \
-        libclang-"$TARGET_LLVM_VERSION"-dev \
-        # libc++
-        libc++-"$TARGET_LLVM_VERSION"-dev
+        libclang-"$TARGET_LLVM_VERSION"-dev
+
+# LLVM 18 produces an ABI conflict
+RUN if [ $TARGET_LLVM_VERSION -lt 18 ] ; then apt-get install -y libc++-"$TARGET_LLVM_VERSION"-dev; fi
 
 # Set up build environment
 ENV CC=/usr/bin/gcc-"$GCC_VERSION" \
