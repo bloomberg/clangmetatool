@@ -67,8 +67,8 @@ foreach(
   target_include_directories(
     ${TEST}.t
     PRIVATE
-    ${CMAKE_BINARY_DIR}/t/include
-    ${CMAKE_SOURCE_DIR}/t/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${LLVM_INCLUDE_DIR}>
   )
