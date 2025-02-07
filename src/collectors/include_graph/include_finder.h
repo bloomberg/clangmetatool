@@ -44,6 +44,9 @@ public:
 #endif
                      llvm::StringRef relativePath,
                      const clang::Module *imported,
+#if LLVM_VERSION_MAJOR >= 19
+                     bool ModuleImported,
+#endif
                      clang::SrcMgr::CharacteristicKind FileType_) override;
 
   virtual void MacroExpands(const clang::Token &macroUsage,

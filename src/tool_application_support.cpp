@@ -118,8 +118,11 @@ void ToolApplicationSupport::verifyInstallation(
       }
 
       std::unique_ptr<clang::driver::Compilation> compilation(
+#if LLVM_VERSION_MAJOR >= 19
+          driver.BuildCompilation(llvm::ArrayRef(argsArray)));
+#else
           driver.BuildCompilation(llvm::makeArrayRef(argsArray)));
-
+#endif
       const clang::driver::ToolChain &toolChain =
           compilation->getDefaultToolChain();
 
