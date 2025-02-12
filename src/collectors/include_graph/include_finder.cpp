@@ -69,6 +69,9 @@ void IncludeFinder::InclusionDirective(
 #endif
     llvm::StringRef searchPath, llvm::StringRef relativePath,
     const clang::Module *imported,
+#if LLVM_VERSION_MAJOR >= 19
+    bool /*moduleImported*/,
+#endif
     clang::SrcMgr::CharacteristicKind FileType_) {
 
   // The filetype characteristic is unused for now, hence marked with
