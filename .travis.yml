@@ -54,3 +54,9 @@ matrix:
           language: cpp
           sudo: true
           script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=19 --build-arg BASE_IMAGE=ubuntu:22.04 --build-arg GCC_VERSION=12 --build-arg IMAGE_REPO=jammy .
+        - os: linux
+          dist: jammy
+          compiler: gcc
+          language: cpp
+          sudo: true
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=20 --build-arg BASE_IMAGE=ubuntu:22.04 --build-arg GCC_VERSION=12 --build-arg IMAGE_REPO=jammy .
