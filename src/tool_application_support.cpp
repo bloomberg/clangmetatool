@@ -8,7 +8,13 @@
 #include <llvm/Option/Option.h>
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/FileSystem.h>
+
+#if LLVM_VERSION_MAJOR >= 18
+#include <llvm/TargetParser/Host.h>
+#else
 #include <llvm/Support/Host.h>
+#endif
+
 #include <llvm/Support/Path.h>
 #include <llvm/Support/Process.h>
 
@@ -45,9 +51,17 @@ std::string getExecutablePathFromArgv(const std::string &argv0) {
     // Fall back to locating 'argv0' on $PATH if the parent path is not provided
     exePath = argv0;
     if (!llvm::sys::path::has_parent_path(exePath)) {
+#if LLVM_VERSION_MAJOR >= 17
+      std::optional<std::string> maybeExePath =
+#else
       llvm::Optional<std::string> maybeExePath =
-        llvm::sys::Process::FindInEnvPath("PATH", argv0);
+#endif
+          llvm::sys::Process::FindInEnvPath("PATH", argv0);
+#if LLVM_VERSION_MAJOR >= 15
+      exePath = maybeExePath.value_or("");
+#else
       exePath = maybeExePath.getValueOr("");
+#endif
     }
   }
   return !exePath.empty() ? getRealpath(exePath) : "";
@@ -104,8 +118,11 @@ void ToolApplicationSupport::verifyInstallation(
       }
 
       std::unique_ptr<clang::driver::Compilation> compilation(
+#if LLVM_VERSION_MAJOR >= 19
+          driver.BuildCompilation(llvm::ArrayRef(argsArray)));
+#else
           driver.BuildCompilation(llvm::makeArrayRef(argsArray)));
-
+#endif
       const clang::driver::ToolChain &toolChain =
           compilation->getDefaultToolChain();
 

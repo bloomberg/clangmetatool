@@ -36,8 +36,8 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/CommandLine.h>
 #include <map>
-#include <sstream>
 #include <ostream>
+#include <sstream>
 #include <string>
 #include <unistd.h>
 #include <utility>
@@ -58,7 +58,11 @@ static std::pair<FileUID, bool> get_fileuid(clang::CompilerInstance *ci,
 
   clang::SourceManager &sm = ci->getSourceManager();
   const clang::FileEntry *entry = sm.getFileEntryForID(fid);
+#if LLVM_VERSION_MAJOR >= 15
+  if (!entry)
+#else
   if (!(entry && entry->isValid()))
+#endif
     return std::pair<FileUID, bool>(0, false);
 
   FileUID fuid = entry->getUID();
@@ -101,7 +105,11 @@ void add_include_statement(clang::CompilerInstance *ci, IncludeGraphData *data,
                            const clang::Module *imported) {
 
   std::string include = (std::string)relativePath;
+#if LLVM_VERSION_MAJOR >= 15
+  if (file) {
+#else
   if (file && file->isValid()) {
+#endif
     FileUID fuid = file->getUID();
 
     data->fuid2entry.emplace(fuid, file);
@@ -170,6 +178,17 @@ static void add_usage(clang::CompilerInstance *ci, IncludeGraphData *data,
   data->usage_reference_count[edge]++;
 }
 
+// Gets a sensible clang::SourceLocation even in the presence of a macro.
+clang::SourceLocation get_canonical_location(clang::SourceManager &sm,
+                                             clang::SourceLocation loc) {
+  clang::SourceLocation spellingLoc = sm.getSpellingLoc(loc);
+  // this usually happens when there is token pasting
+  if (sm.isWrittenInScratchSpace(spellingLoc)) {
+    loc = sm.getExpansionRange(loc).getBegin();
+  }
+  return loc;
+}
+
 void add_macro_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
                          clangmetatool::types::MacroReferenceInfo m) {
   if (!std::get<1>(m))
@@ -179,7 +198,8 @@ void add_macro_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
   if (!info)
     return;
 
-  clang::SourceLocation usageLoc = std::get<0>(m).getLocation();
+  clang::SourceLocation usageLoc = get_canonical_location(
+      ci->getSourceManager(), std::get<0>(m).getLocation());
   clang::SourceLocation defLoc = info->getDefinitionLoc();
 
   add_usage(ci, data, usageLoc, defLoc, m, data->macro_references);
@@ -205,8 +225,10 @@ void add_decl_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
   if (!d)
     return;
   clang::SourceLocation locDef = d->getLocation();
+  clang::SourceLocation locUseCanonical =
+      get_canonical_location(ci->getSourceManager(), locUse);
 
-  add_usage(ci, data, locUse, locDef, e, data->decl_references);
+  add_usage(ci, data, locUseCanonical, locDef, e, data->decl_references);
 }
 
 template <typename T>
@@ -219,8 +241,7 @@ static clang::Decl *extract_decl_for_type(const clang::Type *t) {
   }
 }
 
-bool check_for_first_end(clang::CompilerInstance *ci,
-                         IncludeGraphData *data,
+bool check_for_first_end(clang::CompilerInstance *ci, IncludeGraphData *data,
                          const clang::TypeLoc *n) {
   std::pair<FileUID, bool> tuid = get_fileuid(ci, data, n->getEndLoc());
 
@@ -234,10 +255,9 @@ bool check_for_first_end(clang::CompilerInstance *ci,
 }
 
 void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
-                        const clang::TypeLoc *n) {
+                        const clang::TypeLoc *n, const clang::Decl *decl) {
 
   const clang::Type *t = n->getTypePtr();
-  const clang::Decl *decl = NULL;
   if (!decl)
     decl = extract_decl_for_type<clang::TypedefType>(t);
   if (!decl)
@@ -256,11 +276,12 @@ void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
     decl = extract_decl_for_type<clang::UnresolvedUsingType>(t);
 
   if (!decl || !check_for_first_end(ci, data, n)) {
-      return;
+    return;
   }
 
-  add_usage(ci, data, n->getBeginLoc(), decl->getLocation(), n,
-            data->type_references);
+  clang::SourceLocation locUse =
+      get_canonical_location(ci->getSourceManager(), n->getBeginLoc());
+  add_usage(ci, data, locUse, decl->getLocation(), n, data->type_references);
 }
 } // namespace include_graph
 } // namespace collectors

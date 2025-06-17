@@ -41,7 +41,7 @@ void add_decl_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
                         const clang::DeclRefExpr *n);
 
 void add_type_reference(clang::CompilerInstance *ci, IncludeGraphData *data,
-                        const clang::TypeLoc *n);
+                        const clang::TypeLoc *n, const clang::Decl* decl);
 } // namespace include_graph
 } // namespace collectors
 } // namespace clangmetatool

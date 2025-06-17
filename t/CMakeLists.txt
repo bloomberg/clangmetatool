@@ -58,14 +58,17 @@ foreach(
   039-includegraph-nested-name-parameter
   040-includegraph-nested-using
   041-expand-range-if-valid
+  042-generic-using-include-graph
+  043-variable-access-through-expansion
+  044-type-access-through-expansion
   )
 
   add_executable(${TEST}.t ${TEST}.t.cpp)
   target_include_directories(
     ${TEST}.t
     PRIVATE
-    ${CMAKE_BINARY_DIR}/t/include
-    ${CMAKE_SOURCE_DIR}/t/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${LLVM_INCLUDE_DIR}>
   )

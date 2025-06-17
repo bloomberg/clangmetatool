@@ -48,6 +48,7 @@
 namespace clangmetatool {
 namespace collectors {
 
+using namespace clang::ast_matchers;
 class IncludeGraphImpl {
 private:
   clang::CompilerInstance *ci;
@@ -56,7 +57,7 @@ private:
   clang::ast_matchers::StatementMatcher sm1 =
       clang::ast_matchers::declRefExpr().bind("ref");
   clang::ast_matchers::TypeLocMatcher sm2 =
-      clang::ast_matchers::typeLoc().bind("type");
+      clang::ast_matchers::typeLoc(optionally(loc((const internal::Matcher<clang::QualType> &)hasDeclaration(decl().bind("decl"))))).bind("type");
   clang::ast_matchers::DeclarationMatcher sm3 =
       clang::ast_matchers::decl().bind("decl");
 

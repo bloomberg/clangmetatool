@@ -1,6 +1,10 @@
 #include "get_stmt_from_cfg_element.h"
 
+#if LLVM_VERSION_MAJOR >= 17
+#include <optional>
+#else
 #include <llvm/ADT/Optional.h>
+#endif
 
 namespace clangmetatool {
 namespace propagation {
@@ -8,7 +12,12 @@ namespace util {
 
 bool getStmtFromCFGElement(const clang::Stmt *&result,
                            const clang::CFGElement &element) {
+#if LLVM_VERSION_MAJOR >= 17
+  if (std::optional<clang::CFGStmt> opStmt = element.getAs<clang::CFGStmt>()) {
+#else
   if (llvm::Optional<clang::CFGStmt> opStmt = element.getAs<clang::CFGStmt>()) {
+#endif
+
     result = opStmt->getStmt();
 
     return true;

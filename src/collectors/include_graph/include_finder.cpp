@@ -35,6 +35,13 @@
 #include <clang/Lex/Token.h>
 #include <clang/Tooling/Core/Replacement.h>
 #include <clang/Tooling/Tooling.h>
+
+#if LLVM_VERSION_MAJOR >= 17
+#include <optional>
+#else
+#include <llvm/ADT/Optional.h>
+#endif
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/CommandLine.h>
 
@@ -53,15 +60,34 @@ using clangmetatool::types::MacroReferenceInfo;
 void IncludeFinder::InclusionDirective(
     clang::SourceLocation hashLoc, const clang::Token &includeToken,
     llvm::StringRef filename, bool isAngled,
+#if LLVM_VERSION_MAJOR >= 17
+    clang::CharSourceRange filenameRange, clang::OptionalFileEntryRef file,
+#elif LLVM_VERSION_MAJOR >= 15
+    clang::CharSourceRange filenameRange, llvm::Optional<clang::FileEntryRef> file,
+#else
     clang::CharSourceRange filenameRange, const clang::FileEntry *file,
+#endif
     llvm::StringRef searchPath, llvm::StringRef relativePath,
     const clang::Module *imported,
+#if LLVM_VERSION_MAJOR >= 19
+    bool /*moduleImported*/,
+#endif
     clang::SrcMgr::CharacteristicKind FileType_) {
+
   // The filetype characteristic is unused for now, hence marked with
   // a trailing '_'. We are recording all filetypes
+#if LLVM_VERSION_MAJOR >= 15
+  if(file.has_value()) {
+    add_include_statement(ci, data, hashLoc, includeToken, filename, isAngled,
+                          filenameRange, &file.value().getFileEntry(),
+                          searchPath, relativePath,
+                          imported);
+  }
+#else
   add_include_statement(ci, data, hashLoc, includeToken, filename, isAngled,
                         filenameRange, file, searchPath, relativePath,
                         imported);
+#endif
 }
 
 void IncludeFinder::MacroExpands(const clang::Token &macroUsage,

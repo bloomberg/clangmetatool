@@ -8,29 +8,55 @@ matrix:
           compiler: gcc
           language: cpp
           sudo: true
-          script: docker build --build-arg TARGET_LLVM_VERSION=8 .
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=10 .
         - os: linux
           compiler: gcc
           language: cpp
           sudo: true
-          script: docker build --build-arg TARGET_LLVM_VERSION=9 .
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=11 .
         - os: linux
           compiler: gcc
           language: cpp
           sudo: true
-          script: docker build --build-arg TARGET_LLVM_VERSION=10 .
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=12 .
         - os: linux
           compiler: gcc
           language: cpp
           sudo: true
-          script: docker build --build-arg TARGET_LLVM_VERSION=11 .
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=13 .
         - os: linux
+          dist: jammy
           compiler: gcc
           language: cpp
           sudo: true
-          script: docker build --build-arg TARGET_LLVM_VERSION=12 .
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=14 --build-arg BASE_IMAGE=ubuntu:22.04 --build-arg GCC_VERSION=9 --build-arg IMAGE_REPO=jammy .
         - os: linux
+          dist: jammy
           compiler: gcc
           language: cpp
           sudo: true
-          script: docker build --build-arg TARGET_LLVM_VERSION=13 .
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=15 --build-arg BASE_IMAGE=ubuntu:22.04 --build-arg GCC_VERSION=9 --build-arg IMAGE_REPO=jammy .
+        - os: linux
+          dist: jammy
+          compiler: gcc
+          language: cpp
+          sudo: true
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=17 --build-arg BASE_IMAGE=ubuntu:22.04 --build-arg GCC_VERSION=9 --build-arg IMAGE_REPO=jammy .
+        - os: linux
+          dist: jammy
+          compiler: gcc
+          language: cpp
+          sudo: true
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=18 --build-arg BASE_IMAGE=ubuntu:22.04 --build-arg GCC_VERSION=12 --build-arg IMAGE_REPO=jammy .
+        - os: linux
+          dist: jammy
+          compiler: gcc
+          language: cpp
+          sudo: true
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=19 --build-arg BASE_IMAGE=ubuntu:22.04 --build-arg GCC_VERSION=12 --build-arg IMAGE_REPO=jammy .
+        - os: linux
+          dist: jammy
+          compiler: gcc
+          language: cpp
+          sudo: true
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=20 --build-arg BASE_IMAGE=ubuntu:22.04 --build-arg GCC_VERSION=12 --build-arg IMAGE_REPO=jammy .
