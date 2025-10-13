@@ -70,9 +70,15 @@ std::string getExecutablePathFromArgv(const std::string &argv0) {
 std::string getExecutablePath(const std::string &argv0) {
   std::string exePath = getExecutablePathFromArgv(argv0);
 
+#if LLVM_VERSION_MAJOR >= 21
+  clang::DiagnosticsEngine diagnostics(new clang::DiagnosticIDs,
+                                       *(new clang::DiagnosticOptions),
+                                       new clang::IgnoringDiagConsumer);
+#else
   clang::DiagnosticsEngine diagnostics(new clang::DiagnosticIDs,
                                        new clang::DiagnosticOptions,
                                        new clang::IgnoringDiagConsumer);
+#endif
   clang::driver::Driver driver(exePath, llvm::sys::getDefaultTargetTriple(),
                                diagnostics);
   if (!llvm::sys::fs::exists(driver.ResourceDir)) {
@@ -93,7 +99,11 @@ void ToolApplicationSupport::verifyInstallation(
     const std::vector<std::string> &sourcePathList,
     const std::string &invokedArgv0) {
   clang::DiagnosticsEngine diagnostics(new clang::DiagnosticIDs,
+#if LLVM_VERSION_MAJOR >= 21
+                                       *(new clang::DiagnosticOptions),
+#else
                                        new clang::DiagnosticOptions,
+#endif
                                        new clang::IgnoringDiagConsumer);
 
   // Find the path to the clangmetatool based executable, or clang if the tool

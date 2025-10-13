@@ -25,7 +25,13 @@ public:
 
     clang::SourceManager *sm = r.SourceManager;
     const clang::FileID fid = sm->getFileID(e->getLocation());
-#if LLVM_VERSION_MAJOR >= 17
+#if LLVM_VERSION_MAJOR >= 21
+    const clang::OptionalFileEntryRef entry = sm->getFileEntryRefForID(fid);
+    if (!entry.has_value()) {
+      return;
+    }
+    const types::FileUID fuid = entry->getUID();
+#elif LLVM_VERSION_MAJOR >= 17
     const clang::OptionalFileEntryRef entry = sm->getFileEntryRefForID(fid);
     if (!entry.has_value()) {
       return;
