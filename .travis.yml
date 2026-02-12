@@ -5,6 +5,12 @@ services:
 matrix:
     include:
         - os: linux
+          dist: jammy
+          compiler: gcc
+          language: cpp
+          sudo: true
+          script: docker build --progress plain --build-arg TARGET_LLVM_VERSION=22 --build-arg BASE_IMAGE=ubuntu:22.04 --build-arg GCC_VERSION=12 --build-arg IMAGE_REPO=jammy .
+        - os: linux
           compiler: gcc
           language: cpp
           sudo: true
