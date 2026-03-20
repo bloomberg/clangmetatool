@@ -1,0 +1,43 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly Monday 6am UTC
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-24.04
+    permissions:
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-20 llvm-20-dev libclang-20-dev \
+          libc++-20-dev libgtest-dev libgmock-dev cmake
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: cpp
+        build-mode: manual
+
+    - name: Build
+      run: |
+        mkdir build && cd build
+        cmake -DCMAKE_CXX_COMPILER=clang++-20 \
+              -DClang_DIR=/usr/lib/llvm-20/lib/cmake/clang \
+              ..
+        make -j$(nproc)
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
