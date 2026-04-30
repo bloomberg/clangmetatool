@@ -76,7 +76,14 @@ void IncludeFinder::InclusionDirective(
 
   // The filetype characteristic is unused for now, hence marked with
   // a trailing '_'. We are recording all filetypes
-#if LLVM_VERSION_MAJOR >= 15
+#if LLVM_VERSION_MAJOR >= 22
+  if(file.has_value()) {
+    add_include_statement(ci, data, hashLoc, includeToken, filename, isAngled,
+                          filenameRange, &file->getFileEntry(),
+                          searchPath, relativePath,
+                          imported);
+  }
+#elif LLVM_VERSION_MAJOR >= 15
   if(file.has_value()) {
     add_include_statement(ci, data, hashLoc, includeToken, filename, isAngled,
                           filenameRange, &file.value().getFileEntry(),
